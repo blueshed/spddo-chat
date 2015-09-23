@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-version = '0.002'
+version = '0.003'
 
 setup(name='spddo-chat',
       version=version,
@@ -12,7 +12,7 @@ setup(name='spddo-chat',
       install_requires = [
         'setuptools',
         'tornado>=4.2',
-        'iron-mq>=0.7',
+        'pika>=0.10.0'
       ],
       entry_points = {
       'console_scripts' : [

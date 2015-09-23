@@ -9,11 +9,9 @@ import logging
 import tornado.ioloop
 import tornado.web
 from tornado.options import options, define, parse_command_line
-from spddo.chat.broadcast_handler import BroadcastHandler
 from spddo.chat.chat_handler import ChatHandler
 from spddo.chat.main_handler import MainHandler
-from spddo.chat.broadcast.ironmq_broadcaster import IronMQBroadcaster
-from spddo.chat.broadcast.pika_broadcaster import PikaBroadcaster
+from spddo.chat.pika_broadcaster import PikaBroadcaster
 
 define("port", 8080, int, help="port to listen on")
 define("multi", default='local', help="are we talking to queues")
@@ -26,16 +24,12 @@ define("multi", default='local', help="are we talking to queues")
 def main():
     
     queue = None
-    if options.multi == 'iron':
-        address = "" 
-        queue = IronMQBroadcaster(address)
-    elif options.multi == "rabbit":
+    if options.multi == "rabbit":
         queue = PikaBroadcaster()
         queue.connect()
         
     
-    handlers = [
-        (r"/broadcast", BroadcastHandler),    
+    handlers = [  
         (r"/websocket", ChatHandler),                                  
         (r"/", MainHandler)
     ]
