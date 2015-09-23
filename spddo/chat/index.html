@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>spddo-chat</title>
+</head>
+<body>
+	<div id="you">loading...</div>
+	<ol id="transcript"></ol>
+	<label>say:</label>
+	<input type="text" id="entry" placeholder="something" />
+	<script type="text/javascript">
+		var user = null;
+		var protocol = document.location.protocol == "https:" ? "wss://"
+				: "ws://";
+		var ws = new WebSocket(protocol + document.domain + ":"
+				+ document.location.port + "/websocket");
+		ws.onopen = function() {
+			ws.send("Hello, world");
+		};
+		ws.onmessage = function(evt) {
+			if(!user){
+				user = evt.data;
+				document.getElementById("you").innerText=user;
+				console.log(user);
+			} else {
+				// append to transcript
+				var node = document.createElement("li");
+				node.appendChild(document.createTextNode(evt.data));
+				document.getElementById("transcript").appendChild(node);
+			}
+		};
+		ws.onclose = function(evt){
+			// reload
+			document.location = document.location;
+		};
+		var entry = document.getElementById("entry");
+		entry.addEventListener("keyup", function(event) {
+			if (event.keyCode == 13) {
+				var msg = entry.value;
+				ws.send(msg);
+				entry.value = "";
+			}
+		});
+		entry.focus();
+	</script>
+</body>
+</html>
