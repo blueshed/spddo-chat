@@ -5,7 +5,9 @@ Created on 23 Sep 2015
 '''
 import tornado.web
 
-
+'''
+    Simple template renderer
+'''
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html")
