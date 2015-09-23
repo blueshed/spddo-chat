@@ -9,13 +9,14 @@ import logging
 import tornado.ioloop
 import tornado.web
 from tornado.options import options, define, parse_command_line
-from iron_mq import IronMQ
 from spddo.chat.broadcast_handler import BroadcastHandler
 from spddo.chat.chat_handler import ChatHandler
 from spddo.chat.main_handler import MainHandler
+from spddo.chat.broadcast.ironmq_broadcaster import IronMQBroadcaster
+from spddo.chat.broadcast.pika_broadcaster import PikaBroadcaster
 
 define("port", 8080, int, help="port to listen on")
-define("multi", default='no', help="are we talking to queues")
+define("multi", default='local', help="are we talking to queues")
 
 
 # what is my address in heroku?
@@ -25,12 +26,13 @@ define("multi", default='no', help="are we talking to queues")
 def main():
     
     queue = None
-    if options.multi == 'yes':
+    if options.multi == 'iron':
         address = "" 
-        mq = IronMQ(project_id=os.environ.get("IRON_MQ_PROJECT_ID"),
-                    token=os.environ.get("IRON_MQ_TOKEN"))
-        queue = mq.queue("broadcast_queue")
-        queue.add_subscribers(address, push_type="multicast")
+        queue = IronMQBroadcaster(address)
+    elif options.multi == "rabbit":
+        queue = PikaBroadcaster()
+        queue.connect()
+        
     
     handlers = [
         (r"/broadcast", BroadcastHandler),    
@@ -44,6 +46,9 @@ def main():
     }
     
     application = tornado.web.Application(handlers,**settings)
+    
+    if queue:
+        queue.set_application(application)
     
     port = int(os.environ.get("PORT", options.port))
     application.listen(port)
