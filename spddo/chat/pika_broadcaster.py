@@ -22,10 +22,10 @@ class PikaBroadcaster(object):
     commands that were issued and that should surface in the output as well.
 
     """
-    EXCHANGE = 'message'
-    EXCHANGE_TYPE = 'topic'
-    QUEUE = 'text'
-    ROUTING_KEY = 'example.text'
+    EXCHANGE = 'chat-messages'
+    EXCHANGE_TYPE = 'fanout'#'topic'
+    QUEUE = 'chat'
+    ROUTING_KEY = 'spddo.chat'
 
     def __init__(self, amqp_url=None):
         """Create a new instance of the consumer class, passing in the AMQP
@@ -319,3 +319,4 @@ class PikaBroadcaster(object):
     def post(self, msg):
         if self._channel:
             self._channel.basic_publish(self.EXCHANGE,routing_key=self.ROUTING_KEY,body=msg)
+            
