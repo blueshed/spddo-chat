@@ -4,6 +4,7 @@ Created on 23 Sep 2015
 @author: peterb
 '''
 import tornado.websocket
+import os
 
 '''
     Simple chat websocket handler
@@ -37,7 +38,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         ''' called when websocket opens '''
         ''' set our user name '''
-        self.user = repr(self)
+        self.user = "{}:{}".format(os.getpid(),hex(id(self)))
         ''' add ourselves to the client list '''
         self.chat_clients.append(self)
         ''' tell the client their user name '''
