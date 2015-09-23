@@ -1,1 +1,1 @@
-web: python -m spddo.server
+web: python -m spddo.chat.server
