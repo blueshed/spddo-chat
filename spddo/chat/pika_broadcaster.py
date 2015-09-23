@@ -25,7 +25,7 @@ class PikaBroadcaster(object):
     EXCHANGE = 'chat-messages'
     EXCHANGE_TYPE = 'fanout'#'topic'
     QUEUE = 'chat'
-    ROUTING_KEY = 'spddo.chat'
+    ROUTING_KEY = ''
 
     def __init__(self, amqp_url=None):
         """Create a new instance of the consumer class, passing in the AMQP
