@@ -12,9 +12,15 @@ from tornado.options import options, define, parse_command_line
 from spddo.chat.chat_handler import ChatHandler
 from spddo.chat.main_handler import MainHandler
 from spddo.chat.pika_broadcaster import PikaBroadcaster
+import random
+import string
 
 define("port", 8080, int, help="port to listen on")
 define("multi", default='local', help="are we talking to queues")
+
+
+def gen_token(length=32):
+    return ''.join(random.choice(string.hexdigits) for i in range(length))
 
 
 # what is my address in heroku?
@@ -36,7 +42,8 @@ def main():
     settings = {
         "debug":True, 
         "chat_clients": [],
-        "broadcast_queue": queue
+        "broadcast_queue": queue,
+        "server_id": gen_token(8)
     }
     
     application = tornado.web.Application(handlers,**settings)

@@ -38,7 +38,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         ''' called when websocket opens '''
         ''' set our user name '''
-        self.user = "{}:{}".format(os.getpid(),hex(id(self)))
+        self.user = "{}:{}".format(self.application.settings.get("server_id"),hex(id(self)))
         ''' add ourselves to the client list '''
         self.chat_clients.append(self)
         ''' tell the client their user name '''
