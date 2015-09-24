@@ -181,7 +181,7 @@ class PikaBroadcaster(object):
 
         """
         logging.info('Declaring queue %s', queue_name)
-        self._channel.queue_declare(self.on_queue_declareok, queue_name)
+        self._channel.queue_declare(self.on_queue_declareok, exclusive=True)
 
     def on_queue_declareok(self, method_frame):
         """Method invoked by pika when the Queue.Declare RPC call made in
@@ -193,6 +193,7 @@ class PikaBroadcaster(object):
         :param pika.frame.Method method_frame: The Queue.DeclareOk frame
 
         """
+        self.QUEUE = method_frame.method.queue
         logging.info('Binding %s to %s with %s',
                     self.EXCHANGE, self.QUEUE, self.ROUTING_KEY)
         self._channel.queue_bind(self.on_bindok, self.QUEUE,
