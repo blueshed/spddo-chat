@@ -49,7 +49,10 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         ''' tell everyone our message '''
-        self.broadcast(u"{} said: {}".format(self.user,message))
+        if message == "ping":
+            self.write_message("pong")
+        else:
+            self.broadcast(u"{} said: {}".format(self.user,message))
 
 
     def on_close(self):

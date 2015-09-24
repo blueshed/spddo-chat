@@ -11,6 +11,7 @@
 	<input type="text" id="entry" placeholder="something" />
 	<script type="text/javascript">
 		var user = null;
+		var interval = null;
 		var protocol = document.location.protocol == "https:" ? "wss://"
 				: "ws://";
 		var ws = new WebSocket(protocol + document.domain + ":"
@@ -23,6 +24,8 @@
 				user = evt.data;
 				document.getElementById("you").innerText=user;
 				console.log(user);
+			} else if(evt.data == "pong"){
+				// do nothing
 			} else {
 				// append to transcript
 				var node = document.createElement("li");
@@ -31,9 +34,16 @@
 			}
 		};
 		ws.onclose = function(evt){
+			if(interval){
+				clearInterval(interval);
+				interval = null;
+			}
 			// reload
 			document.location = document.location;
 		};
+		interval = setInterval(function (){
+			ws.send("ping");
+		}, 50000);
 		var entry = document.getElementById("entry");
 		entry.addEventListener("keyup", function(event) {
 			if (event.keyCode == 13) {
