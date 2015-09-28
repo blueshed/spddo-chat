@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-version = '0.007'
+version = '0.008'
 
 setup(name='spddo-chat',
       version=version,

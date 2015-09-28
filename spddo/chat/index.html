@@ -3,12 +3,19 @@
 <head>
 <meta charset="utf-8" />
 <title>spddo-chat</title>
+<style type="text/css">
+html,body{
+	font-family: "helvetica"
+}
+</style>
 </head>
 <body>
 	<div id="you">loading...</div>
+	<p>
+		<label>say:</label>
+		<input type="text" id="entry" placeholder="something" />
+	</p>
 	<ol id="transcript"></ol>
-	<label>say:</label>
-	<input type="text" id="entry" placeholder="something" />
 	<script type="text/javascript">
 		var user = null;
 		var interval = null;
