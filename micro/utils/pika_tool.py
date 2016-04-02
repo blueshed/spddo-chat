@@ -330,7 +330,7 @@ class PikaBroadcaster(object):
 
 class PikaTool(PikaBroadcaster):
 
-    EXCHANGE = 'chat-messages'
+    EXCHANGE = 'micro-messages'
     EXCHANGE_TYPE = 'fanout'
     QUEUE = 'micro-chat'
     ROUTING_KEY = ''
