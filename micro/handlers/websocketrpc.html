@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block styles %}
+<style type="text/css">
+.container{
+	margin-top: 1em;
+}
+.status{
+	margin-bottom: 0.5em;
+}
+[v-cloak]{
+	display: none;
+}
+</style>
+{% end %}
+
+{% block body %}
+	<div class="container" v-cloak>
+		<div class="status">
+		  	<span class="badge pull-right">{{!status}}</span>
+		  	<div class="clearfix"></div>
+	  	</div>
+		<div class="row">
+			{% for service in services %}
+			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+				<div class="panel" :class="{
+					'panel-default':!busy_{{ service.name }},
+					'panel-warning':busy_{{ service.name }} }">
+					<div class="panel-heading">
+				    	<h3 class="panel-title">{{ service.name }}</h3>
+				    	{% if service.docs %}<div class="text-muted"><small>{{ service.docs }}</small></div>{% end %}
+				    </div>
+					<div class="panel-body">
+						<form @submit.prevent="do_{{ service.name }}">
+							{% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
+							<div class="form-group">
+								<label>{{ param.name.split(":")[0] }}</label>
+								<input class="form-control" type="text" v-model="{{ service.name }}_{{ param.name }}" 
+									placeholder="{{ param.annotation }}" {%if param.annotation == int %}number{% end %}/>
+							</div>
+							{% end %}{% end %}
+							<button type="submit" class="btn btn-primary">{{ service.name }}</button>
+						</form>
+					</div>
+					<div v-if="error_{{ service.name }}" class="panel-body">
+						<div class="alert alert-danger alert-dismissible" role="alert">
+				  			<button type="button" class="close" @click.prevent="error_{{ service.name }}=null" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<strong>oops!</strong> {%raw '{{ error_' + service.name + ' }}' %}
+						</div>
+					</div>
+					<div v-if="result_{{ service.name }}!==null" class="panel-footer" v-cloak>
+						{%raw '{{result_' + service.name + '}}' %}
+					</div>
+				</div>
+			</div>
+			{% end %}
+			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+				    	<h3 class="panel-title">transcript: <small>{{!client_id}}</small></h3>
+					</div>
+					<table class="table table-bordered table-condensed">
+						<tbody>
+							<tr v-for="item in chat" :class="{
+									info:item.client==client_id,
+									success:item.client!=client_id 
+								}">
+								<td>
+									{%raw '{{ item.message }}' %}<br/>
+									<small class="text-muted">{{! item.client }}</small>
+									<small v-if="item.time" class="badge pull-right">
+										{{! item.time }}ms
+									</small>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-if="error">
+				<div class="alert alert-danger alert-dismissible" role="alert">
+		  			<button type="button" class="close" @click.prevent="error=null" aria-label="Close">
+		  				<span aria-hidden="true">&times;</span></button>
+					<strong>bother!</strong> {{!{ error }}}
+				</div>
+			</div>
+		</div>
+    </div> <!-- /container -->
+{% end %}
+
+{% block scripts %}
+<script type="text/javascript">{% autoescape None %}{% whitespace all %}
+function uid() {
+    function _p8(s) {
+        var p = (Math.random().toString(16)+"000000000").substr(2,8);
+        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
+    }
+    return _p8() + _p8(true);
+}
+
+var appl = window.appl = new Vue({
+	el: 'body',
+	data:{ {% for service in services %}
+		busy_{{ service.name }}:null,
+		result_{{ service.name }}:null,
+		error_{{ service.name }}:null,{% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
+		{{ service.name }}_{{ param.name }}: {%raw 'null' if param.default == param.empty else json_encode(param.default) %},{% end %}{% end %}
+		{% end %}
+		last_id: 0,
+		error: null,
+		status: null,
+		say: null,
+		chat: [],
+		chat_time: null,
+		client_id: uid()
+	},
+	created(){
+		var last_id = 0;
+		var promises = {};
+		var ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this.client_id);
+		ws.onopen = function(){
+			this._ws = ws;
+			this.status = 'open';
+		}.bind(this);
+		ws.onmessage = function(evt){
+			var message = JSON.parse(evt.data);
+			if(promises[message.id]){
+				if(message.error){
+					promises[message.id].reject(message.error);
+				} else {
+					promises[message.id].resolve(message.result);
+				}
+				delete promises[message.id];
+			} else if(message.signal){
+				if(!this.$dispatch(message.signal, message.message)){
+					console.log(message.signal, message.message);
+				}
+			} else {
+				console.log(message);
+			}
+		}.bind(this);
+		ws.onclose = function(){
+			this.status = 'closed';
+			setTimeout(function(){
+				location.reload(true);
+			},200);
+		}.bind(this);
+		ws.rpc = function(action, args){
+			return new Promise(function(resolve,reject){
+				var id = this.client_id + ":"+ ++last_id;
+				ws.send(JSON.stringify([id,action,args]));
+				promises[id] = { reject: reject, resolve: resolve };
+			}.bind(this));
+		}.bind(this);
+	},
+	methods:{
+		{% for service in services %}
+		"do_{{ service.name }}": function (){
+			this.$set('busy_{{ service.name }}', true);
+			var done = function(){
+				this.$set('busy_{{ service.name }}', null);
+			}.bind(this);
+			this.send('{{ service.name }}',{ {% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
+				{{ param.name }}:this.{{ service.name }}_{{ param.name }},{% end %}{% end %}
+			}).then(done,done);
+		},{% end %}
+		"send": function(action, args){
+			var time = this.chat_time = new Date();
+			return this._ws.rpc(action,args).
+					then(function(result){
+						this.$set('error_'+action, null);
+						this.$set('result_'+action, result);
+						console.log(action, (new Date() - time)+'ms');
+					}.bind(this)).catch(function(err){
+						this.$set('error_'+action, err);
+					}.bind(this));
+		}
+	},
+	events:{
+		'said': function(value){
+			if(this.chat_time){
+				value.time = new Date() - this.chat_time;
+				this.chat_time = null;
+			}
+			this.chat.splice(0,0,value);
+			return true;
+		}
+	}
+});
+{% autoescape xhtml_escape %}{% whitespace oneline %}</script>
+{% end %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block styles %}
+<style type="text/css">
+.container{
+	margin-top: 1em;
+}
+.badge.open{
+	background-color: #5cb85c;
+}
+.tools{
+	text-align: right;
+	margin-bottom: 1em;
+}
+.transcript-panel{
+	margin-top: 1em;
+}
+[v-cloak]{
+	display: none;
+}
+</style>
+{% end %}
+
+{% block body %}
+<template id="login">
+	<form class="form-inline" @submit.prevent="login">
+		<div class="form-group" :class="{'has-error':error}">
+			<input class="form-control" v-model="email" placeholder="email" type="text" />
+			<input class="form-control" v-model="password" placeholder="password" type="password "/>
+			<button class="btn btn-primary">Login</button>
+			<span v-if="error" class="help-block">{{!{ error }}}</span>
+		</div>
+	</form>
+</template>
+<div class="container" v-cloak>
+	<div class="tools">
+		<span class="badge" :class="{'open':status=='open'}">{{! status }}</span>
+		<span v-if="user" class="badge">{{! user.email}}</span>&nbsp;
+		<a v-if="user" href="/logout?next=api.html" class="btn btn-default btn-xs">Logout</a>
+	</div>
+	<login v-if="!user" :user.sync="user"></login>
+	<div v-if="error" class="alert alert-danger alert-dismissible" role="alert">
+ 			<button type="button" class="close" @click.prevent="error=null" aria-label="Close">
+ 				<span aria-hidden="true">&times;</span></button>
+		<strong>bother!</strong> {{!{ error }}}
+	</div>
+	<div class="panel panel-default transcript-panel" v-cloak>
+		<div class="panel-heading">
+	    	<h3 class="panel-title">transcript: <small>{{!control.client_id}}</small></h3>
+		</div>
+		<table class="table table-bordered table-condensed">
+			<tbody>
+				<tr v-for="item in transcript" :class="{
+						info:item.client==control.client_id,
+						success:item.client!=control.client_id 
+					}">
+					<td>
+						{{! item.message }}<br/>
+						<small class="text-muted">{{! item.client }}</small>
+						<small v-if="item.time" class="badge pull-right">
+							{{! item.time }}ms
+						</small>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+{% end %}
+
+{% block scripts %}
+<script type="text/javascript" src="/api.js"></script>
+<script type="text/javascript">{% autoescape None %}{% whitespace all %}
+
+
+Control.prototype.install = function(Vue){
+	Vue.prototype.control = this;
+};
+
+Vue.config.debug = true;
+
+Vue.use(new Control());
+
+Vue.component('login',{
+	props:['user'],
+	template: "#login",
+	data:function(){
+		return {
+			email: null,
+			password: null,
+			error: null
+		}
+	},
+	methods:{
+		login: function(){
+			this.control.login(this.email, this.password).
+				then(function(user){
+					this.user = user;
+				}.bind(this)).
+				catch(function(err){
+					this.error = err;
+				}.bind(this));
+		}
+	}
+});
+
+var appl = window.appl = new Vue({
+	el: ".container",
+	data:{
+		status: null,
+		error: null,
+		user: {%raw json_encode(current_user) %},
+		transcript: []
+	},
+	created(){
+		this.control.init(function(signal, message){
+				this.$dispatch(signal, message);
+				this.$broadcast(signal, message);
+			}.bind(this)).
+		then(function(status){
+			this.status = status;
+		}.bind(this)).
+		catch(function(err){
+			this.error = err;
+		}.bind(this));
+	},
+	events:{
+		'said': function(message){
+			this.transcript.splice(0,0,message);
+			return true;
+		}
+	}
+});
+
+{% autoescape xhtml_escape %}{% whitespace oneline %}</script>
+{% end %}

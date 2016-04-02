@@ -1,1 +1,1 @@
-web: python -m spddo.chat.server --multi=rabbit
+web: python -m micro.server
