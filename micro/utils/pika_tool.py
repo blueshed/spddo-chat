@@ -332,7 +332,7 @@ class PikaTool(PikaBroadcaster):
 
     EXCHANGE = 'chat-messages'
     EXCHANGE_TYPE = 'fanout'
-    QUEUE = 'chat'
+    QUEUE = 'micro-chat'
     ROUTING_KEY = ''
     
     def __init__(self, amqp_url, broadcast_func):
