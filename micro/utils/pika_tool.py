@@ -330,7 +330,10 @@ class PikaBroadcaster(object):
 
 class PikaTool(PikaBroadcaster):
 
-    EXCHANGE_TYPE = 'fanout'  # 'topic'
+    EXCHANGE = 'chat-messages'
+    EXCHANGE_TYPE = 'fanout'
+    QUEUE = 'chat'
+    ROUTING_KEY = ''
     
     def __init__(self, amqp_url, broadcast_func):
         PikaBroadcaster.__init__(self, amqp_url)

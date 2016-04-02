@@ -21,7 +21,7 @@ def _fc_describe_service(instance):
         if hasattr(method,'_access_permissions_'):
             requires = method._access_permissions_
             ignore_list.append("session")
-        if hasattr(method,'__wrapped__'):
+        while hasattr(method,'__wrapped__'):
             method = method.__wrapped__
         if callable(method):
             spec = py_inspect.getfullargspec(method)

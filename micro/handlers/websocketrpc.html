@@ -131,9 +131,8 @@ var appl = window.appl = new Vue({
 				}
 				delete promises[message.id];
 			} else if(message.signal){
-				if(!this.$dispatch(message.signal, message.message)){
-					console.log(message.signal, message.message);
-				}
+				this.$dispatch(message.signal, message.message);
+				this.$broadcast(message.signal, message.message);
 			} else {
 				console.log(message);
 			}
