@@ -338,6 +338,12 @@ class PikaTool(PikaBroadcaster):
     def __init__(self, amqp_url, broadcast_func):
         PikaBroadcaster.__init__(self, amqp_url)
         self._broadcast_func = broadcast_func
+        
+    
+    def setup_queue(self, queue_name):
+        logging.info('Declaring queue %s', queue_name)
+        self._channel.queue_declare(self.on_queue_declareok, exclusive=True)
+
 
     def on_message(self, unused_channel, basic_deliver, properties, body):
         logging.info('Received message # %s from %s: %s',
