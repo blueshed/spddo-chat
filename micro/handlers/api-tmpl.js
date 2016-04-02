@@ -120,13 +120,13 @@ Control.prototype._send = function(action, args, callback) {
 	return this.connection.rpc(action, args);
 };
 	
-{% for method in methods %}
-{% if method["docs"] %}/** 
-	{{ method["docs"] }}
+{% for service in services %}
+{% if service.docs %}/** 
+	{{ service.docs }}
 **/{% end %}
-Control.prototype.{{ method['name'] }} = function({{ signature(method) }}){
-	return this._send("{{ method['name'] }}", { 
-		{{ params(method) }} 
+Control.prototype.{{ service.name }} = function({{ ", ".join([p.name for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}){
+	return this._send("{{ service.name }}", { 
+		{{ ",\n\t\t".join(["{0!r}: {0}{1}".format(p.name,'|| ' + repr(p.default) if p.default is not p.empty else '') for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }} 
 	});
 };
 {% end %}

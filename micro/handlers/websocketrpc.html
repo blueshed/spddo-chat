@@ -88,21 +88,23 @@
 {% end %}
 
 {% block scripts %}
+<script type="text/javascript" src="/api.js"></script>
 <script type="text/javascript">{% autoescape None %}{% whitespace all %}
-function uid() {
-    function _p8(s) {
-        var p = (Math.random().toString(16)+"000000000").substr(2,8);
-        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
-    }
-    return _p8() + _p8(true);
-}
+
+Control.prototype.install = function(Vue){
+	Vue.prototype.control = this;
+};
+
+Vue.config.debug = true;
+
+Vue.use(new Control());
 
 var appl = window.appl = new Vue({
 	el: 'body',
 	data:{ {% for service in services %}
-		busy_{{ service.name }}:null,
-		result_{{ service.name }}:null,
-		error_{{ service.name }}:null,{% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
+		busy_{{ service.name }}: null,
+		result_{{ service.name }}: null,
+		error_{{ service.name }}: null,{% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
 		{{ service.name }}_{{ param.name }}: {%raw 'null' if param.default == param.empty else json_encode(param.default) %},{% end %}{% end %}
 		{% end %}
 		last_id: 0,
@@ -114,65 +116,33 @@ var appl = window.appl = new Vue({
 		client_id: uid()
 	},
 	created(){
-		var last_id = 0;
-		var promises = {};
-		var ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this.client_id);
-		ws.onopen = function(){
-			this._ws = ws;
-			this.status = 'open';
-		}.bind(this);
-		ws.onmessage = function(evt){
-			var message = JSON.parse(evt.data);
-			if(promises[message.id]){
-				if(message.error){
-					promises[message.id].reject(message.error);
-				} else {
-					promises[message.id].resolve(message.result);
-				}
-				delete promises[message.id];
-			} else if(message.signal){
-				this.$dispatch(message.signal, message.message);
-				this.$broadcast(message.signal, message.message);
-			} else {
-				console.log(message);
-			}
-		}.bind(this);
-		ws.onclose = function(){
-			this.status = 'closed';
-			setTimeout(function(){
-				location.reload(true);
-			},200);
-		}.bind(this);
-		ws.rpc = function(action, args){
-			return new Promise(function(resolve,reject){
-				var id = this.client_id + ":"+ ++last_id;
-				ws.send(JSON.stringify([id,action,args]));
-				promises[id] = { reject: reject, resolve: resolve };
-			}.bind(this));
-		}.bind(this);
+		this.control.init(function(signal, message){
+			this.$dispatch(signal, message);
+			this.$broadcast(signal, message);
+			}.bind(this)).
+		then(function(status){
+			this.status = status;
+		}.bind(this)).
+		catch(function(err){
+			this.error = err;
+		}.bind(this));
 	},
 	methods:{
 		{% for service in services %}
 		"do_{{ service.name }}": function (){
-			this.$set('busy_{{ service.name }}', true);
-			var done = function(){
-				this.$set('busy_{{ service.name }}', null);
-			}.bind(this);
-			this.send('{{ service.name }}',{ {% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
-				{{ param.name }}:this.{{ service.name }}_{{ param.name }},{% end %}{% end %}
-			}).then(done,done);
-		},{% end %}
-		"send": function(action, args){
 			var time = this.chat_time = new Date();
-			return this._ws.rpc(action,args).
-					then(function(result){
-						this.$set('error_'+action, null);
-						this.$set('result_'+action, result);
-						console.log(action, (new Date() - time)+'ms');
-					}.bind(this)).catch(function(err){
-						this.$set('error_'+action, err);
-					}.bind(this));
-		}
+			this.control.{{ service.name }}({{ ", ".join(['this.'+service.name+'_'+p.name for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}).
+				then(function(result){
+					this.$set('error_{{ service.name }}', null);
+					this.$set('result_{{ service.name }}', result);
+					this.$set('busy_{{ service.name }}', null);
+					console.log('{{ service.name }}', (new Date() - time)+'ms');
+				}.bind(this)).
+				catch(function(err){
+					this.$set('error_{{ service.name }}', err);
+					this.$set('busy_{{ service.name }}', null);
+				}.bind(this));
+		},{% end %}
 	},
 	events:{
 		'said': function(value){
