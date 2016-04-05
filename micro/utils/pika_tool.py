@@ -343,7 +343,10 @@ class PikaTool(PikaBroadcaster):
     def setup_queue(self, queue_name):
         logging.info('Declaring queue %s', queue_name)
         self._channel.queue_declare(self.on_queue_declareok, exclusive=True)
-
+        
+    def on_queue_declareok(self, method_frame):
+        self.QUEUE = method_frame.method.queue
+        PikaBroadcaster.on_queue_declareok(self, method_frame)
 
     def on_message(self, unused_channel, basic_deliver, properties, body):
         logging.info('Received message # %s from %s: %s',
