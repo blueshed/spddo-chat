@@ -113,9 +113,10 @@ var appl = window.appl = new Vue({
 		say: null,
 		chat: [],
 		chat_time: null,
-		client_id: uid()
+		client_id: null
 	},
 	created(){
+		this.client_id = this.control.client_id;
 		this.control.init(function(signal, message){
 			this.$dispatch(signal, message);
 			this.$broadcast(signal, message);

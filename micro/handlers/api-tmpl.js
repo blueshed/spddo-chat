@@ -54,16 +54,17 @@ var docCookies = {
 };
 
 
-function Control(){}
+function Control(){
+	this.client_id = uid();
+}
     
 Control.prototype.init = function(broadcast_callback){
-	var client_id = uid();
 	var last_id = 0;
 	var promises = {};
 	return new Promise(function(resolve,reject){
 		var ws = null;
 		try{
-			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+client_id);
+			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this.client_id);
 		}
 		catch(err){
 			reject(err);
@@ -77,7 +78,8 @@ Control.prototype.init = function(broadcast_callback){
 			if(message.cookie){
 	            var expires = new Date();
 	            expires.setMonth(expires.getMonth() + 1);
-	            docCookies.setItem(message.cookie_name, message.cookie, expires.toGMTString(),null,null,null,false);
+	            docCookies.setItem(message.cookie_name, 
+	            		message.cookie, expires.toGMTString(),'/',document.domain,null,false);
 			}
 			if(promises[message.id]){
 				if(message.error){
@@ -104,13 +106,13 @@ Control.prototype.init = function(broadcast_callback){
 			}
 		}.bind(this);
 		ws.rpc = function(action, args){
+			var id = this.client_id + ":"+ ++last_id;
 			return new Promise(function(resolve,reject){
-				var id = client_id + ":"+ ++last_id;
 				ws.send(JSON.stringify([id,action,args]));
 				promises[id] = { reject: reject, resolve: resolve };
 			}.bind(this));
 		}.bind(this);
-	}.bind(this))
+	}.bind(this));
 };
 
 Control.prototype._send = function(action, args, callback) {
