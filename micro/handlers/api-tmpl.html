@@ -14,6 +14,15 @@
 .transcript-panel{
 	margin-top: 1em;
 }
+.gridster > ul{
+	list-style: none;
+}
+.gridster .gs-w {
+    background: #eee;
+    cursor: pointer;
+    -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
 [v-cloak]{
 	display: none;
 }
@@ -21,6 +30,60 @@
 {% end %}
 
 {% block body %}
+<template id="chat">
+	<div class="panel panel-default transcript-panel" v-cloak>
+		<div class="panel-heading">
+	    	<h3 class="panel-title">
+	    		<button class="btn btn-default btn-xs pull-right" @click.prevent="clear">
+	    			<span class="glyphicon glyphicon-trash"></span>
+	    		</button>
+	    		Chat: <small>{{!control.client_id}}</small>
+	    	</h3>
+		</div>
+		<div class="panel-body">
+			<form class="form-inline" @submit.prevent="say">
+				<div class="form-group">
+					<input class="form-control" v-model="what" placeholder="say something..." type="text" />
+					<button class="btn btn-primary">Send</button>
+				</div>
+			</form>
+		</div>
+		<table class="table table-bordered table-condensed">
+			<tbody>
+				<tr v-for="item in transcript" :class="{
+						info:item.client==control.client_id,
+						success:item.client!=control.client_id 
+					}">
+					<td>
+						{{! item.message }}<br/>
+						<small class="text-muted">{{! item.client }}</small>
+						<small v-if="item.time" class="badge pull-right">
+							{{! item.time }}ms
+						</small>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</template>
+
+<template id="grid">
+	<div class="gridster">
+		<button class="btn btn-default pull-right" @click.prevent="add">
+			<span class="glyphicon glyphicon-plus"></span>
+		</button>
+		<div class="clearfix"></div>
+    	<ul v-el:grid>
+        	<li v-for="item in items" 
+        		:data-row.sync="item.row" 
+        		:data-col.sync="item.col" 
+        		:data-sizex.sync="item.size_x" 
+        		:data-sizey.sync="item.size_y">
+        		{{! item.content }}
+        	</li>
+        </ul>
+    </div>
+</template>
 <template id="login">
 	<form class="form-inline" @submit.prevent="login">
 		<div class="form-group" :class="{'has-error':error}">
@@ -43,27 +106,8 @@
  				<span aria-hidden="true">&times;</span></button>
 		<strong>bother!</strong> {{!{ error }}}
 	</div>
-	<div class="panel panel-default transcript-panel" v-cloak>
-		<div class="panel-heading">
-	    	<h3 class="panel-title">transcript: <small>{{!control.client_id}}</small></h3>
-		</div>
-		<table class="table table-bordered table-condensed">
-			<tbody>
-				<tr v-for="item in transcript" :class="{
-						info:item.client==control.client_id,
-						success:item.client!=control.client_id 
-					}">
-					<td>
-						{{! item.message }}<br/>
-						<small class="text-muted">{{! item.client }}</small>
-						<small v-if="item.time" class="badge pull-right">
-							{{! item.time }}ms
-						</small>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+	<chat></chat>
+	<grid></grid>
 </div>
 {% end %}
 
@@ -103,13 +147,70 @@ Vue.component('login',{
 	}
 });
 
+Vue.component("grid",{
+	template: '#grid',
+	data: function(){
+		return {
+			items: [{row: 1, col: 1, size_x: 1, size_y: 1, content: 'hello world'}]
+		};
+	},
+	methods:{
+		add: function(){
+			this._gridster.add_widget("<li>New content: " + new Date() + "</li>",1,1,1,1);
+			console.log(this._gridster.serialize());
+		}
+	},
+	ready: function(){
+		this._gridster = $(this.$els.grid).gridster({
+			min_cols: 10,
+			min_rows: 2,
+			extra_rows: 1,
+	        widget_margins: [10, 10],
+	        widget_base_dimensions: [140, 140],
+	        resize: {
+	            enabled: true
+	        }
+	    }).data('gridster');
+	}
+});
+
+Vue.component("chat",{
+	template: '#chat',
+	data: function(){
+		return {
+			transcript: [],
+			what: null
+		};
+	},
+	methods:{
+		'say': function(){
+			this.control.chat(this.what).
+				then(function(){
+					this.what = null;
+				}.bind(this)).
+				catch(function(err){
+					this.$root.error = err;
+				}.bind(this));
+		},
+		'clear': function(){
+			this.transcript.splice(0,this.transcript.length);
+		}
+	},
+	events:{
+		'said': function(message){
+			this.transcript.splice(0,0,message);
+			return true;
+		}
+	}
+});
+
+
 var appl = window.appl = new Vue({
 	el: ".container",
 	data:{
 		status: null,
 		error: null,
-		user: {%raw json_encode(current_user) %},
-		transcript: []
+		user: {%raw json_encode(current_user) %}
 	},
 	created(){
 		this.control.init(function(signal, message){
@@ -122,12 +223,6 @@ var appl = window.appl = new Vue({
 		catch(function(err){
 			this.error = err;
 		}.bind(this));
-	},
-	events:{
-		'said': function(message){
-			this.transcript.splice(0,0,message);
-			return true;
-		}
 	}
 });
 

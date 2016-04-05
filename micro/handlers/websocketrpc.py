@@ -57,7 +57,7 @@ class WebSocketRpcHandler(tornado.websocket.WebSocketHandler):
     
     def open(self, *args, **kwargs):
         WebSocketRpcHandler.clients.append(self)
-        self._client_id = self.get_argument("client_id")
+        self._client_id = self.get_argument("client_id", id(self))
         self.set_nodelay(True)
         self._cookies_['current_user'] = self.current_user
         LOGGER.debug("websocket open %s",self._client_id)

@@ -34,7 +34,7 @@ def make_app():
         queue = PikaTool(amqp_url, 
                          WebSocketRpcHandler.async_broadcast)
         queue.connect()
-        tornado.autoreload.add_reload_hook(queue.close_connection)
+#         tornado.autoreload.add_reload_hook(queue.close_connection)
         logging.info("broadcast_queue {}".format(amqp_url))
     else:
         queue = None

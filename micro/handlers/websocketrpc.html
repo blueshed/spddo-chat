@@ -116,13 +116,13 @@ var appl = window.appl = new Vue({
 		client_id: null
 	},
 	created(){
-		this.client_id = this.control.client_id;
 		this.control.init(function(signal, message){
 			this.$dispatch(signal, message);
 			this.$broadcast(signal, message);
 			}.bind(this)).
 		then(function(status){
 			this.status = status;
+			this.client_id = this.control.client_id;
 		}.bind(this)).
 		catch(function(err){
 			this.error = err;

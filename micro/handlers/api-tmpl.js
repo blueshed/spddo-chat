@@ -65,6 +65,7 @@ Control.prototype.init = function(broadcast_callback){
 		var ws = null;
 		try{
 			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this.client_id);
+//			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}'); //connect without client_id
 		}
 		catch(err){
 			reject(err);
