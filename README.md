@@ -18,7 +18,7 @@ NB: blueshed.micro is now a library and the examples
 show how to use it. More documentation on the way.
 
 
-## spddo-couch
+## spddo-mongo
 There is also a demo of how to work with Motor and Mongodb using
 fullCalendar's Scheduler.
 
