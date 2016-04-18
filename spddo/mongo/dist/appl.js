@@ -13956,13 +13956,15 @@ System.registerDynamic("npm:vue@1.0.21.js", ["npm:vue@1.0.21/dist/vue.common.js"
   return module.exports;
 });
 
-System.register('appl/schedule-panel/moment-filter.js', ['npm:vue@1.0.21.js'], function (_export) {
+System.register('appl/schedule-panel/moment-filter.js', ['npm:vue@1.0.21.js', 'npm:moment@2.13.0.js'], function (_export) {
 	'use strict';
 
-	var Vue;
+	var Vue, moment;
 	return {
 		setters: [function (_npmVue1021Js) {
 			Vue = _npmVue1021Js['default'];
+		}, function (_npmMoment2130Js) {
+			moment = _npmMoment2130Js['default'];
 		}],
 		execute: function () {
 
