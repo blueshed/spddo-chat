@@ -1,0 +1,24 @@
+.calendar {
+	max-width: 900px;
+	margin: 50px auto;
+}
+
+.fc-resource-area td {
+	cursor: pointer;
+}
+
+.editor{
+	margin-top: 80px;
+}
+
+[v-cloak]{
+	display: none;
+}
+
+.add-asset-icon{
+	margin-top: 4px;
+	margin-right: 4px;
+}
+.add-asset-icon:hover{
+	color: green;
+}

@@ -1,15 +1,17 @@
-'''
-Created on 23 Sep 2015
-
-@author: peterb
-'''
 import tornado.websocket
-import os
+import time
 
-'''
-    Simple chat websocket handler
-'''
+
 class ChatHandler(tornado.websocket.WebSocketHandler):
+    '''
+        Simple chat websocket handler
+    '''
+    
+    @classmethod
+    def keep_alive(cls):
+        msg = str(time.time()).encode("utf8")
+        for client in cls.clients:
+            client.ping(msg)
     
     @property
     def chat_clients(self):

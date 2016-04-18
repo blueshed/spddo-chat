@@ -1,6 +1,6 @@
 certifi>=14.5.14
-tornado>=4.2
+tornado>=4.3
 pika>=0.10.0
-SQLAlchemy>=1.0.11
-PyMySQL>=0.6.7
-flake8
+SQLAlchemy>=1.0.12
+PyMySQL>=0.7.2
+motor>=0.6.2

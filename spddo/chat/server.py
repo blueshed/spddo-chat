@@ -1,9 +1,3 @@
-'''
-Created on 23 Sep 2015
-
-@author: peterb
-'''
-
 import os
 import logging
 import tornado.ioloop
@@ -17,9 +11,8 @@ import string
 
 define("port", 8080, int, help="port to listen on")
 define("multi", default='local', help="are we talking to queues")
-define("db_url", default='sqlite:///bridge.db', help="database url")
+define("db_url", default='sqlite:///chat.db', help="database url")
 define("db_pool_recycle", 3600, int, help="how many seconds to recycle db connection")
-
 
 
 def gen_token(length=32):
@@ -64,6 +57,7 @@ def main():
     port = int(os.environ.get("PORT", options.port))
     application.listen(port)
     logging.info("listening on port {}".format(port))
+    tornado.ioloop.PeriodicCallback(ChatHandler.keep_alive, 30000).start()
     tornado.ioloop.IOLoop.current().start()
     
 
