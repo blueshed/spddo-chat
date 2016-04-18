@@ -86,7 +86,6 @@ export default Vue.extend({
 				catch((err)=>{
 					this.error = err;
 				});
-			
 		},
 		unallocate(){
 			this.control.unallocate(this.selection.id).
@@ -191,15 +190,16 @@ export default Vue.extend({
 				events: this.load_allocations.bind(this),
 				eventDrop: this.do_change.bind(this),
 				eventResize: this.do_change.bind(this),
-				eventClick: ( event, jsEvent, view )=>{ 
+				eventClick: ( event, jsEvent, view )=>{
+					var resource = event.resourceId ? this._cal.fullCalendar('getResourceById', event.resourceId) : null;
 					this.set_selection({
 						_id: event._id,
 						id: event.id,
 						title: event.title,
 						start: event.start,
 						end: event.end,
-						resource_id: event.resource ? event.resource.id : null,
-						resource: event.resource ? event.resource.title : null
+						resource_id: resource ? resource.id : null,
+						resource: resource ? resource.title : null
 					})
 				}
 			});		

@@ -13,3 +13,5 @@ def change_allocation(context:'micro-context', allocation: dict) -> list:
     assert result.get('nModified') == 1 and result['ok'] == 1
     allocation["_id"] = _id
     context.broadcast("allocation-changed", allocation)
+    
+    return result

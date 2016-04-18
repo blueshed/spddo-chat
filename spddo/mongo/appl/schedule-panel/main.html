@@ -32,12 +32,12 @@
 				</div>
 				<div class="form-group form-group-sm">
 				  	<div class="col-sm-offset-3 col-sm-9">
+						<button v-if="selection._id" type="button" class="btn btn-danger" @click.prevent="unallocate">Remove</button>
 				  		<button class="btn btn-default" type="button" @click.prevent="clear_selection">Cancel</button>
 						<button type="submit" class="btn btn-primary" :disabled="!can_allocated">
 							<span v-if="selection.id===null">Allocate</span>
 							<span v-else>Save</span>
 						</button>
-						<button v-if="selection._id" type="button" class="btn btn-danger" @click.prevent="unallocate">Remove</button>
 					</div>
 				</div>
 				<pre>{{ selection | json 4 }}</pre>
