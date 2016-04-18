@@ -17,4 +17,4 @@ def allocate(context:'micro-context', allocation:dict) -> dict:
         else:    
             allocation["_id"] = result.get('upserted')
             context.broadcast("allocation-added", allocation)
-        return result
+        return str(result)

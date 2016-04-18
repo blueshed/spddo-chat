@@ -29773,7 +29773,7 @@ System.register('appl/schedule-panel/main.js', ['npm:babel-runtime@5.8.38/core-j
 
 						var title = prompt('Asset name');
 						if (title) {
-							this.control.add_asset({
+							this.control.save_asset({
 								id: this.uid(),
 								name: title
 							}).then(function (status) {
@@ -29878,17 +29878,22 @@ System.register('appl/schedule-panel/main.js', ['npm:babel-runtime@5.8.38/core-j
 						});
 					},
 					do_change: function do_change(event, delta, revertFunc, jsEvent, ui, view) {
-						this.control.change_allocation({
-							_id: event._id,
+						var _this8 = this;
+
+						this.control.allocate({
 							id: event.id,
 							title: event.title,
 							from_date: event.start.unix(),
 							to_date: event.end.unix(),
 							asset_id: event.resourceId
+						}).then(function (result) {
+							// noop
+						})['catch'](function (err) {
+							_this8.error = err;
 						});
 					},
 					init_cal: function init_cal() {
-						var _this8 = this;
+						var _this9 = this;
 
 						this._cal = $('.calendar').fullCalendar({
 							schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -29915,7 +29920,7 @@ System.register('appl/schedule-panel/main.js', ['npm:babel-runtime@5.8.38/core-j
 							},
 							resourceLabelText: 'Assets',
 							resourceRender: function resourceRender(resource, cellEls) {
-								cellEls.on('click', _this8.remove_asset.bind(_this8, resource));
+								cellEls.on('click', _this9.remove_asset.bind(_this9, resource));
 							},
 							selectable: true,
 							unselectAuto: false,
@@ -29926,8 +29931,8 @@ System.register('appl/schedule-panel/main.js', ['npm:babel-runtime@5.8.38/core-j
 							eventDrop: this.do_change.bind(this),
 							eventResize: this.do_change.bind(this),
 							eventClick: function eventClick(event, jsEvent, view) {
-								var resource = event.resourceId ? _this8._cal.fullCalendar('getResourceById', event.resourceId) : null;
-								_this8.set_selection({
+								var resource = event.resourceId ? _this9._cal.fullCalendar('getResourceById', event.resourceId) : null;
+								_this9.set_selection({
 									_id: event._id,
 									id: event.id,
 									title: event.title,
@@ -29939,7 +29944,7 @@ System.register('appl/schedule-panel/main.js', ['npm:babel-runtime@5.8.38/core-j
 							}
 						});
 						$(".fc-widget-header>div>.fc-cell-content>span.fc-cell-text").append($("<span>").addClass("fa fa-plus pull-right add-asset-icon").click(function (item) {
-							_this8.add_asset();
+							_this9.add_asset();
 						}));
 					}
 				},

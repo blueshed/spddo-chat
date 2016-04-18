@@ -40,7 +40,7 @@ export default Vue.extend({
 		add_asset(){
 			var title = prompt('Asset name');
 			if (title) {
-				this.control.add_asset({
+				this.control.save_asset({
 					id: this.uid(),
 					name: title
 				}).
@@ -145,14 +145,19 @@ export default Vue.extend({
         	});
         },
         do_change(event, delta, revertFunc, jsEvent, ui, view){
-        	this.control.change_allocation({
-        		_id: event._id,
+        	this.control.allocate({
         		id: event.id,
         		title: event.title,
         		from_date: event.start.unix(),
         		to_date: event.end.unix(),
         		asset_id: event.resourceId
-        	});
+        	}).
+			then((result)=>{
+				// noop
+			}).
+			catch((err)=>{
+				this.error = err;
+			});
         },
 		init_cal(){
 			this._cal = $('.calendar').fullCalendar({

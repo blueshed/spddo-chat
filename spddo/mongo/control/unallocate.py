@@ -9,3 +9,5 @@ def unallocate(context:'micro-context', allocation_id: str) -> list:
     logging.info("%s - %s", result, allocation_id)
     assert result.get('n') == 1 and result['ok'] == 1
     context.broadcast("allocation-removed", allocation_id)
+    
+    return str(result)
