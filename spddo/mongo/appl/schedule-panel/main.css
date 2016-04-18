@@ -1,0 +1,26 @@
+.SchedulePanel
+.calendar {
+	max-width: 900px;
+	margin: 50px auto;
+}
+
+.SchedulePanel
+.fc-resource-area td {
+	cursor: pointer;
+}
+
+.SchedulePanel
+.editor{
+	margin-top: 80px;
+}
+
+.SchedulePanel
+.add-asset-icon{
+	margin-top: 4px;
+	margin-right: 4px;
+}
+
+.SchedulePanel
+.add-asset-icon:hover{
+	color: green;
+}

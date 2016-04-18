@@ -34,7 +34,10 @@ def make_app():
     else:
         queue = None
         
-    site_path = resource_filename('spddo.mongo',"www")
+    if options.debug:
+        site_path = resource_filename('spddo',"mongo") 
+    else:
+        site_path = resource_filename('spddo.mongo',"dist")
         
     handlers = [
         (r"/websocket", WebSocketRpcHandler,{

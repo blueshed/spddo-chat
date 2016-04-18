@@ -23,6 +23,7 @@ class ApiHandler(tornado.web.RequestHandler):
         if path == ".json":
             self.write(dumps(self.application.settings["services"],indent=4))
         elif path ==".js":
+            self.set_header('content-type', "text/javascript")
             self.render("api-tmpl.js",
                         services=self.application.settings['services'].values())
         else:
