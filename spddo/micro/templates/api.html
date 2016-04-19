@@ -210,9 +210,10 @@ var appl = window.appl = new Vue({
 	data:{
 		status: null,
 		error: null,
-		user: {%raw json_encode(current_user) %}
+		user: null,
 	},
 	created(){
+		this.user = this.control.user;
 		this.control.init(function(signal, message){
 				this.$dispatch(signal, message);
 				this.$broadcast(signal, message);

@@ -24,4 +24,3 @@ class BaseContext:
             
     def get_cookie(self, key, default=None):
         return self.cookies.get(key, default)
-        

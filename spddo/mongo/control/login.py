@@ -10,6 +10,6 @@ def login(context:'micro-context', email:str, password:str) -> dict:
     document = yield db.users_collection.find_one({'email': email})
     if document is None:
         raise AuthenticationException("<strong>Failed</strong> Email or password incorrect!")
-    user = document.to_dict()
+    user = dict(document)
     context.set_cookie("current_user", user)
     return user

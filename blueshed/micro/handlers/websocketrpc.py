@@ -8,10 +8,12 @@ import time
 import functools
 import urllib
 from tornado.web import create_signed_value
+from blueshed.micro.handlers.user_mixin import UserMixin
 
 LOGGER = logging.getLogger(__name__)
 
-class WebSocketRpcHandler(tornado.websocket.WebSocketHandler):
+
+class WebSocketRpcHandler(UserMixin, tornado.websocket.WebSocketHandler):
 
     clients=[]
 
@@ -27,15 +29,6 @@ class WebSocketRpcHandler(tornado.websocket.WebSocketHandler):
         for client in cls.clients:
             client.write_message(message)
 
-
-    @property
-    def cookie_name(self):
-        return self.application.settings.get('cookie_name')
-    
-    @property
-    def micro_context(self):
-        return self.application.settings.get('micro_context')
-    
 
     def initialize(self, origins=None):
         super().initialize()

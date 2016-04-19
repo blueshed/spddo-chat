@@ -4,3 +4,5 @@ pika>=0.10.0
 SQLAlchemy>=1.0.12
 PyMySQL>=0.7.2
 motor>=0.6.2
+boto>=2.39.0
+Pillow==3.2.0
