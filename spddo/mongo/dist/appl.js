@@ -7640,7 +7640,7 @@ System.registerDynamic("github:twbs/bootstrap@3.3.6.js", ["github:twbs/bootstrap
 (function() {
 var define = System.amdDefine;
 define("appl/login-panel/main.html!github:systemjs/plugin-text@0.0.7.js", [], function() {
-  return "<form class=\"form-inline LoginPanel\" @submit.prevent=\"login\">\n\t<div class=\"form-group\" :class=\"{'has-error':error}\">\n\t\t<input class=\"form-control\" v-model=\"email\" placeholder=\"email\" type=\"text\" />\n\t\t<input class=\"form-control\" v-model=\"password\" placeholder=\"password\" type=\"password \"/>\n\t\t<button class=\"btn btn-primary\">Login</button>\n\t\t<span v-if=\"error\" class=\"help-block\">{{!{ error }}}</span>\n\t</div>\n</form>";
+  return "<form class=\"form-inline LoginPanel\" @submit.prevent=\"login\">\n\t<div class=\"form-group\" :class=\"{'has-error':error}\">\n\t\t<input class=\"form-control\" v-model=\"email\" placeholder=\"email\" type=\"text\" />\n\t\t<input class=\"form-control\" v-model=\"password\" placeholder=\"password\" type=\"password \"/>\n\t\t<button class=\"btn btn-primary\">Login</button>\n\t\t<span v-if=\"error\" class=\"help-block\">{{{ error }}}</span>\n\t</div>\n</form>";
 });
 
 })();
@@ -20790,7 +20790,7 @@ System.register('appl/event-editor/main.js', ['npm:babel-runtime@5.8.38/core-js/
 							_this.saved();
 						})['catch'](function (err) {
 							_this.saving = false;
-							_this.error = err;
+							_this.$root.error = err;
 						});
 					},
 					unallocate: function unallocate() {

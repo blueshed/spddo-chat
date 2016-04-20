@@ -49,7 +49,7 @@ export default Vue.extend({
 				}).
 				catch((err)=>{
 					this.saving=false;
-					this.error = err;
+					this.$root.error = err;
 				});
 		},
 		unallocate(){
