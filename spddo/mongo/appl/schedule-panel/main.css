@@ -1,7 +1,6 @@
 .SchedulePanel
 .calendar {
 	max-width: 900px;
-	margin: 50px auto;
 }
 
 .SchedulePanel
@@ -10,17 +9,25 @@
 }
 
 .SchedulePanel
-.editor{
-	margin-top: 80px;
-}
-
-.SchedulePanel
-.add-asset-icon{
+.add-asset-icon {
 	margin-top: 4px;
 	margin-right: 4px;
 }
 
 .SchedulePanel
-.add-asset-icon:hover{
+.add-asset-icon:hover {
 	color: green;
+}
+
+.SchedulePanel
+.cal-controls h3 {
+	margin-left: 2px;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.SchedulePanel
+.nav-cal {
+	text-align: right;
+	margin-bottom: 6px;
 }

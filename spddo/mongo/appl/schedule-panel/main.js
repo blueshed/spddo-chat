@@ -4,24 +4,20 @@ import './main.css!'
 import tmpl from "./main.html!text"
 
 import Vue from 'vue'
-import './moment-filter'
 import $ from 'jquery'
 import moment from 'moment'
 import _fc from './fullcalendar-scheduler-1.2.1/lib/fullcalendar.min'
 import _fcs from './fullcalendar-scheduler-1.2.1/scheduler.min'
 
 export default Vue.extend({
+	props: ['selected_event', 'selected_asset'],
 	template: tmpl,
 	data(){
 		return {
+			title: '-',
 			assets: null,
 			allocations: null,
-			selection: {}
-		}
-	},
-	computed:{
-		can_allocated(){
-			return this.selection.title;
+			view: 'timelineDay'
 		}
 	},
 	ready(){
@@ -30,33 +26,25 @@ export default Vue.extend({
 		});
 	},
 	methods:{
-		uid() {
-		    function _p8(s){
-		        var p = (Math.random().toString(16)+"000000000").substr(2,8);
-		        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
-		    }
-		    return _p8() + _p8(true);
+		select_asset(resource){
+			this.selected_event = null;
+			this.$nextTick(()=>{
+				this.selected_asset = {
+					_id: resource._id,
+					id: resource.id,
+					title: resource.title,
+					location: resource.location,
+					type: resource.type,
+					group_id: resource.group_id
+				};	
+			});
 		},
-		add_asset(){
-			var title = prompt('Asset name');
-			if (title) {
-				this.control.save_asset({
-					id: this.uid(),
-					name: title
-				}).
-				then((status)=>{
-					// noop
-				}).
-				catch((err)=>{
-					this.error = err;
-				});
-			}
-		},
-		remove_asset(resource){
-			if (confirm('Are you sure you want to delete ' + resource.title + '?')) {
-				this._cal.fullCalendar('removeResource', resource);
-			}
-		},
+        select_event(values){
+			this.selected_asset = null;
+			this.$nextTick(()=>{
+				this.selected_event = values;
+			});
+        },
 		load_assets(){
 			return this.control.assets().
 				then((result)=>{
@@ -64,36 +52,15 @@ export default Vue.extend({
 						return {
 							_id: item._id,
 							id: item.id,
-							title: item.name
+							title: item.name,
+							location: item.location,
+							type: item.type,
+							gorup_id: item.group_id
 						};
 					});
 				}).
 				catch((err)=>{
-					this.error = err;
-				});
-		},
-		allocate(){
-			this.control.allocate({
-					id: this.selection.id || this.uid(),
-					title: this.selection.title,
-					from_date: this.selection.start.unix(),
-					to_date: this.selection.end.unix(),
-					asset_id: this.selection.resource_id
-				}).
-				then((result)=>{
-					this.clear_selection();
-				}).
-				catch((err)=>{
-					this.error = err;
-				});
-		},
-		unallocate(){
-			this.control.unallocate(this.selection.id).
-				then((result)=>{
-					this.clear_selection();
-				}).
-				catch((err)=>{
-					this.error = err;
+					this.$root.error = err;
 				});
 		},
 		load_allocations(start, end, timezone, callback){
@@ -112,11 +79,11 @@ export default Vue.extend({
 					callback(this.allocations);
 				}).
 				catch((err)=>{
-					this.error = err;
+					this.$root.error = err;
 				});
 		},
 		do_select(start, end, jsEvent, view, resource){
-			this.set_selection({
+			this.select_event({
 				id: null,
 				title: null,
 				start: start,
@@ -126,66 +93,59 @@ export default Vue.extend({
 			});
 		},
 		do_unselect(view, jsEvent){
-			this.set_selection({
-				id: null,
-				title: null,
-				start: null,
-				end: null,
-				resource_id: null,
-				resource: null
-			});
+			this.selected_event = null;
 		},
-		clear_selection(){
-			this.do_unselect();
-			this._cal.fullCalendar('unselect');
+		do_event_click(event, jsEvent, view){
+			if(this.view=="timelineDay"){
+				var resource = event.resourceId ? this._cal.fullCalendar('getResourceById', event.resourceId) : null;
+				this._cal.fullCalendar('unselect');
+				this.select_event({
+						_id: event._id,
+						id: event.id,
+						title: event.title,
+						start: event.start,
+						end: event.end,
+						resource_id: resource ? resource.id : null,
+						resource: resource ? resource.title : null
+					});
+			} 
+			else{
+				this.view = 'timelineDay';
+				this._cal.fullCalendar('gotoDate',event.start);
+			}
 		},
-        set_selection(values){
-        	Object.keys(values).map((key)=>{
-        		this.$set("selection."+key,values[key]);
-        	});
-        },
         do_change(event, delta, revertFunc, jsEvent, ui, view){
-        	this.control.allocate({
-        		id: event.id,
-        		title: event.title,
-        		from_date: event.start.unix(),
-        		to_date: event.end.unix(),
-        		asset_id: event.resourceId
-        	}).
-			then((result)=>{
-				// noop
-			}).
-			catch((err)=>{
-				this.error = err;
-			});
+			var resource = event.resourceId ? this._cal.fullCalendar('getResourceById', event.resourceId) : null;
+			if(resource){
+				this.select_event({
+					_id: event._id,
+					id: event.id,
+					title: event.title,
+					start: event.start,
+					end: event.end,
+					resource_id: resource ? resource.id : null,
+					resource: resource ? resource.title : null
+				});
+			}
         },
 		init_cal(){
-			this._cal = $('.calendar').fullCalendar({
+			this._cal = $(this.$els.cal).fullCalendar({
 				schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
 				now: '2016-01-07',
 				editable: true,
 				aspectRatio: 1.8,
 				scrollTime: '09:00',
-				header: {
-					left: 'title',
-					right: 'promptResource timelineDay,timelineThreeDays,agendaWeek,month today prev,next'
-				},
-				customButtons: {
-					promptResource: {
-						text: '+ Asset',
-						click: this.add_asset.bind(this)
-					}
-				},
-				defaultView: 'timelineDay',
+				header: '',
+				defaultView: this.view,
 				views: {
-					timelineThreeDays: {
+					timelineFiveDay: {
 						type: 'timeline',
-						duration: { days: 3 }
+						duration: { days: 5 }
 					}
 				},
 				resourceLabelText: 'Assets',
 				resourceRender: (resource, cellEls)=>{
-					cellEls.on('click', this.remove_asset.bind(this, resource));
+					cellEls.on('click', this.select_asset.bind(this, resource));
 				},
 				selectable: true,
 		        unselectAuto: false,
@@ -195,35 +155,58 @@ export default Vue.extend({
 				events: this.load_allocations.bind(this),
 				eventDrop: this.do_change.bind(this),
 				eventResize: this.do_change.bind(this),
-				eventClick: ( event, jsEvent, view )=>{
-					var resource = event.resourceId ? this._cal.fullCalendar('getResourceById', event.resourceId) : null;
-					this.set_selection({
-						_id: event._id,
-						id: event.id,
-						title: event.title,
-						start: event.start,
-						end: event.end,
-						resource_id: resource ? resource.id : null,
-						resource: resource ? resource.title : null
-					})
-				}
-			});		
-			$(".fc-widget-header>div>.fc-cell-content>span.fc-cell-text").
-				append($("<span>").
-						addClass("fa fa-plus pull-right add-asset-icon").
-						click((item)=>{
-								this.add_asset();
-							}));
-		}
+				eventClick: this.do_event_click.bind(this)
+			});
+			this.update_title();
+		},
+		go_next(){
+			if(this._cal){
+	            this._cal.fullCalendar('next');
+	            this.update_title();
+			}
+        },
+        go_prev(){
+        	if(this._cal){
+	            this._cal.fullCalendar('prev');
+	            this.update_title();
+        	}
+        },
+        go_today(){
+        	if(this._cal){
+	            this._cal.fullCalendar('today');
+	            this.update_title();
+        	}
+        },
+        update_title() {
+        	var view = this._cal && this._cal.fullCalendar('getView');
+            this.title = view ? view.title : "-";
+        }
 	},
 	events:{
 		"asset-added": function(asset){
-			this._cal.fullCalendar("addResource", {
+			var item = {
 				_id: asset._id,
 				id: asset.id,
-				title: asset.name
+				title: asset.name,
+				location: asset.location,
+				type: asset.type,
+				group_id: asset.group_id
+			};
+			this.assets.push(item);
+			this._cal.fullCalendar("addResource", item);
+		},
+		"asset-changed": function(asset){
+			var resource = this.assets.find((item)=>{
+				return item.id == asset.id;
 			});
-			this.assets.push(asset);
+			if(resource){
+				resource._id = asset._id;
+				resource.title = asset.name;
+				resource.location = asset.location;
+				resource.type = asset.type;
+				resource.group_id = asset.group_id;
+				this._cal.fullCalendar("refetchResources");
+			}
 		},
 		"allocation-added": function(allocation){
 			this._cal.fullCalendar("refetchEvents");
@@ -245,7 +228,7 @@ export default Vue.extend({
 				event.resourceId = allocation.asset_id;
 				this._cal.fullCalendar("updateEvent", event);
 				if(this.selection && this.selection.id == allocation.id){
-					this.set_selection({
+					this.select_event({
 						title: event.title,
 						start: event.start,
 						end: event.end,
@@ -254,6 +237,19 @@ export default Vue.extend({
 					})
 				}
 			}			
+		}
+	},
+	watch:{
+        view(value){
+            if(this._cal){
+                this._cal.fullCalendar('changeView',value);
+	            this.update_title();
+            }
+        },
+		selected_event(value){
+			if(!value && this._cal){
+				this._cal.fullCalendar('unselect');
+			}
 		}
 	}
 });

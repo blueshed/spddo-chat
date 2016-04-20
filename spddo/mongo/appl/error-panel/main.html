@@ -1,0 +1,11 @@
+<div class="alert alert-danger alert-dismissible ErrorPanel" role="alert" v-if="error">
+	<button
+		type="button"
+		class="close"
+		data-dismiss="alert"
+		aria-label="Close"
+		@click.stop.prevent="clear_error">
+		<span aria-hidden="true">&times;</span>
+	</button>
+	<strong>Error:</strong> {{ error }}
+</div>

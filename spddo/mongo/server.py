@@ -66,7 +66,7 @@ def make_app():
         broadcast_queue=queue,
         cookie_name='spddo-mongo',
         cookie_secret='-it-was-a-dark-and-mongo-night-',
-        ws_url=os.getenv('ws_url', 'ws://petermac.local:8080/websocket'),
+        ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         login_url='/api/login',
         micro_context=Context,
         gzip=True,
@@ -81,7 +81,7 @@ def main():
     if os.path.isfile('.env'):
         dotenv.load_dotenv('.env')
 
-    logging.getLogger("blueshed.micro.utils.service").setLevel(logging.WARN)
+    logging.getLogger("blueshed.micro.utils.service").setLevel(logging.INFO)
     logging.getLogger("blueshed.micro.utils.pika_tool").setLevel(logging.WARN)
     port = int(os.getenv("PORT", 8080))
     app = make_app()

@@ -1,0 +1,8 @@
+<form class="form-inline LoginPanel" @submit.prevent="login">
+	<div class="form-group" :class="{'has-error':error}">
+		<input class="form-control" v-model="email" placeholder="email" type="text" />
+		<input class="form-control" v-model="password" placeholder="password" type="password "/>
+		<button class="btn btn-primary">Login</button>
+		<span v-if="error" class="help-block">{{!{ error }}}</span>
+	</div>
+</form>

@@ -30,10 +30,10 @@ class ApiHandler(UserMixin, tornado.web.RequestHandler):
     def get(self, path=None):
         '''
             if path ends with .json then return a description of services
-            
+
             else if path ends with .js then return a javascript client to the
             websocket rpc server
-            
+
             else if the path is a service name return an html form to call
             it with
         '''

@@ -1,0 +1,32 @@
+<div class="container">
+	<div class="tools">
+		<login-panel v-if="!user" :user.sync="user"></login-panel>
+		<span class="badge" :class="{'open':status=='open'}">{{ status }}</span>
+		<span v-if="user" class="badge">{{ user.email }}</span>&nbsp;
+		<a v-if="user" href="/logout?next=index.html" class="btn btn-default btn-xs">Logout</a>
+	</div>
+	<error-panel :error.sync="error"></error-panel>
+	<div class="row">
+		<div class="col-md-8">
+			<div v-if="status=='open'">
+				<schedule-panel 
+					:selected_event.sync="selected_event"
+					:selected_asset.sync="selected_asset"></schedule-panel>
+			</div>
+			<pre v-if="selected_event || selected_asset">{{ selected_event || selected_asset | json 4 }}</pre>
+		</div>
+		<div class="col-md-4">
+			<div class="tools">
+				<button class="btn btn-default btn-sm" @click.stop="add_asset">
+					Add Asset
+				</button>
+			</div>
+			<div v-if="selected_event">
+				<event-editor :selected.sync="selected_event"></event-editor>
+			</div>
+			<div v-if="selected_asset">
+				<asset-editor :selected.sync="selected_asset"></asset-editor>
+			</div>
+		</div>
+	</div>
+</div>

@@ -48,13 +48,6 @@ class WebSocketRpcHandler(UserMixin, tornado.websocket.WebSocketHandler):
             return parsed_origin.netloc in self._orgins_
         return super().check_origin(origin)
 
-    def get_current_user(self):
-        ''' overrides the tornado default to get use from the cookie '''
-        result = self.get_secure_cookie(self.cookie_name)
-        if result:
-            result = json_decode(result)
-        return result
-
     def open(self, *args, **kwargs):
         ''' called when open and adds to static list of clients '''
         WebSocketRpcHandler.clients.append(self)

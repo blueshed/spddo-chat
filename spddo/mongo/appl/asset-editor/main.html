@@ -1,0 +1,59 @@
+<div class="AssetEditor">
+	<form class="form-horizontal allocation-form" @submit.prevent="save">
+		<legend>{{ selection.id ? 'Edit' : 'Add' }} Asset:</legend>
+		<div class="form-group form-group-sm">
+			<label class="col-sm-3 control-label">title</label>
+			<div class="col-sm-9">
+				<input class="form-control" type="text" :placeholder="title" v-model="selection.title" autofocus>
+			</div>
+		</div>
+		<div class="form-group form-group-sm">
+			<label class="col-sm-3 control-label">type</label>
+			<div class="col-sm-9">
+				<div class="radio">
+				  <label>
+				    <input type="radio" name="optionsRadios" id="optionsRadios1" value="area" v-model="selection.type">
+				    An area of sites
+				  </label>
+				</div>
+				<div class="radio">
+				  <label>
+				    <input type="radio" name="optionsRadios" id="optionsRadios2" value="site" v-model="selection.type">
+				    A site
+				  </label>
+				</div>
+				<div class="radio">
+				  <label>
+				    <input type="radio" name="optionsRadios" id="optionsRadios3" value="intangable" v-model="selection.type">
+				    An intangable
+				  </label>
+				</div>
+			</div>
+		</div>
+		<div v-if="selection.group_id" class="form-group form-group-sm">
+			<label class="col-sm-3 control-label">in</label>
+			<div class="col-sm-9">
+				<input class="form-control" type="text" :placeholder="selection.group.name" readonly>
+			</div>
+		</div>
+		<div class="form-group form-group-sm">
+			<label class="col-sm-3 control-label">location</label>
+			<div class="col-sm-9">
+				<map-panel :location="selection.location"></map-panel>
+				<div class="text-muted">
+					<small>{{ selection.location.lat | precision 8 }} : {{ selection.location.lng | precision 8 }} : {{ selection.location.zoom }}</small>
+				</div>
+			</div>
+		</div>		
+		<div class="form-group form-group-sm">
+		  	<div class="col-sm-offset-3 col-sm-9">
+				<button v-if="selection.id" type="button" class="btn btn-danger" @click.prevent="remove">Remove</button>
+		  		<button class="btn btn-default" type="button" @click.prevent="cancel">Cancel</button>
+				<button type="submit" class="btn" :class="{'btn-primary':!saving,'btn-success':saving}" :disabled="!can_save">
+					<span v-if="selection.id">Save</span>
+					<span v-else>Add</span>
+				</button>
+			</div>
+		</div>
+	</form>
+</div>	
