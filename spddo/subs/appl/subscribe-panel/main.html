@@ -1,0 +1,38 @@
+<div class="SubscribePanel">
+	<div>
+		<button type="button" @click.stop="add">Add</button>
+		<button type="button" @click.stop="load">Load</button>
+	</div>
+	<form v-if="editing" @submit.prevent="subscribe">
+		<div class="form-group">
+			<label>user</label>
+			<input type="text" v-model="editing.user_id"  placeholder="user_id" />
+		</div>
+		<div class="form-group">
+			<label>group</label>
+			<input type="text" v-model="editing.group_id"  placeholder="group_id" />
+		</div>
+		<div class="form-group">
+			<label>service</label>
+			<input type="text" v-model="editing.service_id"  placeholder="service_id" />
+		</div>
+		<div class="form-group">
+			<button type="submit">
+				<span>Subscribe</span>
+			</button>
+			<button type="button" @click.stop="cancel">Cancel</button>
+		</div>
+	</form>
+	<h3>Unpaid</h3>
+	<ul>
+		<li v-for="item in unpaid">
+			{{ item.id }} {{ item.user }} {{ item.group }} {{ item.service }}
+		</li>
+	</ul>
+	<h3>Active</h3>
+	<ul>
+		<li v-for="item in active">
+			{{ item.id }} {{ item.user }} {{ item.group }} {{ item.service }} {{ item.from_date }} - {{ item.to_date }} {{ item.payment_id }}
+		</li>
+	</ul>
+</div>

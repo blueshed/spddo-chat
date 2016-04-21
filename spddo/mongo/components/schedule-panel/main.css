@@ -31,3 +31,16 @@
 	text-align: right;
 	margin-bottom: 6px;
 }
+
+.SchedulePanel
+.month-view-event{
+	display: none;
+}
+
+.SchedulePanel
+.event-count{
+	margin-top: 1.5em;
+	margin-left: 4px;
+	cursor: pointer;
+	font-weight: normal;
+}

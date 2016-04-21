@@ -83,20 +83,26 @@ export default Vue.extend({
 				});
 		},
 		do_select(start, end, jsEvent, view, resource){
-			this.select_event({
-				id: null,
-				title: null,
-				start: start,
-				end: end,
-				resource_id: resource ? resource.id : null,
-				resource: resource ? resource.title : null
-			});
+			if(this.view == "month"){
+   				this.view = 'timelineDay';
+   				this._cal.fullCalendar('gotoDate',start);
+   				this._cal.fullCalendar('unselect');
+			} else {
+				this.select_event({
+					id: null,
+					title: null,
+					start: start,
+					end: end,
+					resource_id: resource ? resource.id : null,
+					resource: resource ? resource.title : null
+				});
+			}
 		},
 		do_unselect(view, jsEvent){
 			this.selected_event = null;
 		},
 		do_event_click(event, jsEvent, view){
-			if(this.view=="timelineDay"){
+			if(this.view != "month"){
 				var resource = event.resourceId ? this._cal.fullCalendar('getResourceById', event.resourceId) : null;
 				this._cal.fullCalendar('unselect');
 				this.select_event({
@@ -155,7 +161,33 @@ export default Vue.extend({
 				events: this.load_allocations.bind(this),
 				eventDrop: this.do_change.bind(this),
 				eventResize: this.do_change.bind(this),
-				eventClick: this.do_event_click.bind(this)
+				eventClick: this.do_event_click.bind(this),
+				eventRender: (event, element, view)=>{
+					if(this.view=="month"){
+			            $(element).each(function () { 
+			                $(this).attr('date-num', event.start.format('YYYY-MM-DD')).
+			                addClass('month-view-event'); 
+			            });
+					}
+		        },
+		        eventAfterAllRender: (view)=>{
+		        	if(this.view=="month"){
+		        		var cDay = null;
+			            for( cDay = view.start.clone(); cDay.isBefore(view.end) ; cDay.add(1, 'day') ){
+			                var dateNum = cDay.format('YYYY-MM-DD');
+			                var dayEl = $('.fc-day[data-date="' + dateNum + '"]');
+			                var eventCount = $('.fc-event[date-num="' + dateNum + '"]').length;
+			                if(eventCount){
+			                	var label = eventCount == 1 ? ' event' : ' events';
+			                    var html = $('<div class="badge event-count">' +
+			                               eventCount + label +
+			                               '</div>');	
+			                    dayEl.append(html);
+	
+			                }
+			            }
+		        	}
+		        }
 			});
 			this.update_title();
 		},

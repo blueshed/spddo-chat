@@ -1,0 +1,13 @@
+[v-cloak]{
+	display: none;
+}
+
+label{
+	vertical-align: top;
+	display: inline-block;
+	width: 80px;	
+}
+
+.form-group{
+	margin-bottom: 6px;
+}

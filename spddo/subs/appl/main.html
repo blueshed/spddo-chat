@@ -1,0 +1,15 @@
+<div class="container">
+	<div class="tools">
+		<span class="badge" :class="{'open':status=='open'}">{{ status }}</span>
+		<span v-if="user" class="badge">{{ user.email }}</span>&nbsp;
+		<a v-if="user" href="/logout?next=index.html" class="btn btn-default btn-xs">Logout</a>
+	</div>
+	<div v-if="error">
+		<strong>{{{ error }}}</strong>
+	</div>
+	<users-panel></users-panel>
+	<groups-panel></groups-panel>
+	<services-panel></services-panel>
+	<subscribe-panel></subscribe-panel>
+	<payment-panel></payment-panel>
+</div>

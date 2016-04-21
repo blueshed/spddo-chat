@@ -9,7 +9,7 @@ import MarkerComponent from "./marker"
 
 export default Vue.extend({
   	template: tmpl,
-  	props:["location"],
+  	props:["location","search"],
   	data(){
   		return {
   			loaded: false,

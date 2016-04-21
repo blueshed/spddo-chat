@@ -8,3 +8,4 @@
 .env
 
 venv
+.cache/v/cache/lastfailed

@@ -134,7 +134,7 @@ Control.prototype._send = function(action, args, callback) {
 **/{% end %}
 Control.prototype.{{ service.name }} = function({{ ", ".join([p.name for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}){
 	return this._send("{{ service.name }}", { 
-		{{ ",\n\t\t".join(["{0!r}: {0}{1}".format(p.name,'|| ' + repr(p.default) if p.default is not p.empty else '') for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }} 
+		{{ ",\n\t\t".join(["{0!r}: {0} {1}".format(p.name,'|| ' + json_encode(p.default) if p.default is not p.empty else '') for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }} 
 	});
 };
 {% end %}

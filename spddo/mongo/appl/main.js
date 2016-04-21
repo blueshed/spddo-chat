@@ -8,11 +8,11 @@ import Vue from 'vue'
 import $ from 'jquery'
 import bootstrap from 'bootstrap'
 
-import LoginPanel from "./login-panel/main"
-import ErrorPanel from "./error-panel/main"
-import SchedulePanel from './schedule-panel/main'
-import EventEditor from './event-editor/main'
-import AssetEditor from './asset-editor/main'
+import LoginPanel from "components/login-panel/main"
+import ErrorPanel from "components/error-panel/main"
+import SchedulePanel from 'components/schedule-panel/main'
+import EventEditor from 'components/event-editor/main'
+import AssetEditor from 'components/asset-editor/main'
 import './filters'
 
 Vue.config.debug = true;

@@ -1,6 +1,6 @@
 <div class="AssetEditor">
 	<form class="form-horizontal allocation-form" @submit.prevent="save">
-		<legend>{{ selection.id ? 'Edit' : 'Add' }} Asset:</legend>
+		<legend>{{ selection.id ? 'Edit' : 'Add' }} Asset</legend>
 		<div class="form-group form-group-sm">
 			<label class="col-sm-3 control-label">title</label>
 			<div class="col-sm-9">
@@ -9,7 +9,7 @@
 		</div>
 		<div class="form-group form-group-sm">
 			<label class="col-sm-3 control-label">type</label>
-			<div class="col-sm-9">
+			<div class="col-sm-9" v-if="!selection.id">
 				<div class="radio">
 				  <label>
 				    <input type="radio" name="optionsRadios" id="optionsRadios1" value="area" v-model="selection.type">
@@ -29,6 +29,9 @@
 				  </label>
 				</div>
 			</div>
+			<div class="col-sm-9" v-else>
+				<input class="form-control" type="text" :placeholder="selection.type" readonly>
+			</div>
 		</div>
 		<div v-if="selection.group_id" class="form-group form-group-sm">
 			<label class="col-sm-3 control-label">in</label>
@@ -39,7 +42,7 @@
 		<div class="form-group form-group-sm">
 			<label class="col-sm-3 control-label">location</label>
 			<div class="col-sm-9">
-				<map-panel :location="selection.location"></map-panel>
+				<map-panel :location="selection.location" :search="!selection.id"></map-panel>
 				<div class="text-muted">
 					<small>{{ selection.location.lat | precision 8 }} : {{ selection.location.lng | precision 8 }} : {{ selection.location.zoom }}</small>
 				</div>
