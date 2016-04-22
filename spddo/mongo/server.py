@@ -17,6 +17,7 @@ import os
 
 from spddo.mongo import control
 from spddo.mongo.control.context import Context
+from blueshed.micro.handlers.token_access_handler import TokenAccessHandler
 
 define("debug", False, bool, help="run in debug mode")
 
@@ -53,6 +54,10 @@ def make_app():
                                    os.getenv('s3_config')),
             'bucket': 'blueshed-blogs'}),
         (r"/api(.*)", ApiHandler),
+        (r"/token_access", TokenAccessHandler, {
+            'auth_url': 'http://localhost:8081/api/validate_token.js',
+            'service_token': '12345'
+        }),
         (r"/logout", LogoutHandler),
         (r"/(.*)", tornado.web.StaticFileHandler, {
             "path": site_path,

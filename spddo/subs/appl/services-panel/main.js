@@ -27,6 +27,8 @@ export default Vue.extend({
 					this.editing_service.description,
 					this.editing_service.cost,
 					this.editing_service.duration,
+					this.editing_service.token_url,
+					this.editing_service.cors,
 				   	this.editing_service.id).
 				then((result)=>{
 					this.editing_service = null;
@@ -44,7 +46,9 @@ export default Vue.extend({
 				name: item.name,
 				description: item.description,
 				cost: item.cost,
-				duration: item.duration
+				duration: item.duration,
+				token_url: item.token_url,
+				cors: item.cors
 			};
 		},
 		add_service(){
@@ -53,7 +57,9 @@ export default Vue.extend({
 				name: null,
 				description: null,
 				cost: null,
-				duration: null
+				duration: null,
+				token_url: null,
+				cors: null
 			};
 		}
 	}

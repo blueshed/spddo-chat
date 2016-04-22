@@ -27,6 +27,14 @@
 			<input type="text" v-model="editing_service.duration"  placeholder="duration in days" number />
 		</div>
 		<div class="form-group">
+			<label>token_url</label>
+			<input type="text" v-model="editing_service.token_url"  placeholder="token url" />
+		</div>
+		<div class="form-group">
+			<label>cors</label>
+			<input type="text" v-model="editing_service.cors"  placeholder="cors" />
+		</div>
+		<div class="form-group">
 			<button type="submit">
 				<span v-if="editing_service.id">Save</span>
 				<span v-else>Add</span>

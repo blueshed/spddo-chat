@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block styles %}
+<style type="text/css">
+.container{
+	margin-top: 2em;
+}
+</style>
+{% end %}
+
+{% block body %}
+<div class="container">
+	<div class="row">
+		<div id="service_requests" class="col-md-4 col-md-offset-4">
+			<ul class="list-group">{% for index,service in enumerate(services) %}
+				<li class="list-group-item" id="service_{{ index }}">{{ service['name'] }}</li>
+			</ul>{% end %}
+		</div>
+	</div>
+</div>
+{% end %}
+
+{% block scripts %}
+<script type="text/javascript">{% autoescape None %}{% whitespace all %}
+
+
+$(function(){
+	var targets = {%raw json_encode(services) %};
+	$(targets).each(function(index,item){
+		$.ajax({ 
+			url: item.url, 
+			timeout: 1000,
+		   	xhrFields: {
+		      	withCredentials: true
+		   	},
+			success: function(data, textStatus, jqXHR){
+				console.log(jqXHR);
+				if(data.result=="ok"){
+					$("#service_"+index).append("<span class='text-success glyphicon glyphicon-ok pull-right'></span>");
+				} else {
+					$("#service_"+index).append("<span class='text-danger glyphicon glyphicon-remove pull-right'></span>");
+					$("#service_"+index).append("<div class='alert alert-danger'><strong>" + item.name + "</strong>: " + data.error + "</div>");
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+				console.log(jqXHR);
+				$("#service_"+index).append("<span class='text-danger glyphicon glyphicon-remove pull-right'></span>");
+				$("#service_"+index).append("<div class='alert alert-danger'><strong>" + item.name + "</strong>: " + errorThrown + "</div>");
+			}
+		})
+	});
+})
+
+{% autoescape xhtml_escape %}{% whitespace oneline %}</script>
+{% end %}

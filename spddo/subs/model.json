@@ -56,8 +56,8 @@
     "name": "Role",
     "attrs": [
       {
-        "name": "name",
-        "type": "String",
+        "name": "permission",
+        "type": "Permission",
         "size": "128",
         "precision": 36,
         "scale": 12,
@@ -68,7 +68,7 @@
         "m2m": false,
         "cascade": false,
         "doc": "",
-        "is_scalar": false,
+        "is_scalar": true,
         "is_m2m": false
       },
       {
@@ -195,7 +195,7 @@
       },
       {
         "name": "from_date",
-        "type": "Datetime",
+        "type": "Date",
         "size": 255,
         "precision": 36,
         "scale": 12,
@@ -211,7 +211,7 @@
       },
       {
         "name": "to_date",
-        "type": "Datetime",
+        "type": "Date",
         "size": 255,
         "precision": 36,
         "scale": 12,
@@ -386,6 +386,27 @@
         "precision": 36,
         "scale": 12,
         "values": "user,group",
+        "nullable": true,
+        "unique": false,
+        "backref": null,
+        "m2m": false,
+        "cascade": false,
+        "doc": "",
+        "is_scalar": false,
+        "is_m2m": false
+      }
+    ]
+  },
+  {
+    "name": "Permission",
+    "attrs": [
+      {
+        "name": "name",
+        "type": "String",
+        "size": "128",
+        "precision": 36,
+        "scale": 12,
+        "values": null,
         "nullable": true,
         "unique": false,
         "backref": null,

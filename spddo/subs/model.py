@@ -1,7 +1,8 @@
-from sqlalchemy.types import String, Integer, Numeric, DateTime, Date, Time, Enum, Boolean, Text
-from sqlalchemy.schema import Table, Column, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.types import String, Integer, Numeric, DateTime, Date, Text
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.orm import relationship
 from blueshed.micro.utils.orm_utils import Base
+from sqlalchemy.sql.sqltypes import Enum
 
 
 class User(Base):
@@ -23,7 +24,10 @@ class User(Base):
 class Role(Base):
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(128))
+    permission_id = Column(Integer, ForeignKey('permission.id'))
+    permission = relationship('Permission', uselist=False,
+                              primaryjoin='Role.permission_id==Permission.id',
+                              remote_side='Permission.id')
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship('User', uselist=False,
                         primaryjoin='Role.user_id==User.id',
@@ -87,6 +91,8 @@ class Service(Base):
     prefs = Column(Text)
     cost = Column(Numeric(36, 12))
     duration = Column(Integer)
+    token_url = Column(String(128))
+    cors = Column(String(128))
     subscriptions = relationship('Subscription', uselist=True,
                                  primaryjoin='Subscription.service_id==Service.id',
                                  remote_side='Subscription.service_id',
@@ -105,3 +111,9 @@ class Payment(Base):
                                  primaryjoin='Subscription.payment_id==Payment.id',
                                  remote_side='Subscription.payment_id',
                                  back_populates='payment')
+
+
+class Permission(Base):
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128))

@@ -43,11 +43,16 @@ class ApiHandler(UserMixin, tornado.web.RequestHandler):
             self.set_header('content-type', "text/javascript")
             self.render("api-tmpl.js",
                         services=self.services.values())
-        elif path and path[1:] in self.services:
-            self.render("service.html",
-                        service=self.services[path[1:]],
-                        error=None,
-                        result=None)
+        elif path and path[1:].split(".")[0] in self.services:
+            service = path[1:].split(".")[0]
+            if path.endswith(".html"):
+                self.render("service.html",
+                            service=self.services[service],
+                            error=None,
+                            result=None)
+            else:
+                raise tornado.web.HTTPError(
+                    404, "unsupported format {}".format(path))
         else:
             raise tornado.web.HTTPError(
                 404, "unsupported format {}".format(path))
@@ -59,8 +64,8 @@ class ApiHandler(UserMixin, tornado.web.RequestHandler):
             or marshall the arguments to the service expressed
             by path
         '''
-        if path and path[1:] in self.services:
-            service = self.services[path[1:]]
+        if path and path[1:].split(".")[0] in self.services:
+            service = self.services[path[1:].split(".")[0]]
             kwargs = {}
             for param in service.desc.parameters.values():
                 if param.name in ['context']:
@@ -101,5 +106,12 @@ class ApiHandler(UserMixin, tornado.web.RequestHandler):
                 next_ = self.get_argument('next', None)
                 if next_:
                     self.redirect(next_)
-        self.render("service.html", service=self.services[
-                    path[1:]], error=error, result=result)
+        if path.endswith(".js"):
+            if error:
+                self.write({"error": error})
+            else:
+                self.write(result)
+            self.finish()
+        else:
+            self.render("service.html", service=self.services[
+                        path[1:]], error=error, result=result)

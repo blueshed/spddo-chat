@@ -7,6 +7,8 @@ def save_service(context: 'micro-context',
                  description: str,
                  cost: float,
                  duration: int=None,
+                 token_url: str=None,
+                 cors: str=None,
                  id: int=None):
     with context.session as session:
         if id:
@@ -15,12 +17,16 @@ def save_service(context: 'micro-context',
             service.description = description
             service.cost = cost
             service.duration = duration
+            service.token_url = token_url
+            service.cors = cors
             signal = "service-changed"
         else:
             service = model.Service(name=name,
                                     description=description,
                                     cost=cost,
-                                    duration=duration)
+                                    duration=duration,
+                                    token_url=token_url,
+                                    cors=cors)
             signal = "service-added"
             session.add(service)
         session.commit()
