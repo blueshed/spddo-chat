@@ -1,8 +1,8 @@
-from tornado import gen
-from tornado.escape import json_encode
 from tornado.web import RequestHandler, HTTPError
+from tornado.gen import coroutine
 from tornado.httpclient import AsyncHTTPClient
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode
+from blueshed.micro.utils.utils import url_to_cors
 import logging
 
 
@@ -16,8 +16,7 @@ class TokenAccessHandler(RequestHandler):
     def initialize(self, service_token, auth_url):
         self.service_token = service_token
         self.auth_url = auth_url
-        o = urlparse(auth_url)
-        self._origins_ = ["{}://{}".format(o.scheme, o.netloc)]
+        self._origins_ = [url_to_cors(auth_url)]
 
     @property
     def cookie_name(self):
@@ -26,9 +25,8 @@ class TokenAccessHandler(RequestHandler):
     def check_origin(self):
         ''' checks the origin is in the origins provided at initialization '''
         if self._origins_:
-            o = urlparse(self.request.headers.get("Referer"))
-            logging.info(o)
-            origin = "{}://{}".format(o.scheme, o.netloc)
+            origin = url_to_cors(self.request.headers.get("Referer"))
+            logging.info(origin)
             if origin in self._origins_:
                 return origin
             raise HTTPError(403, "Cross origin websockets not allowed")
@@ -45,7 +43,7 @@ class TokenAccessHandler(RequestHandler):
     def options(self, *args, **kwargs):
         self.finish()
 
-    @gen.coroutine
+    @coroutine
     def get(self):
         token = self.get_argument("v")
         logging.info("auth token %s", token)

@@ -5,6 +5,8 @@ import Vue from 'vue'
 
 Vue.config.debug = true;
 
+import "./auto-complete"
+
 import UsersPanel from './users-panel/main'
 import GroupsPanel from './groups-panel/main'
 import ServicesPanel from './services-panel/main'
@@ -43,6 +45,7 @@ System.import('/api.js').then(({Control})=>{
 			this.control.init((signal, message)=>{
 					this.$dispatch(signal, message);
 					this.$broadcast(signal, message);
+					console.log(signal, message);
 				}).
 			then((status)=>{
 				this.status = status;

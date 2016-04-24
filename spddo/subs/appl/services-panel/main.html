@@ -1,8 +1,13 @@
-<div class="ServicesPanel">
-	<form @submit.prevent="filter_services">
-		<input type="text" v-model="service_term" placeholder="service name" />
-		<button type="submit">Filter</button>
-		<button type="button" @click.stop="add_service">Add</button>
+<div class="ServicesPanel Panel">
+	<form @submit.prevent="" class="input-group">
+		<input type="text" placeholder="service name" 
+			v-auto-complete :selected="edit_service" :source="filter_services"  v-el:search_input/>
+		<button type="submit">
+			<span class="fa fa-fw fa-search"></span>
+		</button>
+		<button type="button" @click.stop="add_service">
+			<span class="fa fa-fw fa-plus"></span>
+		</button>
 	</form>
 	<ul>
 		<li v-for="item in services">
@@ -12,7 +17,7 @@
 	<form v-if="editing_service" @submit.prevent="save_service">
 		<div class="form-group">
 			<label>name</label>
-			<input type="text" v-model="editing_service.name"  placeholder="name" />
+			<input type="text" v-model="editing_service.name"  placeholder="name"  v-el:name_input />
 		</div>
 		<div class="form-group">
 			<label>description</label>

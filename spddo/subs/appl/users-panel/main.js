@@ -1,22 +1,17 @@
 import tmpl from "./main.html!text"
 import Vue from 'vue'
 
-
 export default Vue.extend({
 	template: tmpl,
 	data(){
 		return {
-			users: null,
-			editing_user: null,
-			user_term: null
+			editing_user: null
 		}
 	},
 	methods:{
-		filter_users(){
-			this.control.filter_users(this.user_term).
-				then((result)=>{
-					this.users = result;
-				}).
+		filter_users(term, suggest){
+			this.control.filter_users(term).
+				then(suggest).
 				catch((err)=>{
 					this.$root.error = err;
 				})
@@ -37,19 +32,27 @@ export default Vue.extend({
 			this.editing_user = null;
 		},
 		edit_user(item){
+			this.$els.search_input.value = null;
 			this.editing_user = {
 				id: item.id,
 				name: item.name,
 				email: item.email
 			};
 		},
+		remove_user(){
+			
+		},
 		add_user(){
 			this.editing_user = {
 				id: null,
-				name: null,
+				name: this.$els.search_input.value || null,
 				email: null,
 				password: null
 			};
+			this.$els.search_input.value = null;
+			this.$nextTick(()=>{
+				this.$els.name_input.focus();
+			});
 		}
 	}
 });

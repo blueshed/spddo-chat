@@ -24,3 +24,7 @@ class BaseContext:
 
     def get_cookie(self, key, default=None):
         return self.cookies.get(key, default)
+
+    def flushed(self):
+        ''' called when broadcast queue is flushed '''
+        pass

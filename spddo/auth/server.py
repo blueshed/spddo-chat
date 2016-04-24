@@ -17,14 +17,19 @@ from spddo.auth.actions.context import Context
 from spddo.auth.login_handler import LoginHandler
 
 define('debug', False, bool, help='run in debug mode')
+define("db_url", default='mysql://root:root@localhost:8889/auth',
+       help="database url")
+define("db_pool_recycle", 60, int,
+       help="how many seconds to recycle db connection")
 
 
 def make_app():
     db_url = orm_utils.heroku_db_url(
         os.getenv('CLEARDB_DATABASE_URL',
-                  'mysql://root:root@localhost:8889/auth'))
+                  options.db_url))
 
-    db_connection.db_init(db_url)
+    db_connection.db_init(db_url,
+                          db_pool_recycle=options.db_pool_recycle)
     orm_utils.create_all(orm_utils.Base, db_connection._engine_)
 
     handlers = [

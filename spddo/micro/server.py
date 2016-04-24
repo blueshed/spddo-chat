@@ -1,6 +1,6 @@
 from pkg_resources import resource_filename  # @UnresolvedImport
 
-from tornado.options import parse_command_line
+from tornado.options import parse_command_line, define, options
 import tornado.autoreload
 import tornado.ioloop
 import tornado.web
@@ -17,23 +17,18 @@ import os
 
 import spddo.micro.func
 from spddo.micro.func.context import Context
+from spddo.micro.api_page_handler import ApiPageHandler
+from spddo.micro.index_handler import IndexHandler
 
-
-class IndexHandler(tornado.web.RequestHandler):
-
-    def get(self):
-        self.render("websocketrpc.html",
-                    services=self.application.settings["services"].values())
-
-
-class ApiPageHandler(tornado.web.RequestHandler):
-
-    def get(self):
-        self.render("api.html")
+define('debug', False, bool, help='run in debug mode')
+define("db_url", default='sqlite:///', help="database url")
+define("db_pool_recycle", 60, int,
+       help="how many seconds to recycle db connection")
 
 
 def make_app():
-    db_url = heroku_db_url(os.getenv("CLEARDB_DATABASE_URL", 'sqlite:///'))
+    db_url = heroku_db_url(os.getenv("CLEARDB_DATABASE_URL",
+                                     options.db_url))
 
     pool_size = int(os.getenv("POOL_SIZE", 0))
     if pool_size:
@@ -49,7 +44,6 @@ def make_app():
         queue = PikaTool(amqp_url,
                          WebSocketRpcHandler.async_broadcast)
         queue.connect()
-#         tornado.autoreload.add_reload_hook(queue.close_connection)
         logging.info("broadcast_queue {}".format(amqp_url))
     else:
         queue = None

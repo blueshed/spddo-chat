@@ -6,17 +6,13 @@ export default Vue.extend({
 	template: tmpl,
 	data(){
 		return {
-			services: null,
-			editing_service: null,
-			service_term: null
+			editing_service: null
 		}
 	},
 	methods:{
-		filter_services(){
-			this.control.filter_services(this.service_term).
-				then((result)=>{
-					this.services = result;
-				}).
+		filter_services(term, suggest){
+			this.control.filter_services(term).
+				then(suggest).
 				catch((err)=>{
 					this.$root.error = err;
 				})
@@ -41,6 +37,7 @@ export default Vue.extend({
 			this.editing_service = null;
 		},
 		edit_service(item){
+			this.$els.search_input.value = null;
 			this.editing_service = {
 				id: item.id,
 				name: item.name,
@@ -54,13 +51,17 @@ export default Vue.extend({
 		add_service(){
 			this.editing_service = {
 				id: null,
-				name: null,
+				name: this.$els.search_input.value || null,
 				description: null,
 				cost: null,
 				duration: null,
 				token_url: null,
 				cors: null
 			};
+			this.$els.search_input.value = null;
+			this.$nextTick(()=>{
+				this.$els.name_input.focus();
+			});
 		}
 	}
 });

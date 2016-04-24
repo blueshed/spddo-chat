@@ -14,10 +14,12 @@ System.config({
   },
 
   map: {
+    "autocompete": "github:Pixabay/JavaScript-autoComplete@master",
     "babel": "npm:babel-core@5.8.38",
     "babel-runtime": "npm:babel-runtime@5.8.38",
     "core-js": "npm:core-js@1.2.6",
     "css": "github:systemjs/plugin-css@0.1.21",
+    "floating-label": "npm:floating-label@2.0.0",
     "text": "github:systemjs/plugin-text@0.0.7",
     "vue": "npm:vue@1.0.21",
     "github:jspm/nodelibs-assert@0.1.0": {

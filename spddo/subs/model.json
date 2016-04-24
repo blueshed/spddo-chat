@@ -341,6 +341,38 @@
         "doc": "",
         "is_scalar": false,
         "is_m2m": false
+      },
+      {
+        "name": "token_url",
+        "type": "String",
+        "size": "128",
+        "precision": 36,
+        "scale": 12,
+        "values": null,
+        "nullable": true,
+        "unique": false,
+        "backref": null,
+        "m2m": false,
+        "cascade": false,
+        "doc": "",
+        "is_scalar": false,
+        "is_m2m": false
+      },
+      {
+        "name": "cors",
+        "type": "String",
+        "size": "128",
+        "precision": 36,
+        "scale": 12,
+        "values": null,
+        "nullable": true,
+        "unique": false,
+        "backref": null,
+        "m2m": false,
+        "cascade": false,
+        "doc": "",
+        "is_scalar": false,
+        "is_m2m": false
       }
     ]
   },

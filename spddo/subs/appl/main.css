@@ -1,13 +1,86 @@
 [v-cloak]{
 	display: none;
 }
+*{
+	box-sizing: border-box;
+}
+
+.tools{
+	text-align: right;
+}
+
+.badge{
+	background: gray;
+	color: white;
+	border-radius: 8px;
+	padding: 1px 8px;
+	font-size: smaller;
+}
+.badge.open{
+	background: green;	
+}
+
+.note{
+	font-size: smaller;
+}
+
+.Panel{
+	margin: 1%;
+	padding: 1em;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.UsersPanel{
+	width: 31%;
+	float: left;
+}
+.GroupsPanel{
+	width: 31%;
+	float: left;
+}
+.ServicesPanel{
+	width: 32%;
+	float: left;
+}
+.SubscribePanel{
+	clear: both;
+	float: left;
+	width: 48%;
+}
+.PaymentPanel{
+	float: left;
+	width: 48%;
+}
+
+
+
+.input-group{
+  display: flex;
+}
+
+.input-group input[type=text]{
+	flex: 1 0 8em;
+}
+
+.input-group button{
+	flex: 0 0 auto;
+}
+
+input[type=text], textarea{
+	width: 100%;
+	padding: 4px 6px;
+}
 
 label{
 	vertical-align: top;
 	display: inline-block;
 	width: 80px;	
+	font-style: italic;
+	font-size: smaller;
+	color: #aaa;
 }
 
 .form-group{
-	margin-bottom: 6px;
+	margin-bottom: 8px;
 }

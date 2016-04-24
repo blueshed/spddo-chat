@@ -4,6 +4,7 @@ import logging
 _session_ = None
 _engine_ = None
 
+
 def db_init(db_url, db_echo=False, db_pool_recycle=None):
     global _session_, _engine_
     _engine_, _session_ = connect(db_url, db_echo, db_pool_recycle)
@@ -13,6 +14,7 @@ def db_init(db_url, db_echo=False, db_pool_recycle=None):
 def session():
     ''' returns a self closing session for use by with statements '''
     global _session_
+    assert _session_
     session = _session_()
 
     class closing_session:

@@ -2,6 +2,8 @@ from spddo.auth import model
 from sqlalchemy.orm import joinedload
 from spddo.auth.actions.validate_token import gen_access_token
 from tornado.escape import url_escape
+from sqlalchemy.sql.expression import and_
+import logging
 
 
 def sub_to_json(sub):
@@ -12,10 +14,11 @@ def sub_to_json(sub):
 
 def login(context: 'micro-context', email: str, password: str) -> dict:
     ''' returns a list of services to ask for cookies '''
+    logging.info("login: %s", email)
     with context.session as session:
         user = session.query(model.User).\
-            filter(model.User.email == email,
-                   model.User.password == password).\
+            filter(and_(model.User.email == email,
+                        model.User.password == password)).\
             first()
         if user is None:
             raise Exception(
@@ -23,6 +26,8 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
         subscriptions = session.query(model.Subscription).\
             filter(model.Subscription.user == user).\
             options(joinedload(model.Subscription.service))
+        if subscriptions.count() is 0:
+            raise Exception("You have no subscriptions!")
         result = {
             "services": [{
                             'name': sub.service.name,

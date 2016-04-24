@@ -16,15 +16,19 @@ from spddo.subs import actions
 from spddo.subs.actions.context import Context
 
 define('debug', False, bool, help='run in debug mode')
+define("db_url", default='mysql://root:root@localhost:8889/subs', help="database url")
+define("db_pool_recycle", 60, int,
+       help="how many seconds to recycle db connection")
 
 
 def make_app():
     db_url = orm_utils.heroku_db_url(
-        os.getenv('CLEARDB_DATABASE_URL',
-                  'mysql://root:root@localhost:8889/subs'))
+        os.getenv('CLEARDB_DATABASE_URL', options.db_url))
 
-    db_connection.db_init(db_url)
-    orm_utils.create_all(orm_utils.Base, db_connection._engine_)
+    db_connection.db_init(db_url,
+                          db_pool_recycle=options.db_pool_recycle)
+    if options.debug:
+        orm_utils.create_all(orm_utils.Base, db_connection._engine_)
 
     if options.debug:
         site_path = resource_filename('spddo', 'subs')

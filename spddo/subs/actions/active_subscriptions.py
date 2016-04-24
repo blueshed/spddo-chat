@@ -7,7 +7,7 @@ from spddo.subs.actions.subscribe import sub_to_json
 
 
 def active_subscriptions_for(session, user_id=None, group_id=None,
-                             on_date=None):
+                             on_date=None, loaded=True):
     if on_date is None:
         on_date = datetime.date.today()
     else:
@@ -20,9 +20,11 @@ def active_subscriptions_for(session, user_id=None, group_id=None,
         result = result.filter(model.Subscription.user_id == user_id)
     if group_id is not None:
         result = result.filter(model.Subscription.group_id == group_id)
-    result = result.options(subqueryload(model.Subscription.user))
-    result = result.options(subqueryload(model.Subscription.group))
-    result = result.options(subqueryload(model.Subscription.service))
+
+    if loaded is True:
+        result = result.options(subqueryload(model.Subscription.user))
+        result = result.options(subqueryload(model.Subscription.group))
+        result = result.options(subqueryload(model.Subscription.service))
     return result
 
 

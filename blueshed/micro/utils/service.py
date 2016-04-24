@@ -5,6 +5,8 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
+
+
 class Service(object):
     '''
        Wraps a function with a description so that it can be
@@ -27,6 +29,13 @@ class Service(object):
             kwargs[self.has_context] = context
         return self.f(**kwargs)
 
+    def perform_in_pool(self, pool, context, **kwargs):
+        return pool.submit(self.run_in_pool,
+                           self.f,
+                           self.has_context,
+                           context,
+                           **kwargs)
+
     def __str__(self):
         return "%s %s - %s" % (self.name, self.desc, self.docs)
 
@@ -40,6 +49,12 @@ class Service(object):
                 LOGGER.info(s)
                 result[key] = s
         return result
+
+    @classmethod
+    def run_in_pool(cls, f, has_context, context, **kwargs):
+        if has_context:
+            kwargs[has_context] = context
+        return context, f(**kwargs)
 
     def to_json(self):
         return {

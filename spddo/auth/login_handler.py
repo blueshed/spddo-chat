@@ -17,7 +17,7 @@ class LoginHandler(tornado.web.RequestHandler):
 
         try:
             email = self.get_argument("email")
-            password = self.get_argument("email")
+            password = self.get_argument("password")
             result = login(context, email, password)
         except Exception as ex:
             logging.exception(ex)

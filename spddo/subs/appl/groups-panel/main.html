@@ -1,8 +1,13 @@
-<div class="GroupsPanel">
-	<form @submit.prevent="filter_groups">
-		<input type="text" v-model="group_term" placeholder="group name" />
-		<button type="submit">Filter</button>
-		<button type="button" @click.stop="add_group">Add</button>
+<div class="GroupsPanel Panel">
+	<form @submit.prevent="" class="input-group">
+		<input type="text" placeholder="group name" 
+			v-auto-complete :selected="edit_group" :source="filter_groups" v-el:search_input />
+		<button type="submit">
+			<span class="fa fa-fw fa-search"></span>
+		</button>
+		<button type="button" @click.stop="add_group">
+			<span class="fa fa-fw fa-plus"></span>
+		</button>
 	</form>
 	<ul>
 		<li v-for="item in groups">
@@ -12,7 +17,7 @@
 	<form v-if="editing_group" @submit.prevent="save_group">
 		<div class="form-group">
 			<label>name</label>
-			<input type="text" v-model="editing_group.name"  placeholder="name" />
+			<input type="text" v-model="editing_group.name"  placeholder="name" v-el:name_input />
 		</div>
 		<div class="form-group">
 			<button type="submit">

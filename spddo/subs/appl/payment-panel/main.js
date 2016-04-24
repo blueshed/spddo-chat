@@ -41,6 +41,26 @@ export default Vue.extend({
 				user_id: null,
 				group_id: null
 			};
+		},
+		set_user(value){
+			this.editing.user_id = value.id
+		},
+		lookup_user(term, suggest){
+			this.control.filter_users(term).
+				then(suggest).
+				catch((err)=>{
+					this.$root.error = err;
+				})
+		},
+		set_group(value){
+			this.editing.group_id = value.id
+		},
+		lookup_group(term, suggest){
+			this.control.filter_groups(term).
+				then(suggest).
+				catch((err)=>{
+					this.$root.error = err;
+				})
 		}
 	}
 });

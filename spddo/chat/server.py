@@ -12,11 +12,12 @@ import string
 define("port", 8080, int, help="port to listen on")
 define("multi", default='local', help="are we talking to queues")
 define("db_url", default='sqlite:///chat.db', help="database url")
-define("db_pool_recycle", 3600, int, help="how many seconds to recycle db connection")
+define("db_pool_recycle", 3600, int,
+       help="how many seconds to recycle db connection")
 
 
 def gen_token(length=32):
-    return ''.join(random.choice(string.hexdigits) for i in range(length))
+    return ''.join(random.choice(string.hexdigits) for _ in range(length))
 
 
 # what is my address in heroku?
@@ -24,42 +25,34 @@ def gen_token(length=32):
 # ready to receive the posts
 
 def main():
-    
+
     queue = None
     if options.multi == "rabbit":
         queue = PikaBroadcaster()
         queue.connect()
-        
-    db_url = os.environ.get("CLEARDB_DATABASE_URL",options.db_url)
-    db_pool_recycle = options.db_pool_recycle
-    if db_url.startswith("mysql://"):
-        db_url = "mysql+pymysql://" + db_url[len("mysql://"):]
-        if db_url.endswith("?reconnect=true"):
-            db_url = db_url[:-len("?reconnect=true")]
 
-
-    handlers = [  
-        (r"/websocket", ChatHandler),                                  
+    handlers = [
+        (r"/websocket", ChatHandler),
         (r"/", MainHandler)
     ]
     settings = {
-        "debug":True, 
+        "debug": True,
         "chat_clients": [],
         "broadcast_queue": queue,
         "server_id": gen_token(8)
     }
-    
-    application = tornado.web.Application(handlers,**settings)
-    
+
+    application = tornado.web.Application(handlers, **settings)
+
     if queue:
         queue.set_application(application)
-    
+
     port = int(os.environ.get("PORT", options.port))
     application.listen(port)
     logging.info("listening on port {}".format(port))
     tornado.ioloop.PeriodicCallback(ChatHandler.keep_alive, 30000).start()
     tornado.ioloop.IOLoop.current().start()
-    
+
 
 if __name__ == "__main__":
     parse_command_line()

@@ -6,17 +6,13 @@ export default Vue.extend({
 	template: tmpl,
 	data(){
 		return {
-			groups: null,
-			editing_group: null,
-			group_term: null
+			editing_group: null
 		}
 	},
 	methods:{
-		filter_groups(){
-			this.control.filter_groups(this.group_term).
-				then((result)=>{
-					this.groups = result;
-				}).
+		filter_groups(term, suggest){
+			this.control.filter_groups(term).
+				then(suggest).
 				catch((err)=>{
 					this.$root.error = err;
 				})
@@ -35,6 +31,7 @@ export default Vue.extend({
 			this.editing_group = null;
 		},
 		edit_group(item){
+			this.$els.search_input.value = null;
 			this.editing_group = {
 				id: item.id,
 				name: item.name
@@ -43,8 +40,12 @@ export default Vue.extend({
 		add_group(){
 			this.editing_group = {
 				id: null,
-				name: null
+				name: this.$els.search_input.value || null
 			};
+			this.$els.search_input.value = null;
+			this.$nextTick(()=>{
+				this.$els.name_input.focus();
+			});
 		}
 	}
 });

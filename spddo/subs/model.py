@@ -1,4 +1,4 @@
-from sqlalchemy.types import String, Integer, Numeric, DateTime, Date, Text
+from sqlalchemy.types import String, Integer, Numeric, Date, Text
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.orm import relationship
 from blueshed.micro.utils.orm_utils import Base

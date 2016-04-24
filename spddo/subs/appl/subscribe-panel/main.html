@@ -1,20 +1,20 @@
-<div class="SubscribePanel">
+<div class="SubscribePanel Panel">
 	<div>
-		<button type="button" @click.stop="add">Add</button>
+		<button type="button" @click.stop="add">Add Subscriptions</button>
 		<button type="button" @click.stop="load">Load</button>
 	</div>
 	<form v-if="editing" @submit.prevent="subscribe">
 		<div class="form-group">
 			<label>user</label>
-			<input type="text" v-model="editing.user_id"  placeholder="user_id" />
+			<input type="text" v-model="editing.user_id"  placeholder="user_id" v-auto-complete :selected="set_user" :source="lookup_user" />
 		</div>
 		<div class="form-group">
 			<label>group</label>
-			<input type="text" v-model="editing.group_id"  placeholder="group_id" />
+			<input type="text" v-model="editing.group_id"  placeholder="group_id" v-auto-complete :selected="set_group" :source="lookup_group" />
 		</div>
 		<div class="form-group">
 			<label>service</label>
-			<input type="text" v-model="editing.service_id"  placeholder="service_id" />
+			<input type="text" v-model="editing.service_id"  placeholder="service_id" v-auto-complete :selected="set_service" :source="lookup_service" />
 		</div>
 		<div class="form-group">
 			<button type="submit">

@@ -1,6 +1,12 @@
 import datetime
 import random
 import string
+from urllib.parse import urlparse
+
+
+def url_to_cors(url):
+    o = urlparse(url)
+    return "{}://{}".format(o.scheme, o.netloc)
 
 
 def parse_date(value):

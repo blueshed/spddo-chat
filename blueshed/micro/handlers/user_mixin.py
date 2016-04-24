@@ -11,12 +11,12 @@ class UserMixin(object):
     @property
     def micro_context(self):
         ''' return the context class declared in application settings'''
-        return self.application.settings.get('micro_context')
+        return self.settings.get('micro_context')
 
     @property
     def cookie_name(self):
         ''' return the cookie_name declared in application settings'''
-        return self.application.settings.get('cookie_name')
+        return self.settings.get('cookie_name')
 
     def get_current_user(self):
         ''' return the current user from the cookie '''

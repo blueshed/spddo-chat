@@ -33,7 +33,7 @@ def valid_on(cls, on_date=None):
         on_date = datetime.datetime.now()
     return and_(cls.valid_from <= on_date,
                 or_(cls.valid_to > on_date,
-                    cls.valid_to == None))
+                    cls.valid_to.is_(None)))
 
 
 def connect(db_url, echo=False, pool_recycle=None):
