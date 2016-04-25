@@ -1,5 +1,8 @@
 from tornado import web
 from blueshed.micro.utils.json_utils import dumps
+import logging
+from tornado.escape import json_encode
+from tornado.httpclient import HTTPError
 
 
 class ContextMixin(object):
@@ -63,8 +66,8 @@ class ContextMixin(object):
         self.update_result_data(context, data)
 
         content = json_encode(data)
-        
-        if self.write_message:
+
+        if hasattr(self, "write_message"):
             self.write_message(content)
         else:
             self.set_header('content-type', 'application/json; charset=UTF-8')
@@ -74,9 +77,14 @@ class ContextMixin(object):
         """Format an error response."""
         logging.exception(str(ex))
         is_http = isinstance(ex, HTTPError)
-        error   = str(ex) if is_http else '500 Internal Server Error'
-        code    = ex.status_code if is_http else 500
-        message = ex.reason if is_http else 'Cripes, an unexpected error!'
+        error = str(ex) if is_http else '500 Internal Server Error'
+        code = ex.status_code if is_http else 500
+        if is_http:
+            message = ex.reason
+        elif self.settings.get('allow_exception_messages'):
+            message = str(ex)
+        else:
+            message = "Cripes, an unexpected error!"
 
         err = json_encode({
             'id': context.action_id,
@@ -87,7 +95,7 @@ class ContextMixin(object):
             'message': message,
         })
 
-        if self.write_message:
+        if hasattr(self, "write_message"):
             self.write_message(err)
         else:
             self.set_header('content-type', 'application/json; charset=UTF-8')

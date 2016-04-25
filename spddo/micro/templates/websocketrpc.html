@@ -140,7 +140,7 @@ var appl = window.appl = new Vue({
 					console.log('{{ service.name }}', (new Date() - time)+'ms');
 				}.bind(this)).
 				catch(function(err){
-					this.$set('error_{{ service.name }}', err);
+					this.$set('error_{{ service.name }}', err.message);
 					this.$set('busy_{{ service.name }}', null);
 				}.bind(this));
 		},{% end %}

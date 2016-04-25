@@ -141,7 +141,7 @@ Vue.component('login',{
 					this.user = user;
 				}.bind(this)).
 				catch(function(err){
-					this.error = err;
+					this.error = err.message;
 				}.bind(this));
 		}
 	}
@@ -189,7 +189,7 @@ Vue.component("chat",{
 					this.what = null;
 				}.bind(this)).
 				catch(function(err){
-					this.$root.error = err;
+					this.$root.error = err.message;
 				}.bind(this));
 		},
 		'clear': function(){

@@ -85,7 +85,7 @@ Control.prototype.init = function(broadcast_callback, close_callback){
 			}
 			if(promises[message.id]){
 				if(message.error){
-					promises[message.id].reject(message.error);
+					promises[message.id].reject(message);
 				} else {
 					promises[message.id].resolve(message.result);
 				}

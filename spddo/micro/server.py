@@ -65,6 +65,7 @@ def make_app():
         cookie_secret='-it-was-a-dark-and-spddo-chat-night-',
         ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         template_path=template_path,
+        allow_exception_messages=True,
         gzip=True,
         debug=options.debug)
 
