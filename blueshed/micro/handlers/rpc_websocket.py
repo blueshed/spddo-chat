@@ -80,21 +80,9 @@ class RpcWebsocket(ContextMixin, UserMixin,
                 LOGGER.info("got context")
                 self._cookies_ = context.cookies
             self.flush_context(context)
-            data = {
-                "result": result,
-                "action": context.action,
-                "id": context.action_id
-            }
-            self.update_result_data(context, data)
-            self.write_message(dumps(data))
+            self.write_result(context, result)
         except Exception as ex:
-            ''' formats an error response '''
-            logging.exception(str(ex))
-            self.write_message(dumps({
-                "error": str(ex),
-                "action": context.action,
-                "id": context.action_id
-            }))
+            self.write_err(context, ex)
 
     def on_close(self):
         ''' remove ourselves from the static clients list '''

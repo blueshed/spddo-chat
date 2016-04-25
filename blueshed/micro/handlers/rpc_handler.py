@@ -66,19 +66,14 @@ class RpcHandler(ContextMixin, UserMixin, web.RequestHandler):
             raise web.HTTPError(400, 'content type not supported {}'.format(
                 self.request.headers['content-type']))
         service = self.get_service(path)
+        context = self.settings['micro_context'](-1, -1, service.name)
         try:
             logging.info("%s(%r)", service.name, kwargs)
             context, result = yield service.perform_in_pool(
                 self.settings['micro_pool'],
-                self.settings['micro_context'](-1, -1, service.name), **kwargs)
+                context, **kwargs)
             self.flush_context(context)
-            self.set_header('content-type', 'application/json; charset=UTF-8')
             self.check_current_user(context)
-            self.write(dumps({
-                'result': result
-            }))
+            self.write_result(context, result)
         except Exception as ex:
-            logging.exception(ex)
-            self.write({
-                "error": str(ex)
-            })
+            self.write_err(context, ex)

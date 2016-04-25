@@ -49,3 +49,46 @@ class ContextMixin(object):
                 self.settings["cookie_secret"],
                 self.cookie_name,
                 dumps(self.current_user)).decode("utf-8")
+
+    def write_result(self, context, result):
+        """Format a result response."""
+        data = {
+            'id': context.action_id,
+            'action': context.action,
+            'result': result,
+            'status_code': 200,
+            'error': None,
+            'message': None,
+        }
+        self.update_result_data(context, data)
+
+        content = json_encode(data)
+        
+        if self.write_message:
+            self.write_message(content)
+        else:
+            self.set_header('content-type', 'application/json; charset=UTF-8')
+            self.write(content)
+
+    def write_err(self, context, ex):
+        """Format an error response."""
+        logging.exception(str(ex))
+        is_http = isinstance(ex, HTTPError)
+        error   = str(ex) if is_http else '500 Internal Server Error'
+        code    = ex.status_code if is_http else 500
+        message = ex.reason if is_http else 'Cripes, an unexpected error!'
+
+        err = json_encode({
+            'id': context.action_id,
+            'action': context.action,
+            'result': None,
+            'status_code': code,
+            'error': error,
+            'message': message,
+        })
+
+        if self.write_message:
+            self.write_message(err)
+        else:
+            self.set_header('content-type', 'application/json; charset=UTF-8')
+            self.write(err)

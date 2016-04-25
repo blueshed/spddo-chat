@@ -76,7 +76,7 @@ class WebSocketRpcHandler(ContextMixin, UserMixin,
                                                service,
                                                context))
             else:
-                self.write_result(service, context, result)
+                self.handle_result(service, context, result)
         except Exception as ex:
             self.write_err(context, ex)
 
@@ -84,11 +84,11 @@ class WebSocketRpcHandler(ContextMixin, UserMixin,
         ''' called by async repsonses '''
         try:
             result = future.result()
-            self.write_result(service, context, result)
+            self.handle_result(service, context, result)
         except Exception as ex:
             self.write_err(context, ex)
 
-    def write_result(self, service, context, result):
+    def handle_result(self, service, context, result):
         ''' formats result and checks for user '''
         LOGGER.info("%s = %s", service.name, result)
         if isinstance(result, tuple) and isinstance(result[0],
@@ -97,22 +97,7 @@ class WebSocketRpcHandler(ContextMixin, UserMixin,
             LOGGER.info("got context")
             self._cookies_ = context.cookies
         self.flush_context(context)
-        data = {
-            "result": result,
-            "action": context.action,
-            "id": context.action_id
-        }
-        self.update_result_data(context, data)
-        self.write_message(json_encode(data))
-
-    def write_err(self, context, ex):
-        ''' formats an error response '''
-        logging.exception(str(ex))
-        self.write_message(json_encode({
-            "error": str(ex),
-            "action": context.action,
-            "id": context.action_id
-        }))
+        self.write_result(context,result)
 
     def on_close(self):
         ''' remove ourselves from the static clients list '''
