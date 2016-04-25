@@ -18,7 +18,7 @@ application = tornado.web.Application([
     context=Context,
     cookie_name='spddo-mongo',
     cookie_secret='-it-was-a-dark-and-mongo-night-',
-    pool=ProcessPoolExecutor(4))
+    ppexec=ProcessPoolExecutor(4))
 
 db_connection.db_init("mysql+pymysql://root:root@localhost:8889/subs")
 

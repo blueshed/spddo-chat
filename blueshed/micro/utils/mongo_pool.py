@@ -13,6 +13,6 @@ class MongoPool(Pool):
         Pool.pool_init()
         db_init(db_url)
 
-
     def __init__(self, service_root, count, db_url):
-        super().__init__(service_root, count, MongoPool.mongo_pool_init, db_url)
+        super().__init__(
+            service_root, count, MongoPool.mongo_pool_init, db_url)

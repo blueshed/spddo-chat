@@ -5,6 +5,7 @@ from motor.motor_tornado import MotorClient
 
 _client_ = None
 
+
 def db_init(db_url):
     global _client_
     o = urlparse(db_url)

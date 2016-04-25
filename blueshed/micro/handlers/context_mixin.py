@@ -14,6 +14,8 @@ class ContextMixin(object):
     def get_service(self, path):
         if path.startswith("/"):
             path = path[1:]
+        if '.' in path:
+            path = path.split(".")[0]
         if path:
             service = self.settings['services'].get(path)
             if service is None:
@@ -37,11 +39,11 @@ class ContextMixin(object):
 
     def check_current_user(self, context):
         if context.cookies.get('current_user') != self.current_user:
-            self.set_current_user(context.cookies['current_user'])
+            self.set_current_user(context.cookies.get('current_user'))
 
     def update_result_data(self, context, data):
         if context.cookies.get('current_user') != self.current_user:
-            setattr(self, '_current_user', context.cookies['current_user'])
+            setattr(self, '_current_user', context.cookies.get('current_user'))
             data['cookie_name'] = self.cookie_name
             data['cookie'] = web.create_signed_value(
                 self.settings["cookie_secret"],

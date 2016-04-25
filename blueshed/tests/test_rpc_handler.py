@@ -15,13 +15,14 @@ from blueshed.tests.actions import model
 
 
 application = tornado.web.Application([
-    (r"/(.*)", RpcHandler),
-],
+        (r"/(.*)", RpcHandler),
+    ],
     services=Service.describe(actions),
-    context=Context,
+    micro_context=Context,
+    micro_pool=DummyExecutor(),
+#     micro_pool=ProcessPoolExecutor(4),
     cookie_name='blueshed-test',
-    cookie_secret='-it-was-a-dark-and-blueshed-night-',
-    pool=DummyExecutor())#ProcessPoolExecutor(4))
+    cookie_secret='-it-was-a-dark-and-blueshed-night-')
 
 
 db_connection.db_init("mysql+pymysql://root:root@localhost:8889/test")

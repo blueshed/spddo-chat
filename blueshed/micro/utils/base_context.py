@@ -28,3 +28,8 @@ class BaseContext:
     def flushed(self):
         ''' called when broadcast queue is flushed '''
         pass
+
+    def __repr__(self):
+        return "Context({}, {}, {})".format(self.client_id,
+                                            self.action_id,
+                                            self.action)

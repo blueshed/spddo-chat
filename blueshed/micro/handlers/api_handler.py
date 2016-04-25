@@ -25,7 +25,7 @@ class ApiHandler(UserMixin, tornado.web.RequestHandler):
 
     def get_template_path(self):
         ''' overrides the template path to use this module '''
-        return resource_filename('blueshed.micro', "handlers")
+        return resource_filename('blueshed.micro.handlers', "templates")
 
     def get(self, path=None):
         '''

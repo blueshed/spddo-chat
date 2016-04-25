@@ -13,6 +13,7 @@ class SQLPool(Pool):
         Pool.pool_init()
         db_init(db_url, db_echo, db_pool_recycle)
 
-
-    def __init__(self, service_root, count, db_url, db_echo=False, db_pool_recycle=None):
-        super().__init__(service_root, count, SQLPool.sql_pool_init, db_url, db_echo, db_pool_recycle)
+    def __init__(self, service_root, count,
+                 db_url, db_echo=False, db_pool_recycle=None):
+        super().__init__(service_root, count, SQLPool.sql_pool_init,
+                         db_url, db_echo, db_pool_recycle)

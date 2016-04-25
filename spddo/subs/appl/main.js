@@ -14,7 +14,7 @@ import SubscribePanel from './subscribe-panel/main'
 import PaymentPanel from './payment-panel/main'
 
 
-System.import('/api.js').then(({Control})=>{
+System.import('/rpc.js').then(({Control})=>{
 
 	Control.prototype.install = function(Vue){
 		Vue.prototype.control = this;

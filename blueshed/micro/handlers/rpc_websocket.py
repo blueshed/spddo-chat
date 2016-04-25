@@ -1,20 +1,18 @@
-from blueshed.micro.utils.json_utils import dumps as json_encode
-from tornado.concurrent import Future
 from tornado.escape import json_decode
-from tornado.ioloop import IOLoop
 import tornado.websocket
-import logging
-import time
-import functools
-import urllib
+from tornado import gen
 from blueshed.micro.handlers.user_mixin import UserMixin
 from blueshed.micro.handlers.context_mixin import ContextMixin
+from blueshed.micro.utils.json_utils import dumps
+import logging
+import time
+import urllib
 
 LOGGER = logging.getLogger(__name__)
 
 
-class WebSocketRpcHandler(ContextMixin, UserMixin,
-                          tornado.websocket.WebSocketHandler):
+class RpcWebsocket(ContextMixin, UserMixin,
+                   tornado.websocket.WebSocketHandler):
     '''
         An rpc to the services exposed to the application
     '''
@@ -55,6 +53,7 @@ class WebSocketRpcHandler(ContextMixin, UserMixin,
         self._cookies_['current_user'] = self.current_user
         LOGGER.debug("websocket open %s", self._client_id)
 
+    @gen.coroutine
     def on_message(self, message):
         ''' handle an rpc call '''
         id_, action, kwargs = json_decode(message)
@@ -69,50 +68,33 @@ class WebSocketRpcHandler(ContextMixin, UserMixin,
             service = self.settings["services"].get(context.action)
             if service is None:
                 raise Exception("No such service {}".format(context.action))
-            result = service.perform(context, **kwargs)
-            if isinstance(result, Future):
-                IOLoop.current().add_future(result,
-                    callback=functools.partial(self.write_future,
-                                               service,
-                                               context))
-            else:
-                self.write_result(service, context, result)
+            pool = self.settings['micro_pool']
+            context, result = yield service.perform_in_pool(pool,
+                                                            context,
+                                                            ** kwargs)
+            ''' formats result and checks for user '''
+            LOGGER.info("%s = %s", service.name, result)
+            if isinstance(result, tuple) and isinstance(result[0],
+                                                        self.micro_context):
+                context, result = result
+                LOGGER.info("got context")
+                self._cookies_ = context.cookies
+            self.flush_context(context)
+            data = {
+                "result": result,
+                "action": context.action,
+                "id": context.action_id
+            }
+            self.update_result_data(context, data)
+            self.write_message(dumps(data))
         except Exception as ex:
-            self.write_err(context, ex)
-
-    def write_future(self, service, context, future):
-        ''' called by async repsonses '''
-        try:
-            result = future.result()
-            self.write_result(service, context, result)
-        except Exception as ex:
-            self.write_err(context, ex)
-
-    def write_result(self, service, context, result):
-        ''' formats result and checks for user '''
-        LOGGER.info("%s = %s", service.name, result)
-        if isinstance(result, tuple) and isinstance(result[0],
-                                                    self.micro_context):
-            context, result = result
-            LOGGER.info("got context")
-            self._cookies_ = context.cookies
-        self.flush_context(context)
-        data = {
-            "result": result,
-            "action": context.action,
-            "id": context.action_id
-        }
-        self.update_result_data(context, data)
-        self.write_message(json_encode(data))
-
-    def write_err(self, context, ex):
-        ''' formats an error response '''
-        logging.exception(str(ex))
-        self.write_message(json_encode({
-            "error": str(ex),
-            "action": context.action,
-            "id": context.action_id
-        }))
+            ''' formats an error response '''
+            logging.exception(str(ex))
+            self.write_message(dumps({
+                "error": str(ex),
+                "action": context.action,
+                "id": context.action_id
+            }))
 
     def on_close(self):
         ''' remove ourselves from the static clients list '''

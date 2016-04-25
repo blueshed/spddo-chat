@@ -5,12 +5,9 @@ import tornado.autoreload
 import tornado.ioloop
 import tornado.web
 from blueshed.micro.utils.service import Service
-from blueshed.micro.utils.sql_pool import SQLPool
-from blueshed.micro.utils.orm_utils import heroku_db_url
-from blueshed.micro.utils.db_connection import db_init
+from blueshed.micro.utils.orm_utils import heroku_db_url, create_all, Base
+from blueshed.micro.utils import db_connection
 from blueshed.micro.utils.pika_tool import PikaTool
-from blueshed.micro.handlers.websocketrpc import WebSocketRpcHandler
-from blueshed.micro.handlers.api_handler import ApiHandler
 from blueshed.micro.handlers.logout_handler import LogoutHandler
 import logging
 import os
@@ -19,9 +16,12 @@ import spddo.micro.func
 from spddo.micro.func.context import Context
 from spddo.micro.api_page_handler import ApiPageHandler
 from spddo.micro.index_handler import IndexHandler
+from concurrent.futures.process import ProcessPoolExecutor
+from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
+from blueshed.micro.handlers.rpc_handler import RpcHandler
 
 define('debug', False, bool, help='run in debug mode')
-define("db_url", default='sqlite:///', help="database url")
+define("db_url", default='mysql://root:root@localhost:8889/test', help="database url")
 define("db_pool_recycle", 60, int,
        help="how many seconds to recycle db connection")
 
@@ -29,20 +29,19 @@ define("db_pool_recycle", 60, int,
 def make_app():
     db_url = heroku_db_url(os.getenv("CLEARDB_DATABASE_URL",
                                      options.db_url))
+    db_connection.db_init(db_url)
+    if options.debug:
+        create_all(Base, db_connection._engine_)
 
-    pool_size = int(os.getenv("POOL_SIZE", 0))
-    if pool_size:
-        pool = SQLPool(spddo.micro.func, pool_size, db_url)
-        tornado.autoreload.add_reload_hook(pool.close)
-        logging.info("pool_size {}".format(pool_size))
-    else:
-        db_init(db_url)
-        pool = None
+    pool_size = int(os.getenv("POOL_SIZE", 3))
+    micro_pool = ProcessPoolExecutor(pool_size)
+    if options.debug:
+        tornado.autoreload.add_reload_hook(micro_pool.shutdown)
 
     amqp_url = os.getenv("CLOUDAMQP_URL", '')
     if amqp_url:
         queue = PikaTool(amqp_url,
-                         WebSocketRpcHandler.async_broadcast)
+                         RpcWebsocket.async_broadcast)
         queue.connect()
         logging.info("broadcast_queue {}".format(amqp_url))
     else:
@@ -51,22 +50,23 @@ def make_app():
     template_path = resource_filename('spddo.micro', "templates")
 
     return tornado.web.Application([
-        (r"/websocket", WebSocketRpcHandler,
+        (r"/websocket", RpcWebsocket,
          {'origins': ["localhost:8080", "spddo-chat.herokuapp.com"]}),
         (r"/api.html", ApiPageHandler),
-        (r"/api(.*)", ApiHandler),
+        (r"/api(.*)", RpcHandler),
         (r"/logout", LogoutHandler),
         (r"/", IndexHandler),
     ],
         services=Service.describe(spddo.micro.func),
         broadcast_queue=queue,
         micro_context=Context,
+        micro_pool=micro_pool,
         cookie_name='micro-session',
         cookie_secret='-it-was-a-dark-and-spddo-chat-night-',
         ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         template_path=template_path,
         gzip=True,
-        debug=True)
+        debug=options.debug)
 
 
 def main():
@@ -79,8 +79,10 @@ def main():
     app = make_app()
     app.listen(port)
     logging.info("listening on port {}".format(port))
+    if options.debug:
+        logging.info('running in debug mode')
     tornado.ioloop.PeriodicCallback(
-        WebSocketRpcHandler.keep_alive, 30000).start()
+        RpcWebsocket.keep_alive, 30000).start()
     tornado.ioloop.IOLoop.current().start()
 
 
