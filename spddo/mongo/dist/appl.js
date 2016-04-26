@@ -7670,7 +7670,7 @@ System.register('components/login-panel/main.js', ['components/login-panel/main.
 						this.control.login(this.email, this.password).then((function (user) {
 							this.user = user;
 						}).bind(this))['catch']((function (err) {
-							this.error = err;
+							this.error = err.message;
 						}).bind(this));
 					}
 				}
@@ -20523,7 +20523,7 @@ System.register('components/schedule-panel/main.js', ['components/schedule-panel
 								};
 							});
 						})['catch'](function (err) {
-							_this4.$root.error = err;
+							_this4.$root.error = err.message;
 						});
 					},
 					load_allocations: function load_allocations(start, end, timezone, callback) {
@@ -20542,7 +20542,7 @@ System.register('components/schedule-panel/main.js', ['components/schedule-panel
 							});
 							callback(_this5.allocations);
 						})['catch'](function (err) {
-							_this5.$root.error = err;
+							_this5.$root.error = err.message;
 						});
 					},
 					do_select: function do_select(start, end, jsEvent, view, resource) {
@@ -20818,7 +20818,7 @@ System.register('components/event-editor/main.js', ['npm:babel-runtime@5.8.38/co
 							_this.saved();
 						})['catch'](function (err) {
 							_this.saving = false;
-							_this.$root.error = err;
+							_this.$root.error = err.message;
 						});
 					},
 					unallocate: function unallocate() {
@@ -20827,7 +20827,7 @@ System.register('components/event-editor/main.js', ['npm:babel-runtime@5.8.38/co
 						this.control.unallocate(this.selection.id).then(function (result) {
 							_this2.clear_selection();
 						})['catch'](function (err) {
-							_this2.$root.error = err;
+							_this2.$root.error = err.message;
 						});
 					},
 					saved: function saved() {
@@ -22527,7 +22527,7 @@ System.register("components/map-panel/marker.js", ["npm:vue@1.0.21.js"], functio
 							}).then(function (result) {
 								// ok
 							})["catch"](function (err) {
-								_this.$root.error = err;
+								_this.$root.error = err.message;
 							});
 						});
 					}
@@ -22821,7 +22821,7 @@ System.register('components/asset-editor/main.js', ['components/asset-editor/mai
 							_this.saved();
 						})['catch'](function (err) {
 							_this.saving = false;
-							_this.$root.error = err;
+							_this.$root.error = err.message;
 						});
 					},
 					saved: function saved() {
@@ -32092,7 +32092,7 @@ System.register('appl/main.js', ['npm:font-awesome@4.6.1/css/font-awesome.css!gi
 						}).then(function (status) {
 							_this.status = status;
 						})['catch'](function (err) {
-							_this.error = err;
+							_this.error = err.message;
 						});
 					},
 					methods: {
