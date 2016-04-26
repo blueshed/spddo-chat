@@ -62,7 +62,7 @@ class RpcHandler(ContextMixin, web.RequestHandler):
     def post(self, path):
         if self.request.headers['content-type'] == "application/json; charset=UTF-8":
             kwargs = json_decode(self.request.body)
-        elif self.request.headers['content-type'] == "application/x-www-form-urlencoded":
+        elif self.request.headers['content-type'] == "application/x-www-form-urlencoded; charset=UTF-8":
             kwargs = dict([(k, self.get_argument(k))
                            for k in self.request.body_arguments.keys()])
         else:
