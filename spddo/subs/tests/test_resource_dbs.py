@@ -1,21 +1,21 @@
 from blueshed.micro.utils.db_connection import register_db
 from blueshed.micro.utils import db_connection
-from spddo.subs.model import User as AuthUser
-from spddo.auth.model import User as SubsUser
+import spddo.subs.model as subs_model
+import spddo.auth.model as auth_model
 
 
 register_db(
-    "mysql+pymysql://root:root@localhost:8889/subs", [SubsUser])
+    "mysql+pymysql://root:root@localhost:8889/subs", [subs_model.Base])
 register_db(
-    "mysql+pymysql://root:root@localhost:8889/auth", [AuthUser])
+    "mysql+pymysql://root:root@localhost:8889/auth", [auth_model.Base])
 
 
 def test_create():
     with db_connection.session() as session:
-        subs_user = SubsUser(
+        subs_user = subs_model.User(
             name="foo", email="foo@bar.com", password="password")
         session.add(subs_user)
-        auth_user = AuthUser(
+        auth_user = auth_model.User(
             name="bar", email="bar@bar.com", password="password")
         session.add(auth_user)
         session.commit()
@@ -24,17 +24,17 @@ def test_create():
 def test_fetch():
     with db_connection.session() as session:
         subs_user = session.query(
-            SubsUser).filter_by(name="foo").first()
+            subs_model.User).filter_by(name="foo").first()
         assert subs_user.email == "foo@bar.com"
         auth_user = session.query(
-            AuthUser).filter_by(name="bar").first()
+            auth_model.User).filter_by(name="bar").first()
         assert auth_user.email == "bar@bar.com"
 
 
 def test_delete():
     with db_connection.session() as session:
         session.query(
-            SubsUser).filter_by(name="foo").delete()
+            subs_model.User).filter_by(name="foo").delete()
         session.query(
-            AuthUser).filter_by(name="bar").delete()
+            auth_model.User).filter_by(name="bar").delete()
         session.commit()

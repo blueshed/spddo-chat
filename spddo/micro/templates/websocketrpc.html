@@ -134,6 +134,9 @@ var appl = window.appl = new Vue({
 			var time = this.chat_time = new Date();
 			this.control.{{ service.name }}({{ ", ".join(['this.'+service.name+'_'+p.name for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}).
 				then(function(result){
+					if(result && typeof result === 'object'){
+						result = JSON.stringify(result);
+					}
 					this.$set('error_{{ service.name }}', null);
 					this.$set('result_{{ service.name }}', result);
 					this.$set('busy_{{ service.name }}', null);
