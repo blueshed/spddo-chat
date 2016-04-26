@@ -1,4 +1,5 @@
 from spddo.micro.func import model
+from tornado.web import HTTPError
 
 
 def login(context: 'micro-context', email: str, password: str) -> dict:
@@ -9,7 +10,8 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
                    model.Person.password == password).\
             first()
         if person is None:
-            raise Exception(
+            raise HTTPError(
+                401,
                 "<strong>Failed</strong> Email or password incorrect!")
         user = {
             "id": person.id,

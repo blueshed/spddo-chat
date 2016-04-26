@@ -1,8 +1,9 @@
-from spddo.auth import model
 from sqlalchemy.orm import joinedload
-from spddo.auth.actions.validate_token import gen_access_token
-from tornado.escape import url_escape
 from sqlalchemy.sql.expression import and_
+from tornado.escape import url_escape
+from tornado.web import HTTPError
+from spddo.auth import model
+from spddo.auth.actions.validate_token import gen_access_token
 import logging
 
 
@@ -21,7 +22,8 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
                         model.User.password == password)).\
             first()
         if user is None:
-            raise Exception(
+            raise HTTPError(
+                401,
                 "<strong>Failed</strong> Email or password incorrect!")
         subscriptions = session.query(model.Subscription).\
             filter(model.Subscription.user == user).\
@@ -30,8 +32,8 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
             raise Exception("You have no subscriptions!")
         result = {
             "services": [{
-                            'name': sub.service.name,
-                            'url': sub_to_json(sub)
-                          } for sub in subscriptions],
+                'name': sub.service.name,
+                'url': sub_to_json(sub)
+            } for sub in subscriptions],
         }
         return result
