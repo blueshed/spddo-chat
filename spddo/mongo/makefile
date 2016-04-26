@@ -9,6 +9,7 @@ build:
 	mkdir -p dist/jspm_packages/npm/font-awesome@4.6.1/fonts
 	cp -r jspm_packages/npm/font-awesome@4.6.1/fonts/* dist/jspm_packages/npm/font-awesome@4.6.1/fonts/
 	
+	cp favicon.ico dist/
 	cp config.js dist/
 	cat dist/config.js dist/appl.min.js > dist/core.min.js
 	jspm unbundle
