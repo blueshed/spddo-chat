@@ -12,6 +12,7 @@ import pprint
 client = MotorClient('mongodb://localhost:27017')
 db = client.test_database
 
+
 @gen.coroutine
 def do_insert():
     for i in range(2000):
@@ -19,7 +20,8 @@ def do_insert():
         result = yield future
         print(result)
 
-@gen.coroutine        
+
+@gen.coroutine
 def do_find_one():
     document = yield db.test_collection.find_one({'i': {'$lt': 1}})
     pprint.pprint(document)

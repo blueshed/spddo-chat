@@ -49,7 +49,7 @@ export default Vue.extend({
 				}).
 				catch((err)=>{
 					this.saving=false;
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		unallocate(){
@@ -58,7 +58,7 @@ export default Vue.extend({
 					this.clear_selection();
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		saved(){

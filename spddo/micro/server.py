@@ -4,24 +4,27 @@ from tornado.options import parse_command_line, define, options
 import tornado.autoreload
 import tornado.ioloop
 import tornado.web
-from blueshed.micro.utils.service import Service
-from blueshed.micro.utils.orm_utils import heroku_db_url, create_all, Base
-from blueshed.micro.utils import db_connection
-from blueshed.micro.utils.pika_tool import PikaTool
-from blueshed.micro.handlers.logout_handler import LogoutHandler
 import logging
 import os
 
-import spddo.micro.func
+from concurrent.futures.process import ProcessPoolExecutor
+from blueshed.micro.utils import db_connection, executor
+from blueshed.micro.utils.service import Service
+from blueshed.micro.utils.orm_utils import heroku_db_url, create_all, Base
+from blueshed.micro.handlers.logout_handler import LogoutHandler
+from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
+from blueshed.micro.handlers.rpc_handler import RpcHandler
+from blueshed.micro.utils.pika_topic import PikaTopic
+
 from spddo.micro.func.context import Context
 from spddo.micro.api_page_handler import ApiPageHandler
 from spddo.micro.index_handler import IndexHandler
-from concurrent.futures.process import ProcessPoolExecutor
-from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
-from blueshed.micro.handlers.rpc_handler import RpcHandler
+import spddo.micro.func
 
 define('debug', False, bool, help='run in debug mode')
-define("db_url", default='mysql://root:root@localhost:8889/test', help="database url")
+define("db_url",
+       default='mysql://root:root@localhost:8889/test',
+       help="database url")
 define("db_pool_recycle", 60, int,
        help="how many seconds to recycle db connection")
 
@@ -35,13 +38,15 @@ def make_app():
 
     pool_size = int(os.getenv("POOL_SIZE", 3))
     micro_pool = ProcessPoolExecutor(pool_size)
+    executor.pool_init(micro_pool)
     if options.debug:
         tornado.autoreload.add_reload_hook(micro_pool.shutdown)
 
     amqp_url = os.getenv("CLOUDAMQP_URL", '')
     if amqp_url:
-        queue = PikaTool(amqp_url,
-                         RpcWebsocket.async_broadcast)
+        queue = PikaTopic(amqp_url,
+                          RpcWebsocket.async_broadcast,
+                          'micro-chat')
         queue.connect()
         logging.info("broadcast_queue {}".format(amqp_url))
     else:
@@ -60,12 +65,11 @@ def make_app():
         services=Service.describe(spddo.micro.func),
         broadcast_queue=queue,
         micro_context=Context,
-        micro_pool=micro_pool,
         cookie_name='micro-session',
         cookie_secret='-it-was-a-dark-and-spddo-chat-night-',
         ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         template_path=template_path,
-        allow_exception_messages=True,
+        allow_exception_messages=options.debug,
         gzip=True,
         debug=options.debug)
 

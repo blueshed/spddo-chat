@@ -7,21 +7,15 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         Simple chat websocket handler
     '''
 
-    @classmethod
-    def keep_alive(cls):
-        msg = str(time.time()).encode("utf8")
-        for client in cls.clients:
-            client.ping(msg)
-
     @property
     def chat_clients(self):
         ''' access utility for application settings '''
-        return self.application.settings["chat_clients"]
+        return self.settings["chat_clients"]
 
     @property
     def broadcast_queue(self):
         ''' access utility for application settings '''
-        return self.application.settings.get("broadcast_queue")
+        return self.settings.get("broadcast_queue")
 
     def broadcast(self, msg):
         '''
@@ -39,7 +33,7 @@ class ChatHandler(tornado.websocket.WebSocketHandler):
         ''' called when websocket opens '''
         ''' set our user name '''
         self.user = "{}:{}".format(
-            self.application.settings.get("server_id"), hex(id(self)))
+            self.settings.get("server_id"), hex(id(self)))
         ''' add ourselves to the client list '''
         self.chat_clients.append(self)
         ''' tell the client their user name '''

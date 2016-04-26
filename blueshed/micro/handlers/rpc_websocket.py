@@ -1,20 +1,20 @@
 from tornado.escape import json_decode
 import tornado.websocket
-from tornado import gen
+from tornado import concurrent
 from blueshed.micro.handlers.user_mixin import UserMixin
 from blueshed.micro.handlers.context_mixin import ContextMixin
-from blueshed.micro.utils.json_utils import dumps
 import logging
 import time
 import urllib
+import functools
 
 LOGGER = logging.getLogger(__name__)
 
 
-class RpcWebsocket(ContextMixin, UserMixin,
+class RpcWebsocket(ContextMixin,
                    tornado.websocket.WebSocketHandler):
     '''
-        An rpc to the services exposed to the application
+        Calls services in application.settings['services']
     '''
 
     @classmethod
@@ -53,36 +53,32 @@ class RpcWebsocket(ContextMixin, UserMixin,
         self._cookies_['current_user'] = self.current_user
         LOGGER.debug("websocket open %s", self._client_id)
 
-    @gen.coroutine
     def on_message(self, message):
-        ''' handle an rpc call '''
-        id_, action, kwargs = json_decode(message)
-        context = self.micro_context(
-            self._client_id, id_, action, self._cookies_)
-        try:
-            LOGGER.info(
-                "%s %s %s %r", id(self),
-                context.action_id,
-                context.action,
-                kwargs)
-            service = self.settings["services"].get(context.action)
-            if service is None:
-                raise Exception("No such service {}".format(context.action))
-            pool = self.settings['micro_pool']
-            context, result = yield service.perform_in_pool(pool,
-                                                            context,
-                                                            ** kwargs)
-            ''' formats result and checks for user '''
-            LOGGER.info("%s = %s", service.name, result)
-            if isinstance(result, tuple) and isinstance(result[0],
-                                                        self.micro_context):
-                context, result = result
-                LOGGER.info("got context")
-                self._cookies_ = context.cookies
-            self.flush_context(context)
-            self.write_result(context, result)
-        except Exception as ex:
-            self.write_err(context, ex)
+        ''' handle an rpc calls '''
+        data = json_decode(message)
+        for id_, action, kwargs in data.get("requests"):
+            context = self.micro_context(
+                self._client_id, id_, action, self._cookies_)
+            try:
+                LOGGER.info(
+                    "%s %s %s %r", id(self),
+                    context.action_id,
+                    context.action,
+                    kwargs)
+                service = self.settings["services"].get(context.action)
+                if service is None:
+                    raise Exception("No such service {}".format(context.action))
+                result = service.perform(context, ** kwargs)
+                if concurrent.is_future(result):
+                    result.add_done_callback(
+                        functools.partial(self.handle_future,
+                                          service,
+                                          context,
+                                          False))
+                else:
+                    self.handle_result(service, context, result)
+            except Exception as ex:
+                self.write_err(context, ex)
 
     def on_close(self):
         ''' remove ourselves from the static clients list '''

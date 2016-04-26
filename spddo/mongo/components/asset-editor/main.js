@@ -58,7 +58,7 @@ export default Vue.extend({
 				}).
 				catch((err)=>{
 					this.saving = false;
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		saved(){

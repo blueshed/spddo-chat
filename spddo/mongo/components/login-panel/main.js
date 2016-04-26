@@ -18,7 +18,7 @@ export default Vue.extend({
 					this.user = user;
 				}.bind(this)).
 				catch(function(err){
-					this.error = err;
+					this.error = err.message;
 				}.bind(this));
 		}
 	}

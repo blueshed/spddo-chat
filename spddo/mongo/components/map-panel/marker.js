@@ -26,7 +26,7 @@ export default Vue.extend({
 	            		// ok
 	            	}).
 	            	catch((err)=>{
-	            		this.$root.error = err;
+	            		this.$root.error = err.message;
 	            	});
 	        });
 		}

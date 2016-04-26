@@ -1,13 +1,14 @@
 import os
+import time
+import dotenv
 import logging
 import tornado.ioloop
 import tornado.web
 from tornado.options import options, define, parse_command_line
+from blueshed.micro.utils.pika_topic import PikaTopic
+from blueshed.micro.utils.utils import gen_token
 from spddo.chat.chat_handler import ChatHandler
 from spddo.chat.main_handler import MainHandler
-from spddo.chat.pika_broadcaster import PikaBroadcaster
-import random
-import string
 
 define("port", 8080, int, help="port to listen on")
 define("multi", default='local', help="are we talking to queues")
@@ -16,20 +17,11 @@ define("db_pool_recycle", 3600, int,
        help="how many seconds to recycle db connection")
 
 
-def gen_token(length=32):
-    return ''.join(random.choice(string.hexdigits) for _ in range(length))
-
-
 # what is my address in heroku?
 # you can see I have a handler called broadcast
 # ready to receive the posts
 
 def main():
-
-    queue = None
-    if options.multi == "rabbit":
-        queue = PikaBroadcaster()
-        queue.connect()
 
     handlers = [
         (r"/websocket", ChatHandler),
@@ -38,22 +30,35 @@ def main():
     settings = {
         "debug": True,
         "chat_clients": [],
-        "broadcast_queue": queue,
         "server_id": gen_token(8)
     }
-
     application = tornado.web.Application(handlers, **settings)
 
-    if queue:
-        queue.set_application(application)
+    amqp_url = os.environ.get("CLOUDAMQP_URL", '')
+    if amqp_url:
+        def broadcast(body):
+            for client in application.settings.get('chat_clients'):
+                client.write_message(body)
+        queue = PikaTopic(os.environ.get("CLOUDAMQP_URL"),
+                          broadcast, 'chat-messages')
+        application.settings['broadcast_queue'] = queue
+        logging.info("broadcast_queue {}".format(amqp_url))
+        queue.connect()
 
     port = int(os.environ.get("PORT", options.port))
     application.listen(port)
     logging.info("listening on port {}".format(port))
-    tornado.ioloop.PeriodicCallback(ChatHandler.keep_alive, 30000).start()
+
+    def keep_alive():
+        msg = str(time.time()).encode("utf8")
+        for client in application.settings["chat_clients"]:
+            client.ping(msg)
+    tornado.ioloop.PeriodicCallback(keep_alive, 30000).start()
     tornado.ioloop.IOLoop.current().start()
 
 
 if __name__ == "__main__":
     parse_command_line()
+    if os.path.isfile('.env'):
+        dotenv.load_dotenv('.env')
     main()

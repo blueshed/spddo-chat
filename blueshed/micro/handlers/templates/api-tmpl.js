@@ -54,25 +54,28 @@ var docCookies = {
 };
 
 
+var last_id = 0;
+var promises = {};
+
 function Control(){
 	this.client_id = uid();
 	this.user = {%raw json_encode(current_user) %};
+    this.pending_requests = [];
+    this._send_timeout = null;
 }
     
 Control.prototype.init = function(broadcast_callback, close_callback){
-	var last_id = 0;
-	var promises = {};
 	return new Promise(function(resolve,reject){
 		var ws = null;
 		try{
 			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this.client_id);
-//			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}'); //connect without client_id
 		}
 		catch(err){
 			reject(err);
 		}
 		ws.onopen = function(){
 			this.connection = ws;
+			this._flush_pending();
 			resolve('open');
 		}.bind(this);
 		ws.onmessage = function(evt){
@@ -111,21 +114,24 @@ Control.prototype.init = function(broadcast_callback, close_callback){
 				reject(err.code || 'unknown error');
 			}
 		}.bind(this);
-		ws.rpc = function(action, args){
-			var id = this.client_id + ":"+ ++last_id;
-			return new Promise(function(resolve,reject){
-				ws.send(JSON.stringify([id,action,args]));
-				promises[id] = { reject: reject, resolve: resolve };
-			}.bind(this));
-		}.bind(this);
 	}.bind(this));
 };
 
-Control.prototype._send = function(action, args, callback) {
-	if(!this.connection){
-		throw "Not connected!";
-	}
-	return this.connection.rpc(action, args);
+Control.prototype._flush_pending = function(){
+    this._send_timeout = null;
+    this.connection.send(JSON.stringify({requests: this.pending_requests}));
+	this.pending_requests.length=0;
+}
+
+Control.prototype._send = function(action, args) {
+	var id = this.client_id + ":"+ ++last_id;
+	return new Promise(function(resolve,reject){
+		this.pending_requests.push([id,action,args]);
+        if (!this._send_timeout && this.connection) {
+            this._send_timeout = setTimeout(this._flush_pending.bind(this), 0);
+        }
+		promises[id] = { reject: reject, resolve: resolve };
+	}.bind(this));
 };
 	
 {% for service in services %}

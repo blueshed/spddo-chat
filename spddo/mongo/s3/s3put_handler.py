@@ -1,12 +1,13 @@
-from tornado.web import authenticated, RequestHandler, asynchronous
+from pkg_resources import resource_filename  # @UnresolvedImport
+
 import logging
 import os
+from tornado.web import authenticated, RequestHandler, asynchronous
 from tornado.concurrent import Future
 from tornado.ioloop import IOLoop
 from blueshed.micro.handlers.user_mixin import UserMixin
-from pkg_resources import resource_filename  # @UnresolvedImport
-from spddo.mongo.s3 import put_s3
 from blueshed.micro.utils.json_utils import dumps
+from spddo.mongo.s3 import put_s3
 
 
 class S3PutHandler(UserMixin, RequestHandler):

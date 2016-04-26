@@ -5,9 +5,9 @@ import tornado.ioloop
 import tornado.web
 from blueshed.micro.utils import db_connection, orm_utils
 from blueshed.micro.utils.service import Service
-from blueshed.micro.handlers.api_handler import ApiHandler
 from blueshed.micro.handlers.logout_handler import LogoutHandler
-from blueshed.micro.handlers.websocketrpc import WebSocketRpcHandler
+from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
+from blueshed.micro.handlers.rpc_handler import RpcHandler
 import logging
 import dotenv
 import os
@@ -33,11 +33,11 @@ def make_app():
     orm_utils.create_all(orm_utils.Base, db_connection._engine_)
 
     handlers = [
-        (r'/websocket', WebSocketRpcHandler, {
+        (r'/websocket', RpcWebsocket, {
             'origins': ['localhost:8081',
                         'petermac.local:8081']
         }),
-        (r'/api(.*)', ApiHandler),
+        (r'/api(.*)', RpcHandler),
         (r'/logout', LogoutHandler),
         (r'/(.*)', LoginHandler)
     ]
@@ -52,6 +52,7 @@ def make_app():
         ws_url=os.getenv('ws_url', 'ws://localhost:8081/websocket'),
         login_url='/api/login',
         micro_context=Context,
+        allow_exception_messages=options.debug,
         gzip=True,
         debug=options.debug)
 
@@ -73,7 +74,7 @@ def main():
     if options.debug:
         logging.info('running in debug mode')
     tornado.ioloop.PeriodicCallback(
-        WebSocketRpcHandler.keep_alive, 30000).start()
+        RpcWebsocket.keep_alive, 30000).start()
     tornado.ioloop.IOLoop.current().start()
 
 

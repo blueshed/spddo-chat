@@ -1,11 +1,19 @@
 from tornado import web
-from blueshed.micro.utils.json_utils import dumps
-import logging
 from tornado.escape import json_encode
 from tornado.httpclient import HTTPError
+from blueshed.micro.utils.json_utils import dumps
+from blueshed.micro.handlers.user_mixin import UserMixin
+import logging
 
 
-class ContextMixin(object):
+LOGGER = logging.getLogger(__name__)
+
+
+class ContextMixin(UserMixin):
+    '''
+        Mixin to contain common functionality
+        between websocket and request_handler
+    '''
 
     context_clients = []
 
@@ -40,18 +48,43 @@ class ContextMixin(object):
                     client.write_message(data)
         context.flushed()
 
-    def check_current_user(self, context):
-        if context.cookies.get('current_user') != self.current_user:
-            self.set_current_user(context.cookies.get('current_user'))
-
     def update_result_data(self, context, data):
+        LOGGER.debug("current_user %s == %s",
+                     self.current_user,
+                     context.cookies.get('current_user'))
         if context.cookies.get('current_user') != self.current_user:
             setattr(self, '_current_user', context.cookies.get('current_user'))
+            if not hasattr(self, "write_message"):
+                self.set_current_user(context.cookies.get('current_user'))
             data['cookie_name'] = self.cookie_name
             data['cookie'] = web.create_signed_value(
                 self.settings["cookie_secret"],
                 self.cookie_name,
                 dumps(self.current_user)).decode("utf-8")
+
+    def handle_future(self, service, context, finish, future):
+        ''' called by async repsonses '''
+        try:
+            result = future.result()
+            self.handle_result(service, context, result)
+            if finish:
+                self.finish()
+        except Exception as ex:
+            self.write_err(context, ex)
+            if finish:
+                self.finish()
+
+    def handle_result(self, service, context, result):
+        ''' formats result and checks for user '''
+        LOGGER.info("%s = %s", service.name, result)
+        if isinstance(result, tuple) and isinstance(result[0],
+                                                    self.micro_context):
+            context, result = result
+            LOGGER.info("got context")
+            if hasattr(self, "_cookies_"):
+                self._cookies_.update(context.cookies)
+        self.flush_context(context)
+        self.write_result(context, result)
 
     def write_result(self, context, result):
         """Format a result response."""
@@ -65,7 +98,7 @@ class ContextMixin(object):
         }
         self.update_result_data(context, data)
 
-        content = json_encode(data)
+        content = dumps(data)
 
         if hasattr(self, "write_message"):
             self.write_message(content)

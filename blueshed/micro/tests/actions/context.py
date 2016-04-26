@@ -1,6 +1,6 @@
 from blueshed.micro.utils import db_connection
 from blueshed.micro.utils.base_context import BaseContext
-from blueshed.tests.actions import model
+from blueshed.micro.tests.actions import model
 import datetime
 
 
@@ -15,7 +15,8 @@ class Context(BaseContext):
         if self.broadcasts:
             with self.session as session:
                 now = datetime.datetime.now()
-                user_id = self.cookies.get('current_user', {}).get("id")
+                user = self.cookies.get('current_user')
+                user_id = user.get("id") if user else None
                 for signal, message in self.broadcasts:
                     session.add(model.Log(signal=signal,
                                           message=message,

@@ -1,23 +1,23 @@
 from pkg_resources import resource_filename  # @UnresolvedImport
 
+import logging
+import dotenv
+import os
 from tornado.options import parse_command_line, define, options
 import tornado.ioloop
 import tornado.web
 from blueshed.micro.utils.service import Service
-from blueshed.micro.utils.pika_tool import PikaTool
-from blueshed.micro.handlers.api_handler import ApiHandler
 from blueshed.micro.handlers.logout_handler import LogoutHandler
-from blueshed.micro.handlers.websocketrpc import WebSocketRpcHandler
-from spddo.mongo.s3.bucket import AWSConfig
-from spddo.mongo.s3.s3put_handler import S3PutHandler
 from blueshed.micro.utils.mongo_connection import db_init
-import logging
-import dotenv
-import os
+from blueshed.micro.handlers.token_access_handler import TokenAccessHandler
+from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
+from blueshed.micro.handlers.rpc_handler import RpcHandler
 
 from spddo.mongo import control
 from spddo.mongo.control.context import Context
-from blueshed.micro.handlers.token_access_handler import TokenAccessHandler
+from spddo.mongo.s3.bucket import AWSConfig
+from spddo.mongo.s3.s3put_handler import S3PutHandler
+from blueshed.micro.utils.pika_topic import PikaTopic
 
 define("debug", False, bool, help="run in debug mode")
 
@@ -30,8 +30,9 @@ def make_app():
 
     amqp_url = os.getenv("CLOUDAMQP_URL", '')
     if amqp_url:
-        queue = PikaTool(amqp_url,
-                         WebSocketRpcHandler.async_broadcast)
+        queue = PikaTopic(amqp_url,
+                          RpcWebsocket.async_broadcast,
+                          'micro-messages')
         queue.connect()
 #         tornado.autoreload.add_reload_hook(queue.close_connection)
         logging.info("broadcast_queue {}".format(amqp_url))
@@ -44,7 +45,7 @@ def make_app():
         site_path = resource_filename('spddo.mongo', "dist")
 
     handlers = [
-        (r"/websocket", WebSocketRpcHandler, {
+        (r"/websocket", RpcWebsocket, {
             'origins': ["localhost:8080",
                         "petermac.local:8080",
                         "spddo-chat.herokuapp.com"]
@@ -53,7 +54,7 @@ def make_app():
             's3_config': AWSConfig('AKIAJ3LFZNJ7PVKED43A',
                                    os.getenv('s3_config')),
             'bucket': 'blueshed-blogs'}),
-        (r"/api(.*)", ApiHandler),
+        (r"/api(.*)", RpcHandler),
         (r"/token_access", TokenAccessHandler, {
             'auth_url': 'http://localhost:8081/api/validate_token.js',
             'service_token': '12345'
@@ -74,6 +75,7 @@ def make_app():
         ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         login_url='/api/login',
         micro_context=Context,
+        allow_exception_messages=options.debug,
         gzip=True,
         debug=options.debug)
 
@@ -95,7 +97,7 @@ def main():
     if options.debug:
         logging.info("running in debug mode")
     tornado.ioloop.PeriodicCallback(
-        WebSocketRpcHandler.keep_alive, 30000).start()
+        RpcWebsocket.keep_alive, 30000).start()
     tornado.ioloop.IOLoop.current().start()
 
 

@@ -5,7 +5,7 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-class PikaBroadcaster(object):
+class PikaTool(object):
     """This is an example consumer that will handle unexpected interactions
     with RabbitMQ such as channel and connection closures.
 
@@ -326,40 +326,3 @@ class PikaBroadcaster(object):
         self.stop_consuming()
         self._connection.ioloop.start()
         LOGGER.info('Stopped')
-
-
-class PikaTool(PikaBroadcaster):
-
-    EXCHANGE = 'micro-messages'
-    EXCHANGE_TYPE = 'fanout'
-    QUEUE = 'micro-chat' #this will be replaced see below
-    ROUTING_KEY = ''
-    
-    def __init__(self, amqp_url, broadcast_func):
-        PikaBroadcaster.__init__(self, amqp_url)
-        self._broadcast_func = broadcast_func
-        
-    
-    def setup_queue(self, queue_name):
-        logging.info('Declaring queue %s', queue_name)
-        self._channel.queue_declare(self.on_queue_declareok, exclusive=True)
-        
-    def on_queue_declareok(self, method_frame):
-        self.QUEUE = method_frame.method.queue
-        PikaBroadcaster.on_queue_declareok(self, method_frame)
-
-    def on_message(self, unused_channel, basic_deliver, properties, body):
-        logging.info('Received message # %s from %s: %s',
-                     basic_deliver.delivery_tag, properties.app_id, body)
-        if self._broadcast_func:
-            self._broadcast_func(body)
-        self.acknowledge_message(basic_deliver.delivery_tag)
-
-    def post(self, msg):
-        if self._channel:
-            self._channel.basic_publish(self.EXCHANGE,
-                                        routing_key=self.ROUTING_KEY,
-                                        body=msg)
-    
-    def connect(self):
-        self._connection = super().connect()

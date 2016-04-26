@@ -28,7 +28,7 @@
 			<div class="service-panel center-block">
 				<div class="panel">
 					<div class="panel-heading">
-				    	<h3 class="panel-title">{{ service.name }}</h3>
+				    	<h3 class="panel-title">{{ service.label }}</h3>
 				    	{% if service.docs %}<div class="text-muted"><small>{{ service.docs }}</small></div>{% end %}
 				    </div>
 					<div class="panel-body">
@@ -40,7 +40,7 @@
 									placeholder="{{ param.annotation }}" {%if param.annotation == int %}number{% end %}/>
 							</div>
 							{% end %}{% end %}
-							<button type="submit" class="btn btn-primary">{{ service.name }}</button>
+							<button type="submit" class="btn btn-primary">{{ service.label }}</button>
 						</form>
 					</div>
 					{%if error %}

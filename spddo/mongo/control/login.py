@@ -10,6 +10,9 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
     if document is None:
         raise AuthenticationException(
             "<strong>Failed</strong> Email or password incorrect!")
-    user = dict(document)
+    user = {
+        "id": str(document['_id']),
+        "email": document['email']
+    }
     context.set_cookie("current_user", user)
     return user

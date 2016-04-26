@@ -5,6 +5,7 @@ from tornado import gen
 def save_asset(context: 'micro-context', asset: dict) -> dict:
     context.authenticated()
     db = context.motor
+    assert asset.get("name")
     result = yield db.asset_collection.update({"id": asset["id"]},
                                               asset,
                                               upsert=True)

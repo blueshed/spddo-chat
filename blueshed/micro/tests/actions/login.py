@@ -1,4 +1,4 @@
-from blueshed.tests.actions import model
+from blueshed.micro.tests.actions import model
 
 
 def login(context: 'micro-context', email: str, password: str) -> dict:

@@ -1,6 +1,6 @@
 import pytest
 import tornado.web
-from tornado.escape import json_decode
+from tornado.escape import json_decode, json_encode
 from tornado.concurrent import DummyExecutor
 from concurrent.futures.process import ProcessPoolExecutor
 from urllib.parse import urlencode
@@ -9,20 +9,24 @@ from blueshed.micro.utils.service import Service
 from blueshed.micro.handlers.rpc_handler import RpcHandler
 from blueshed.micro.utils import db_connection
 from blueshed.micro.utils.orm_utils import drop_all, create_all, Base
-from blueshed.tests import actions
-from blueshed.tests.actions.context import Context
-from blueshed.tests.actions import model
+from blueshed.micro.tests import actions
+from blueshed.micro.tests.actions.context import Context
+from blueshed.micro.tests.actions import model
+from blueshed.micro.utils.executor import pool_init
+from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
+from tornado.websocket import websocket_connect
 
+pool_init(ProcessPoolExecutor(2))
 
 application = tornado.web.Application([
-        (r"/(.*)", RpcHandler),
+        (r"/websocket", RpcWebsocket),
+        (r"/(.*)", RpcHandler)
     ],
     services=Service.describe(actions),
     micro_context=Context,
-    micro_pool=DummyExecutor(),
-#     micro_pool=ProcessPoolExecutor(4),
     cookie_name='blueshed-test',
-    cookie_secret='-it-was-a-dark-and-blueshed-night-')
+    cookie_secret='-it-was-a-dark-and-blueshed-night-',
+    allow_exception_messages=True)
 
 
 db_connection.db_init("mysql+pymysql://root:root@localhost:8889/test")
@@ -95,6 +99,59 @@ def test_hello_world_login(http_client, base_url):
 
 @pytest.mark.gen_test
 def test_hello_world_filter(http_client, base_url):
+    response = yield http_client.fetch(base_url + "/filter_groups",
+                                       method="POST",
+                                       headers={
+                                           "content-type": "application/json; charset=UTF-8"
+                                       },
+                                       body='{ "term": "foobar" }')
+    assert response.code == 200
+    assert response.headers[
+        "content-type"] == "application/json; charset=UTF-8"
+    result = json_decode(response.body)
+    print(result)
+    assert len(result.get('result')) == 2
+
+
+@pytest.mark.gen_test
+def test_websocket(http_client, base_url):
+    conn = yield websocket_connect(base_url.replace("http://","ws://") + "/websocket")
+    conn.write_message(json_encode({'requests':[(1, 'filter_groups', {})]}))
+    while True:
+        msg = yield conn.read_message()
+        if msg is None:
+            break
+        response = json_decode(msg)
+        print(response)
+        if response.get("id") == 1:
+            assert response.get('status_code') == 200
+            assert len(response.get('result')) == 2
+            conn.write_message(json_encode({'requests': [(2, 'save_group', {'name': None})]}))
+        elif response.get("id") == 2:
+            assert response.get("error") is not None
+            break
+
+
+@pytest.mark.gen_test
+def test_hello_world_inline(http_client, base_url):
+    pool_init(None)
+    response = yield http_client.fetch(base_url + "/filter_groups",
+                                       method="POST",
+                                       headers={
+                                           "content-type": "application/json; charset=UTF-8"
+                                       },
+                                       body='{ "term": "foobar" }')
+    assert response.code == 200
+    assert response.headers[
+        "content-type"] == "application/json; charset=UTF-8"
+    result = json_decode(response.body)
+    print(result)
+    assert len(result.get('result')) == 2
+
+
+@pytest.mark.gen_test
+def test_hello_world_dummy(http_client, base_url):
+    pool_init(DummyExecutor())
     response = yield http_client.fetch(base_url + "/filter_groups",
                                        method="POST",
                                        headers={

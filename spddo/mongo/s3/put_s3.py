@@ -3,7 +3,6 @@ import logging
 import os
 import io
 from .bucket import Bucket
-from blueshed.micro.utils.pool import pool
 
 TYPE_MAP = {
     ".jpg": ("JPEG", 'image/jpeg'),
@@ -29,7 +28,6 @@ def _make_one(bucket, data, size, fType, fMime, prefix, fActual, fExt):
     return bucket.gen_abs_url(key)
 
 
-@pool
 def main(context, s3path, files, aws_config, bucket_name):
     response = {
         "result": None,

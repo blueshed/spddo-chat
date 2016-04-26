@@ -1,18 +1,19 @@
 from pkg_resources import resource_filename  # @UnresolvedImport
 
+import logging
+import dotenv
+import os
 from concurrent.futures.process import ProcessPoolExecutor
 from tornado.options import parse_command_line, define, options
 import tornado.ioloop
 import tornado.web
 import tornado.autoreload
 from blueshed.micro.utils import db_connection, orm_utils
+from blueshed.micro.utils.executor import pool_init
 from blueshed.micro.utils.service import Service
 from blueshed.micro.handlers.logout_handler import LogoutHandler
 from blueshed.micro.handlers.rpc_handler import RpcHandler
 from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
-import logging
-import dotenv
-import os
 
 from spddo.subs import actions
 from spddo.subs.actions.context import Context
@@ -53,6 +54,7 @@ def make_app():
     ]
 
     micro_pool = ProcessPoolExecutor(3)
+    pool_init(micro_pool)
     if options.debug:
         tornado.autoreload.add_reload_hook(micro_pool.shutdown)
 
@@ -65,7 +67,7 @@ def make_app():
         ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         login_url='/api/login',
         micro_context=Context,
-        micro_pool=micro_pool,
+        allow_exception_messages=options.debug,
         gzip=True,
         debug=options.debug)
 

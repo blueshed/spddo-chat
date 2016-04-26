@@ -60,7 +60,7 @@ export default Vue.extend({
 					});
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		load_allocations(start, end, timezone, callback){
@@ -79,7 +79,7 @@ export default Vue.extend({
 					callback(this.allocations);
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		do_select(start, end, jsEvent, view, resource){

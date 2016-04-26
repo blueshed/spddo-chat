@@ -1,15 +1,18 @@
 from pkg_resources import resource_filename  # @UnresolvedImport
-from tornado import web, gen
+from tornado import web
 from tornado.escape import json_decode
+from tornado.web import asynchronous
+import tornado.concurrent
 from blueshed.micro.utils.json_utils import dumps
 from blueshed.micro.handlers.context_mixin import ContextMixin
 from blueshed.micro.handlers.user_mixin import UserMixin
+import functools
 import logging
 
 
-class RpcHandler(ContextMixin, UserMixin, web.RequestHandler):
+class RpcHandler(ContextMixin, web.RequestHandler):
     '''
-        Uses a pool to call procedures supporting
+        Calls services in application.settings['services']
 
         get:
             returns the meta data about a service
@@ -55,7 +58,7 @@ class RpcHandler(ContextMixin, UserMixin, web.RequestHandler):
         self.set_header('content-type', 'application/json; charset=UTF-8')
         self.write(dumps(services, indent=4))
 
-    @gen.coroutine
+    @asynchronous
     def post(self, path):
         if self.request.headers['content-type'] == "application/json; charset=UTF-8":
             kwargs = json_decode(self.request.body)
@@ -66,14 +69,21 @@ class RpcHandler(ContextMixin, UserMixin, web.RequestHandler):
             raise web.HTTPError(400, 'content type not supported {}'.format(
                 self.request.headers['content-type']))
         service = self.get_service(path)
-        context = self.settings['micro_context'](-1, -1, service.name)
+        service.parse_http_kwargs(kwargs)
+        context = self.settings['micro_context'](
+            -1, -1, service.name, {"current_user": self.current_user})
         try:
             logging.info("%s(%r)", service.name, kwargs)
-            context, result = yield service.perform_in_pool(
-                self.settings['micro_pool'],
-                context, **kwargs)
-            self.flush_context(context)
-            self.check_current_user(context)
-            self.write_result(context, result)
+            result = service.perform(context, **kwargs)
+            if tornado.concurrent.is_future(result):
+                result.add_done_callback(
+                    functools.partial(self.handle_future,
+                                      service,
+                                      context,
+                                      True))
+            else:
+                self.handle_result(service, context, result)
+                self.finish()
         except Exception as ex:
             self.write_err(context, ex)
+            self.finish()

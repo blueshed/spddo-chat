@@ -1,9 +1,9 @@
 from collections import OrderedDict
 import inspect
 import logging
-from tornado.concurrent import Future
 from tornado.ioloop import IOLoop
 import os
+from blueshed.micro.utils import executor
 
 LOGGER = logging.getLogger(__name__)
 
@@ -16,6 +16,7 @@ class Service(object):
 
     def __init__(self, key, f):
         self.name = key
+        self.label = key.replace("_", " ")
         self.desc = inspect.signature(f)
         self.docs = inspect.getdoc(f)
         self.f = f
@@ -48,9 +49,14 @@ class Service(object):
         '''
             Call synchronously
         '''
-        if self.has_context:
-            kwargs[self.has_context] = context
-        return self.f(**kwargs)
+        if executor.global_pool():
+            return self.perform_in_pool(executor.global_pool(),
+                                        context,
+                                        **kwargs)
+        else:
+            if self.has_context:
+                kwargs[self.has_context] = context
+            return self.f(**kwargs)
 
     def perform_in_pool(self, pool, context, **kwargs):
         '''
@@ -58,34 +64,20 @@ class Service(object):
         '''
         logging.info("run %s %s", os.getpid(), context)
         logging.info(IOLoop.current(False))
-        return pool.submit(self.run_in_pool,
+        return pool.submit(executor.run_in_pool,
+                           os.getpid(),
                            self.f,
                            self.has_context,
                            context,
                            **kwargs)
 
-    @classmethod
-    def run_in_pool(cls, f, has_context, context, **kwargs):
-        # globals from the parent process in the
-        # IOLoop so clear them.
-        if IOLoop.current(False):
-            LOGGER.debug("clearing tornado globals")
-            IOLoop.clear_current()
-            IOLoop.clear_instance()
-        LOGGER.debug("running %s %s", os.getpid(), context)
-        if has_context:
-            kwargs[has_context] = context
-        result = f(**kwargs)
-        if isinstance(result, Future):
-            LOGGER.debug('running up tornado to complete')
-
-            def done(*args, **kwargs):
-                LOGGER.debug('stopping tornado')
-                IOLoop.current().stop()
-            result.add_done_callback(done)
-            IOLoop.current().start()
-            result = result.result()
-        return context, result
+    def parse_http_kwargs(self, values):
+        for k, v in self.desc.parameters.items():
+            if values.get(k) is not None:
+                if v.annotation and v.annotation is int:
+                    values[k] = int(values[k])
+                elif v.annotation and v.annotation is float:
+                    values[k] = float(values[k])
 
     def to_json(self):
         return {
