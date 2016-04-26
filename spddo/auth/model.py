@@ -1,7 +1,10 @@
 from sqlalchemy.types import String, Integer
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.orm import relationship
-from blueshed.micro.utils.orm_utils import Base
+from blueshed.micro.utils.orm_utils import _Base_
+from sqlalchemy.ext.declarative.api import declarative_base
+
+Base = declarative_base(cls=_Base_)
 
 
 class User(Base):

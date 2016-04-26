@@ -1,9 +1,6 @@
 from blueshed.micro.utils.base_context import BaseContext
 from blueshed.micro.utils import mongo_connection
-
-
-class AuthenticationException(Exception):
-    pass
+from tornado.web import HTTPError
 
 
 class Context(BaseContext):
@@ -17,4 +14,4 @@ class Context(BaseContext):
 
     def authenticated(self):
         if self.get_cookie('current_user') is None:
-            raise AuthenticationException("not logged in")
+            raise HTTPError(403, "logged in required")

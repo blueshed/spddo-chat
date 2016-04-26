@@ -1,5 +1,5 @@
 from tornado import gen
-from spddo.mongo.control.context import AuthenticationException
+from tornado.web import HTTPError
 
 
 @gen.coroutine
@@ -8,7 +8,8 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
     db = context.motor
     document = yield db.users_collection.find_one({'email': email})
     if document is None:
-        raise AuthenticationException(
+        raise HTTPError(
+            401,
             "<strong>Failed</strong> Email or password incorrect!")
     user = {
         "id": str(document['_id']),
