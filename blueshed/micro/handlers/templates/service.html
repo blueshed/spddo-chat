@@ -37,7 +37,7 @@
 					<div class="form-group">
 						<label>{{ param.name.split(":")[0] }}</label>
 						<input class="form-control" type="text" name="{{ param.name }}"
-							value={%raw '""' if param.default == param.empty else json_encode(param.default) %}
+							value={%raw '""' if param.default is None or param.default == param.empty else json_encode(param.default) %}
 							placeholder="{{ param.annotation }}" {%if param.annotation == int %}number{% end %}/>
 					</div>
 					{% end %}{% end %}

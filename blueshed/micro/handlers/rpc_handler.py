@@ -5,9 +5,18 @@ from tornado.web import asynchronous
 import tornado.concurrent
 from blueshed.micro.utils.json_utils import dumps
 from blueshed.micro.handlers.context_mixin import ContextMixin
-from blueshed.micro.handlers.user_mixin import UserMixin
 import functools
 import logging
+
+acceptable_form_mime_types = [
+     "application/x-www-form-urlencoded; charset=UTF-8",
+     "application/x-www-form-urlencoded"
+]
+
+acceptable_json_mime_types = [
+    "application/json; charset=UTF-8",
+    "application/json;"
+]
 
 
 class RpcHandler(ContextMixin, web.RequestHandler):
@@ -60,13 +69,13 @@ class RpcHandler(ContextMixin, web.RequestHandler):
 
     @asynchronous
     def post(self, path):
-        if self.request.headers['content-type'] == "application/json; charset=UTF-8":
+        if self.request.headers['content-type'] in acceptable_json_mime_types:
             kwargs = json_decode(self.request.body)
-        elif self.request.headers['content-type'] == "application/x-www-form-urlencoded; charset=UTF-8":
+        elif self.request.headers['content-type'] in acceptable_form_mime_types:
             kwargs = dict([(k, self.get_argument(k))
                            for k in self.request.body_arguments.keys()])
         else:
-            raise web.HTTPError(400, 'content type not supported {}'.format(
+            raise web.HTTPError(415, 'content type not supported {}'.format(
                 self.request.headers['content-type']))
         service = self.get_service(path)
         service.parse_http_kwargs(kwargs)

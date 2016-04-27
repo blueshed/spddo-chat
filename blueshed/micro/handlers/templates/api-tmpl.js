@@ -6,6 +6,7 @@ function uid() {
     }
     return _p8() + _p8(true);
 }
+
 var docCookies = {
   getItem: function (sKey,escape) {
     if (!sKey) { return null; }
@@ -52,7 +53,6 @@ var docCookies = {
     return aKeys;
   }
 };
-
 
 var last_id = 0;
 var promises = {};

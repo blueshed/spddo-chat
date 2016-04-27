@@ -15,6 +15,7 @@ import os
 from spddo.auth import actions
 from spddo.auth.actions.context import Context
 from spddo.auth.login_handler import LoginHandler
+from spddo.auth.model import Base
 
 define('debug', False, bool, help='run in debug mode')
 define("db_url", default='mysql://root:root@localhost:8889/auth',
@@ -28,9 +29,9 @@ def make_app():
         os.getenv('CLEARDB_DATABASE_URL',
                   options.db_url))
 
-    db_connection.db_init(db_url,
-                          db_pool_recycle=options.db_pool_recycle)
-    orm_utils.create_all(orm_utils.Base, db_connection._engine_)
+    engine = db_connection.register_db(db_url, [Base])
+    if options.debug:
+        orm_utils.create_all(Base, engine)
 
     handlers = [
         (r'/websocket', RpcWebsocket, {

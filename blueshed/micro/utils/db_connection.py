@@ -23,6 +23,7 @@ def register_db(db_url, models, db_echo=False, db_pool_recycle=None):
     binds = dict([(m, engine) for m in models])
     _binds_.update(binds)
     _session_.configure(binds=_binds_, twophase=True)
+    return engine
 
 
 @contextmanager

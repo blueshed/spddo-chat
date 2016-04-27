@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 from blueshed.micro.utils.utils import url_to_cors
 import logging
 from tornado.escape import json_decode
+from blueshed.micro.utils.json_utils import dumps
 
 
 class TokenAccessHandler(RequestHandler):
@@ -59,7 +60,7 @@ class TokenAccessHandler(RequestHandler):
             logging.info(result.body)
             message = json_decode(result.body)
             user = message["result"]
-            self.set_secure_cookie(self.cookie_name, user)
+            self.set_secure_cookie(self.cookie_name, dumps(user))
             self.write({'result': "ok"})
         except Exception as ex:
             logging.exception(ex)

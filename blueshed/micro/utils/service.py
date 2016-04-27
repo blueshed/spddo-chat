@@ -73,11 +73,14 @@ class Service(object):
 
     def parse_http_kwargs(self, values):
         for k, v in self.desc.parameters.items():
-            if values.get(k) is not None:
+            if k == "context": continue
+            if values.get(k):
                 if v.annotation and v.annotation is int:
                     values[k] = int(values[k])
                 elif v.annotation and v.annotation is float:
                     values[k] = float(values[k])
+            else:
+                values[k]=None
 
     def to_json(self):
         return {

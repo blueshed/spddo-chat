@@ -17,6 +17,7 @@ from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
 
 from spddo.subs import actions
 from spddo.subs.actions.context import Context
+from spddo.subs.model import Base
 
 define('debug', False, bool, help='run in debug mode')
 define("db_url", default='mysql://root:root@localhost:8889/subs',
@@ -29,10 +30,9 @@ def make_app():
     db_url = orm_utils.heroku_db_url(
         os.getenv('CLEARDB_DATABASE_URL', options.db_url))
 
-    db_connection.db_init(db_url,
-                          db_pool_recycle=options.db_pool_recycle)
+    engine = db_connection.register_db(db_url, [Base])
     if options.debug:
-        orm_utils.create_all(orm_utils.Base, db_connection._engine_)
+        orm_utils.create_all(Base, engine)
 
     if options.debug:
         site_path = resource_filename('spddo', 'subs')
