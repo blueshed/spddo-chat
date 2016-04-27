@@ -1,5 +1,5 @@
 from sqlalchemy.sql.sqltypes import Text
-from sqlalchemy.dialects.mysql.base import MEDIUMTEXT
+from sqlalchemy.types import LargeBinary
 from sqlalchemy.types import TypeDecorator
 import json
 
@@ -36,4 +36,4 @@ class MySQLMediumJSONEncodedDict(JSONEncodedDict):
 
     """
 
-    impl = MEDIUMTEXT
+    impl = LargeBinary

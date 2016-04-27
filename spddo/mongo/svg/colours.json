@@ -1,0 +1,9 @@
+{
+	"colours": [
+		{ "id": 1, "label": "red", "colour": "#f00" },
+		{ "id": 2, "label": "green", "colour": "#0f0" },
+		{ "id": 3, "label": "blue", "colour": "#00f" },
+		{ "id": 4, "label": "white", "colour": "#fff" },
+		{ "id": 5, "label": "black", "colour": "#000" }
+	]
+}
