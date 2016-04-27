@@ -23,8 +23,8 @@ you to test tornado application, even websockets, without coding anything
 more complex that the hello world example on the tornadoweb.org index page. 
 
 Still to come, memcache. MySQL is brilliant too as it provides
-a memcache interface to inno_db tables. It means SqlAlchemy can mange you
-cache within its transactions or schedule a persistent task for it to
+a memcache interface to innodb tables. It means SqlAlchemy can manage your
+cache updates within its transactions or schedule a persistent task for it to
 be updated.
 
 references:
