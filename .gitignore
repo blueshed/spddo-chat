@@ -9,3 +9,4 @@
 
 venv
 .cache/v/cache/lastfailed
+.settings
