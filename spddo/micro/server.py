@@ -5,6 +5,7 @@ import tornado.autoreload
 import tornado.ioloop
 import tornado.web
 import logging
+import dotenv
 import os
 
 from concurrent.futures.process import ProcessPoolExecutor
@@ -56,6 +57,8 @@ def make_app():
     else:
         queue = None
 
+    spddo.micro.func.cache.init_mc()
+
     template_path = resource_filename('spddo.micro', "templates")
 
     return tornado.web.Application([
@@ -82,6 +85,9 @@ def main():
     logging.basicConfig(level=logging.INFO,
                         format="[%(levelname)1.1s %(asctime)s %(process)d %(thread)x  %(module)s:%(lineno)d] %(message)s")
     parse_command_line()
+    if os.path.isfile('.env'):
+        dotenv.load_dotenv('.env')
+
     logging.getLogger("micro.utils.service").setLevel(logging.WARN)
     logging.getLogger("micro.utils.pika_tool").setLevel(logging.WARN)
     port = int(os.getenv("PORT", 8080))

@@ -6,3 +6,4 @@ from .login import login
 from .fetch import fetch
 from .format_date import format_date
 from .sleep import sleep
+from .cache import cache_get, cache_set

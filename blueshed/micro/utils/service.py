@@ -4,8 +4,18 @@ import logging
 from tornado.ioloop import IOLoop
 import os
 from blueshed.micro.utils import executor
+from functools import wraps
 
 LOGGER = logging.getLogger(__name__)
+
+
+def no_pool(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        return f(*args, ** kwargs)
+
+    setattr(wrapped, "_no_pool_", True)
+    return wrapped
 
 
 class Service(object):
@@ -19,6 +29,7 @@ class Service(object):
         self.label = key.replace("_", " ")
         self.desc = inspect.signature(f)
         self.docs = inspect.getdoc(f)
+        self.no_pool = hasattr(f, '_no_pool_')
         self.f = f
         self.has_context = None
         for k, v in self.desc.parameters.items():
@@ -49,7 +60,7 @@ class Service(object):
         '''
             Call synchronously
         '''
-        if executor.global_pool():
+        if executor.global_pool() and self.no_pool is not True:
             return self.perform_in_pool(executor.global_pool(),
                                         context,
                                         **kwargs)
@@ -73,14 +84,15 @@ class Service(object):
 
     def parse_http_kwargs(self, values):
         for k, v in self.desc.parameters.items():
-            if k == "context": continue
+            if k == "context":
+                continue
             if values.get(k):
                 if v.annotation and v.annotation is int:
                     values[k] = int(values[k])
                 elif v.annotation and v.annotation is float:
                     values[k] = float(values[k])
             else:
-                values[k]=None
+                values[k] = None
 
     def to_json(self):
         return {
