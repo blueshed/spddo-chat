@@ -27,4 +27,7 @@ class UserMixin(object):
 
     def set_current_user(self, value):
         ''' put the current user in the cookie '''
-        self.set_secure_cookie(self.cookie_name, dumps(value))
+        if value:
+            self.set_secure_cookie(self.cookie_name, dumps(value))
+        else:
+            self.clear_cookie(self.cookie_name)

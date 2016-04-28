@@ -9,12 +9,20 @@ class CorsMixin(object):
     '''
 
     _cors_methods_ = 'GET,POST,PUT,DELETE,OPTIONS'
+    _cors_whitelist_ = []
 
     def set_cors_methods(self, method_string):
         self._cors_methods_ = method_string
 
+    def set_cors_whitelist(self, origins):
+        self._cors_whitelist_ = origins
+
     @property
     def origin_whitelist(self):
+        '''get origins from settings or specified whitelist'''
+        if self._cors_whitelist_:
+            return self._cors_whitelist_
+
         return self.settings.get('cors_origins')
 
     @property

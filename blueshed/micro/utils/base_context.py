@@ -16,11 +16,7 @@ class BaseContext:
         self.broadcasts.append((signal, message))
 
     def set_cookie(self, key, value=None):
-        if value is None:
-            if key in self.cookies:
-                del self.cookies[key]
-        else:
-            self.cookies[key] = value
+        self.cookies[key] = value
 
     def get_cookie(self, key, default=None):
         return self.cookies.get(key, default)

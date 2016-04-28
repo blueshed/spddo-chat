@@ -19,14 +19,13 @@ class TokenAccessHandler(UserMixin, CorsMixin, RequestHandler):
     def initialize(self, service_token, auth_url):
         self.service_token = service_token
         self.auth_url = auth_url
-        self._origins_ = [url_to_cors(auth_url)]
 
-    @property
-    def origin_whitelist(self):
-        return self._origins_
+        # cors options
+        self.set_cors_methods('GET,OPTIONS')
+        self.set_cors_whitelist([url_to_cors(auth_url)])
 
-    def options(self, *args, **kwargs):
-        self.cors_options(*args, **kwargs)
+    def options(self):
+        self.cors_options()
 
     @coroutine
     def get(self):
