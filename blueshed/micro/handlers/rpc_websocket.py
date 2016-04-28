@@ -34,15 +34,15 @@ class RpcWebsocket(ContextMixin,
     def initialize(self, origins=None):
         ''' use the origins to specify cors connections '''
         super().initialize()
-        self._orgins_ = origins
+        self._origins_ = origins
         self._cookies_ = {}
 
     def check_origin(self, origin):
         ''' checks the origin is in the origins provided at initialization '''
-        if self._orgins_:
+        if self._origins_:
             parsed_origin = urllib.parse.urlparse(origin)
             LOGGER.debug("websocket %s", parsed_origin)
-            return parsed_origin.netloc in self._orgins_
+            return parsed_origin.netloc in self._origins_
         return super().check_origin(origin)
 
     def open(self, *args, **kwargs):

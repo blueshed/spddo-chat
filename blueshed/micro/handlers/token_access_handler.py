@@ -1,14 +1,15 @@
-from tornado.web import RequestHandler, HTTPError
+from tornado.web import RequestHandler
 from tornado.gen import coroutine
 from tornado.httpclient import AsyncHTTPClient
 from urllib.parse import urlencode
 from blueshed.micro.utils.utils import url_to_cors
-import logging
 from tornado.escape import json_decode
-from blueshed.micro.utils.json_utils import dumps
+from blueshed.micro.handlers.user_mixin import UserMixin
+from blueshed.micro.handlers.cors_mixin import CorsMixin
+import logging
 
 
-class TokenAccessHandler(RequestHandler):
+class TokenAccessHandler(UserMixin, CorsMixin, RequestHandler):
     '''
         Validates a token with an auth server and
         puts the result into our access control cookie
@@ -21,29 +22,11 @@ class TokenAccessHandler(RequestHandler):
         self._origins_ = [url_to_cors(auth_url)]
 
     @property
-    def cookie_name(self):
-        return self.application.settings.get('cookie_name')
-
-    def check_origin(self):
-        ''' checks the origin is in the origins provided at initialization '''
-        if self._origins_:
-            origin = url_to_cors(self.request.headers.get("Referer"))
-            logging.info(origin)
-            if origin in self._origins_:
-                return origin
-            raise HTTPError(403, "Cross origin websockets not allowed")
-
-    def prepare(self):
-        RequestHandler.set_default_headers(self)
-        if self._origins_:
-            self.set_header('Access-Control-Allow-Origin', self.check_origin())
-            self.set_header('Access-Control-Allow-Methods', 'GET')
-            self.set_header('Access-Control-Max-Age', 1000)
-            self.set_header('Access-Control-Allow-Headers', '*')
-            self.set_header('Access-Control-Allow-Credentials', 'true')
+    def origin_whitelist(self):
+        return self._origins_
 
     def options(self, *args, **kwargs):
-        self.finish()
+        self.cors_options(*args, **kwargs)
 
     @coroutine
     def get(self):
@@ -60,7 +43,7 @@ class TokenAccessHandler(RequestHandler):
             logging.info(result.body)
             message = json_decode(result.body)
             user = message["result"]
-            self.set_secure_cookie(self.cookie_name, dumps(user))
+            self.set_current_user(user)
             self.write({'result': "ok"})
         except Exception as ex:
             logging.exception(ex)

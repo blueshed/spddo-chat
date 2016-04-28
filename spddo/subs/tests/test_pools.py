@@ -1,4 +1,5 @@
 from concurrent.futures.process import ProcessPoolExecutor
+from concurrent.futures.thread import ThreadPoolExecutor
 from tornado.concurrent import DummyExecutor
 from faker import Factory
 import pytest
@@ -22,7 +23,8 @@ def run_in_pool(method, context, *args, **kwargs):
 @pytest.fixture(scope="module")
 def pool():
     db_connection.db_init("mysql+pymysql://root:root@localhost:8889/subs")
-#     return DummyExecutor() 
+#     return DummyExecutor()
+#     return ThreadPoolExecutor(4)
     return ProcessPoolExecutor(4)
 
 
