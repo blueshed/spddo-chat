@@ -32,7 +32,7 @@ class CorsMixin(object):
             self.set_header("Access-Control-Allow-Origin", self.request_origin)
             self.set_header('Access-Control-Allow-Credentials', 'true')
 
-    def cors_options(self):
+    def cors_options(self, *arg, **kwargs):
         if self.request_origin in self.origin_whitelist:
             self.set_header("Access-Control-Allow-Origin", self.request_origin)
             self.set_header('Access-Control-Allow-Credentials', 'true')
