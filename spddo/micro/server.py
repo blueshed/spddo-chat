@@ -27,6 +27,8 @@ define("db_url",
        help="database url")
 define("db_pool_recycle", 60, int,
        help="how many seconds to recycle db connection")
+define("proc_pool_size", 0, int,
+       help="how processes in the pool")
 
 
 def make_app():
@@ -36,11 +38,13 @@ def make_app():
     if options.debug:
         create_all(Base, db_connection._engine_)
 
-    pool_size = int(os.getenv("POOL_SIZE", 3))
-    micro_pool = ProcessPoolExecutor(pool_size)
-    executor.pool_init(micro_pool)
-    if options.debug:
-        tornado.autoreload.add_reload_hook(micro_pool.shutdown)
+    pool_size = int(os.getenv("POOL_SIZE", options.proc_pool_size))
+    if pool_size:
+        micro_pool = ProcessPoolExecutor(pool_size)
+        executor.pool_init(micro_pool)
+        logging.info("process pool {}".format(pool_size))
+        if options.debug:
+            tornado.autoreload.add_reload_hook(micro_pool.shutdown)
 
     amqp_url = os.getenv("CLOUDAMQP_URL", '')
     if amqp_url:

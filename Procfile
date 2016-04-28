@@ -1,1 +1,1 @@
-web: python -m spddo.mongo.server
+web: python -m spddo.micro.server

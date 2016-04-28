@@ -4,6 +4,11 @@ import string
 from urllib.parse import urlparse
 
 
+def json_date(date):
+    if date:
+        return date.isoformat().replace("T", " ")
+
+
 def url_to_cors(url):
     o = urlparse(url)
     return "{}://{}".format(o.scheme, o.netloc)
