@@ -10,6 +10,7 @@ import pickle
 
 dispatcher = None
 
+
 class CacheItem(object):
     """
     For use with MySQL innodb memcache interface

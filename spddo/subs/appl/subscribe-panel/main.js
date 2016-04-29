@@ -18,14 +18,14 @@ export default Vue.extend({
 					this.active = result;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 			this.control.unpaid_subscriptions().
 				then((result)=>{
 					this.unpaid = result;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		subscribe(){
@@ -36,7 +36,7 @@ export default Vue.extend({
 					this.editing = null;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		cancel(){
@@ -56,7 +56,7 @@ export default Vue.extend({
 			this.control.filter_users(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		set_group(value){
@@ -66,7 +66,7 @@ export default Vue.extend({
 			this.control.filter_groups(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		set_service(value){
@@ -76,7 +76,7 @@ export default Vue.extend({
 			this.control.filter_services(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		}
 	},

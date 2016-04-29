@@ -1,4 +1,4 @@
-from blueshed.micro.utils import db_connection, orm_utils
+from blueshed.micro.orm import db_connection, orm_utils
 from spddo.auth.actions.context import Context
 import pytest
 

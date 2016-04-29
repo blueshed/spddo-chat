@@ -1,5 +1,5 @@
 from spddo.auth import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 from blueshed.micro.utils.utils import gen_token
 
 

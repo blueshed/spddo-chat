@@ -1,5 +1,5 @@
 from spddo.subs import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 
 
 def sub_to_json(o):
@@ -15,7 +15,11 @@ def subscribe(context: 'micro-context',
               group_id: int,
               service_id: int):
     with context.session as session:
+        if not user_id:
+            raise Exception("No such user")
         service = session.query(model.Service).get(service_id)
+        if service is None:
+            raise Exception("No such service")
         subscription = model.Subscription(user_id=user_id,
                                           group_id=group_id,
                                           service=service,

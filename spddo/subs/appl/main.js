@@ -51,7 +51,7 @@ System.import('/rpc.js').then(({Control})=>{
 				this.status = status;
 			}).
 			catch((err)=>{
-				this.error = err;
+				this.error = err.message;
 			});
 		},
 		methods:{

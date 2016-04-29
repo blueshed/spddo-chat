@@ -1,5 +1,5 @@
 from spddo.subs import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 from sqlalchemy.sql.expression import or_
 from spddo.subs.actions.active_subscriptions import active_subscriptions_for
 from spddo.subs.actions.active_subscriptions import sub_to_json

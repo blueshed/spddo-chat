@@ -1,4 +1,4 @@
-from blueshed.micro.utils.pika_tool import PikaTool
+from blueshed.micro.queue.pika_tool import PikaTool
 import logging
 
 LOGGER = logging.getLogger(__name__)

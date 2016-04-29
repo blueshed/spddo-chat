@@ -1,5 +1,5 @@
-from blueshed.micro.utils.db_connection import register_db
-from blueshed.micro.utils import db_connection
+from blueshed.micro.orm.db_connection import register_db
+from blueshed.micro.orm import db_connection
 import spddo.subs.model as subs_model
 import spddo.auth.model as auth_model
 

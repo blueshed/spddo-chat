@@ -1,5 +1,5 @@
 from spddo.subs import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 
 
 def save_group(context: 'micro-context',

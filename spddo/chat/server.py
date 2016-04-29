@@ -5,7 +5,7 @@ import logging
 import tornado.ioloop
 import tornado.web
 from tornado.options import options, define, parse_command_line
-from blueshed.micro.utils.pika_topic import PikaTopic
+from blueshed.micro.queue.pika_topic import PikaTopic
 from blueshed.micro.utils.utils import gen_token
 from spddo.chat.chat_handler import ChatHandler
 from spddo.chat.main_handler import MainHandler

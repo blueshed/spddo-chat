@@ -14,7 +14,7 @@ export default Vue.extend({
 			this.control.filter_groups(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		save_group(){
@@ -24,7 +24,7 @@ export default Vue.extend({
 					this.editing_group = null;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		cancel_group(){

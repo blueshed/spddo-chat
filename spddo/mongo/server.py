@@ -6,18 +6,18 @@ import os
 from tornado.options import parse_command_line, define, options
 import tornado.ioloop
 import tornado.web
+from blueshed.micro.orm.mongo_connection import db_init
 from blueshed.micro.utils.service import Service
-from blueshed.micro.handlers.logout_handler import LogoutHandler
-from blueshed.micro.utils.mongo_connection import db_init
-from blueshed.micro.handlers.token_access_handler import TokenAccessHandler
-from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
-from blueshed.micro.handlers.rpc_handler import RpcHandler
+from blueshed.micro.queue.pika_topic import PikaTopic
+from blueshed.micro.web.logout_handler import LogoutHandler
+from blueshed.micro.web.token_access_handler import TokenAccessHandler
+from blueshed.micro.web.rpc_websocket import RpcWebsocket
+from blueshed.micro.web.rpc_handler import RpcHandler
 
 from spddo.mongo import control
 from spddo.mongo.control.context import Context
 from spddo.mongo.s3.bucket import AWSConfig
 from spddo.mongo.s3.s3put_handler import S3PutHandler
-from blueshed.micro.utils.pika_topic import PikaTopic
 
 define("debug", False, bool, help="run in debug mode")
 

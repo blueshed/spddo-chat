@@ -3,11 +3,11 @@ from pkg_resources import resource_filename  # @UnresolvedImport
 from tornado.options import parse_command_line, define, options
 import tornado.ioloop
 import tornado.web
-from blueshed.micro.utils import db_connection, orm_utils
+from blueshed.micro.orm import db_connection, orm_utils
 from blueshed.micro.utils.service import Service
-from blueshed.micro.handlers.logout_handler import LogoutHandler
-from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
-from blueshed.micro.handlers.rpc_handler import RpcHandler
+from blueshed.micro.web.logout_handler import LogoutHandler
+from blueshed.micro.web.rpc_websocket import RpcWebsocket
+from blueshed.micro.web.rpc_handler import RpcHandler
 import logging
 import dotenv
 import os

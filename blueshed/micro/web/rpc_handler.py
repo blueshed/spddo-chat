@@ -4,7 +4,7 @@ from tornado.escape import json_decode
 from tornado.web import asynchronous
 import tornado.concurrent
 from blueshed.micro.utils.json_utils import dumps
-from blueshed.micro.handlers.context_mixin import ContextMixin
+from blueshed.micro.web.context_mixin import ContextMixin
 import functools
 import logging
 
@@ -46,7 +46,7 @@ class RpcHandler(ContextMixin, web.RequestHandler):
     def get_template_path(self):
         ''' overrides the template path to use this module '''
         if self._html_template is None and self._js_template is None:
-            return resource_filename('blueshed.micro.handlers', "templates")
+            return resource_filename('blueshed.micro.web', "templates")
         return web.RequestHandler.get_template_path(self)
 
     def get(self, path=None):

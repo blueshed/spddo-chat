@@ -2,7 +2,7 @@ from tornado import web
 from tornado.escape import json_encode
 from tornado.web import HTTPError
 from blueshed.micro.utils.json_utils import dumps
-from blueshed.micro.handlers.user_mixin import UserMixin
+from blueshed.micro.web.user_mixin import UserMixin
 import logging
 
 

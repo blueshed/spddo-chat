@@ -1,4 +1,4 @@
-from blueshed.micro.utils.orm_utils import Base
+from blueshed.micro.orm.orm_utils import Base
 from sqlalchemy.types import String, Integer
 from sqlalchemy.schema import Column
 

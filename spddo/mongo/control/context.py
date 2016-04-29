@@ -1,5 +1,5 @@
 from blueshed.micro.utils.base_context import BaseContext
-from blueshed.micro.utils import mongo_connection
+from blueshed.micro.orm import mongo_connection
 from tornado.web import HTTPError
 
 

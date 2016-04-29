@@ -1,5 +1,5 @@
 from spddo.subs import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 
 
 def filter_services(context: 'micro-context', term='', offset=0, limit=10, id=None):

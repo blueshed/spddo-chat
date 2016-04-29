@@ -14,7 +14,7 @@ export default Vue.extend({
 			this.control.filter_services(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		save_service(){
@@ -30,7 +30,7 @@ export default Vue.extend({
 					this.editing_service = null;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		cancel_service(){

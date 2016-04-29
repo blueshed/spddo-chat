@@ -4,7 +4,7 @@
 		<span v-if="user" class="badge">{{ user.email }}</span>&nbsp;
 		<a v-if="user" href="/logout?next=index.html" class="btn btn-default btn-xs">Logout</a>
 	</div>
-	<div v-if="error">
+	<div v-if="error" class="error">
 		<strong>{{{ error }}}</strong>
 	</div>
 	<users-panel></users-panel>

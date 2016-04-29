@@ -1,9 +1,9 @@
-from spddo.subs import model
 from sqlalchemy.sql.expression import and_, or_
-from blueshed.micro.utils.utils import parse_date
-import datetime
 from sqlalchemy.orm import subqueryload
+from blueshed.micro.utils.utils import parse_date
 from spddo.subs.actions.subscribe import sub_to_json
+from spddo.subs import model
+import datetime
 
 
 def active_subscriptions_for(session, user_id=None, group_id=None,

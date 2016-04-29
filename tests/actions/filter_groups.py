@@ -1,5 +1,5 @@
-from blueshed.micro.utils.orm_utils import serialize
-from blueshed.micro.tests.actions import model
+from blueshed.micro.orm.orm_utils import serialize
+from tests.actions import model
 
 
 def filter_groups(context: 'micro-context', term='',

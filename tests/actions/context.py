@@ -1,6 +1,6 @@
-from blueshed.micro.utils import db_connection
+from blueshed.micro.orm import db_connection
 from blueshed.micro.utils.base_context import BaseContext
-from blueshed.micro.tests.actions import model
+from tests.actions import model
 import datetime
 
 
@@ -11,7 +11,7 @@ class Context(BaseContext):
     def session(self):
         return db_connection.session()
 
-    def flushed(self):
+    def flushed(self, request=None):
         if self.broadcasts:
             with self.session as session:
                 now = datetime.datetime.now()

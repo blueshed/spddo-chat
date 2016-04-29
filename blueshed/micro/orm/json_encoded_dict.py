@@ -1,7 +1,7 @@
 from sqlalchemy.sql.sqltypes import Text
 from sqlalchemy.types import LargeBinary
 from sqlalchemy.types import TypeDecorator
-import json
+from blueshed.micro.utils.json_utils import dumps, loads
 
 
 class JSONEncodedDict(TypeDecorator):
@@ -17,13 +17,13 @@ class JSONEncodedDict(TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is not None:
-            value = json.dumps(value)
+            value = dumps(value)
 
         return value
 
     def process_result_value(self, value, dialect):
         if value is not None:
-            value = json.loads(value)
+            value = loads(value)
         return value
 
 

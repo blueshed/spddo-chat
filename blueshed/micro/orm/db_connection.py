@@ -1,4 +1,4 @@
-from blueshed.micro.utils.orm_utils import connect, make_engine
+from blueshed.micro.orm.orm_utils import connect, make_engine
 from contextlib import contextmanager
 import logging
 from sqlalchemy.orm.session import sessionmaker

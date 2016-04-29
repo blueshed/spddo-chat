@@ -1,4 +1,4 @@
-from blueshed.micro.utils import db_connection
+from blueshed.micro.orm import db_connection
 from blueshed.micro.utils.base_context import BaseContext
 
 

@@ -1,8 +1,8 @@
 from spddo.subs import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 
 
-def filter_groups(context: 'micro-context', term: str='', 
+def filter_groups(context: 'micro-context', term: str='',
                   offset: int=0, limit: int=10, id: int=None):
     with context.session as session:
         if id:

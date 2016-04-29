@@ -4,8 +4,8 @@ from tornado.httpclient import AsyncHTTPClient
 from urllib.parse import urlencode
 from blueshed.micro.utils.utils import url_to_cors
 from tornado.escape import json_decode
-from blueshed.micro.handlers.user_mixin import UserMixin
-from blueshed.micro.handlers.cors_mixin import CorsMixin
+from blueshed.micro.web.user_mixin import UserMixin
+from blueshed.micro.web.cors_mixin import CorsMixin
 import logging
 
 

@@ -1,7 +1,7 @@
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, String
-from blueshed.micro.utils.orm_utils import Base
-from blueshed.micro.utils.json_encoded_dict import JSONEncodedDict
+from blueshed.micro.orm.orm_utils import Base
+from blueshed.micro.orm.json_encoded_dict import JSONEncodedDict
 
 
 class User(Base):

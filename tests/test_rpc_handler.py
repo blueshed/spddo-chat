@@ -1,20 +1,23 @@
 import pytest
-import tornado.web
-from tornado.escape import json_decode, json_encode
-from tornado.concurrent import DummyExecutor
+
 from concurrent.futures.process import ProcessPoolExecutor
 from urllib.parse import urlencode
 
-from blueshed.micro.utils.service import Service
-from blueshed.micro.handlers.rpc_handler import RpcHandler
-from blueshed.micro.utils import db_connection
-from blueshed.micro.utils.orm_utils import drop_all, create_all, Base
-from blueshed.micro.tests import actions
-from blueshed.micro.tests.actions.context import Context
-from blueshed.micro.tests.actions import model
-from blueshed.micro.utils.executor import pool_init
-from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
+import tornado.web
+from tornado.escape import json_decode, json_encode
+from tornado.concurrent import DummyExecutor
 from tornado.websocket import websocket_connect
+
+from blueshed.micro.utils.service import Service
+from blueshed.micro.web.rpc_handler import RpcHandler
+from blueshed.micro.orm import db_connection
+from blueshed.micro.orm.orm_utils import drop_all, create_all, Base
+from blueshed.micro.utils.executor import pool_init
+from blueshed.micro.web.rpc_websocket import RpcWebsocket
+
+from tests import actions
+from tests.actions.context import Context
+from tests.actions import model
 
 pool_init(ProcessPoolExecutor(2))
 

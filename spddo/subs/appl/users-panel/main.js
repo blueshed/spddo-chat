@@ -13,7 +13,7 @@ export default Vue.extend({
 			this.control.filter_users(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		save_user(){
@@ -25,7 +25,7 @@ export default Vue.extend({
 					this.editing_user = null;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		cancel_user(){

@@ -19,7 +19,7 @@ export default Vue.extend({
 					this.unpaid = result;
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		pay(){
@@ -30,7 +30,7 @@ export default Vue.extend({
 					this.unpaid = [];
 				}).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				});
 		},
 		cancel(){
@@ -49,7 +49,7 @@ export default Vue.extend({
 			this.control.filter_users(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		},
 		set_group(value){
@@ -59,7 +59,7 @@ export default Vue.extend({
 			this.control.filter_groups(term).
 				then(suggest).
 				catch((err)=>{
-					this.$root.error = err;
+					this.$root.error = err.message;
 				})
 		}
 	}

@@ -1,5 +1,5 @@
 from spddo.subs import model
-from blueshed.micro.utils.orm_utils import serialize
+from blueshed.micro.orm.orm_utils import serialize
 from spddo.subs.actions.subscribe import sub_to_json
 from spddo.subs.model import Payment
 import datetime

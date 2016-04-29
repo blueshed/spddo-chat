@@ -1,8 +1,7 @@
-import tornado.websocket
-import time
+from tornado.websocket import WebSocketHandler
 
 
-class ChatHandler(tornado.websocket.WebSocketHandler):
+class ChatHandler(WebSocketHandler):
     '''
         Simple chat websocket handler
     '''

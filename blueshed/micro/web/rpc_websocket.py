@@ -1,8 +1,7 @@
 from tornado.escape import json_decode
 import tornado.websocket
 from tornado import concurrent
-from blueshed.micro.handlers.user_mixin import UserMixin
-from blueshed.micro.handlers.context_mixin import ContextMixin
+from blueshed.micro.web.context_mixin import ContextMixin
 import logging
 import time
 import urllib

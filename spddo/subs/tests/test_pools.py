@@ -7,7 +7,7 @@ from spddo.subs.actions.context import Context
 from spddo.subs.actions.save_user import save_user
 from spddo.subs.actions.save_group import save_group
 from spddo.subs.actions.save_service import save_service
-from blueshed.micro.utils import db_connection
+from blueshed.micro.orm import db_connection
 from blueshed.micro.utils.utils import url_to_cors
 from tornado import gen
 from random import randint

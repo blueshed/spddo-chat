@@ -24,6 +24,10 @@
 	font-size: smaller;
 }
 
+.error{
+	color: red;
+}
+
 .Panel{
 	margin: 1%;
 	padding: 1em;

@@ -9,13 +9,14 @@ import dotenv
 import os
 
 from concurrent.futures.process import ProcessPoolExecutor
-from blueshed.micro.utils import db_connection, executor
+from blueshed.micro.orm import db_connection
+from blueshed.micro.utils import executor
 from blueshed.micro.utils.service import Service
-from blueshed.micro.utils.orm_utils import heroku_db_url, create_all, Base
-from blueshed.micro.handlers.logout_handler import LogoutHandler
-from blueshed.micro.handlers.rpc_websocket import RpcWebsocket
-from blueshed.micro.handlers.rpc_handler import RpcHandler
-from blueshed.micro.utils.pika_topic import PikaTopic
+from blueshed.micro.orm.orm_utils import heroku_db_url, create_all, Base
+from blueshed.micro.web.logout_handler import LogoutHandler
+from blueshed.micro.web.rpc_websocket import RpcWebsocket
+from blueshed.micro.web.rpc_handler import RpcHandler
+from blueshed.micro.queue.pika_topic import PikaTopic
 
 from spddo.micro.func.context import Context
 from spddo.micro.api_page_handler import ApiPageHandler

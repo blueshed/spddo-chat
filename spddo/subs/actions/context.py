@@ -1,5 +1,5 @@
 import logging
-from blueshed.micro.utils import db_connection
+from blueshed.micro.orm import db_connection
 from blueshed.micro.utils.base_context import BaseContext
 from tornado.ioloop import IOLoop
 from spddo.subs.actions.sync_auth import sync_auth
@@ -21,7 +21,7 @@ class Context(BaseContext):
         except Exception as ex:
             logging.exception(ex)
 
-    def flushed(self):
+    def flushed(self, request=None):
         BaseContext.flushed(self)
         sync_user_subs = set()
         with self.session as session:
