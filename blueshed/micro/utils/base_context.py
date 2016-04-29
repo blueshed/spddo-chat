@@ -5,7 +5,7 @@ class BaseContext:
         by annotating the argument with :micro-context
     '''
 
-    def __init__(self, client_id, action_id, action, cookies=None, request=None):
+    def __init__(self, client_id, action_id, action, cookies=None, handler=None):
         self.client_id = client_id
         self.action_id = action_id
         self.action = action
