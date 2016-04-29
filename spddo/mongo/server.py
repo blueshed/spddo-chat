@@ -16,8 +16,9 @@ from blueshed.micro.web.rpc_handler import RpcHandler
 
 from spddo.mongo import control
 from spddo.mongo.control.context import Context
-from spddo.mongo.s3.bucket import AWSConfig
-from spddo.mongo.s3.s3put_handler import S3PutHandler
+from spddo.s3.bucket import AWSConfig
+from spddo.s3.s3put_handler import S3PutHandler
+from spddo.s3 import put_s3
 
 define("debug", False, bool, help="run in debug mode")
 
@@ -50,10 +51,6 @@ def make_app():
                         "petermac.local:8080",
                         "spddo-chat.herokuapp.com"]
         }),
-        (r"/upload", S3PutHandler, {
-            's3_config': AWSConfig('AKIAJ3LFZNJ7PVKED43A',
-                                   os.getenv('s3_config')),
-            'bucket': 'blueshed-blogs'}),
         (r"/api(.*)", RpcHandler),
         (r"/token_access", TokenAccessHandler, {
             'auth_url': 'http://localhost:8081/api/validate_token.js',

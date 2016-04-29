@@ -29,6 +29,7 @@ class TokenAccessHandler(UserMixin, CorsMixin, RequestHandler):
 
     @coroutine
     def get(self):
+        self.write_cors_headers()
         token = self.get_argument("v")
         logging.info("auth token %s", token)
         try:

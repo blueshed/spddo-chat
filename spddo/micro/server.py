@@ -23,6 +23,10 @@ from spddo.micro.api_page_handler import ApiPageHandler
 from spddo.micro.index_handler import IndexHandler
 import spddo.micro.func
 
+from spddo.s3.s3put_handler import S3PutHandler
+from spddo.s3.bucket import AWSConfig
+from spddo.s3 import put_s3
+
 define('debug', False, bool, help='run in debug mode')
 define("db_url",
        default='mysql://root:root@localhost:8889/test',
@@ -41,12 +45,12 @@ def make_app():
         create_all(Base, db_connection._engine_)
 
     pool_size = int(os.getenv("POOL_SIZE", options.proc_pool_size))
-    if pool_size:
-        micro_pool = ProcessPoolExecutor(pool_size)
-        executor.pool_init(micro_pool)
-        logging.info("process pool {}".format(pool_size))
-        if options.debug:
-            tornado.autoreload.add_reload_hook(micro_pool.shutdown)
+#     if pool_size:
+#         micro_pool = ProcessPoolExecutor(pool_size)
+#         executor.pool_init(micro_pool)
+#         logging.info("process pool {}".format(pool_size))
+#         if options.debug:
+#             tornado.autoreload.add_reload_hook(micro_pool.shutdown)
 
     amqp_url = os.getenv("CLOUDAMQP_URL", '')
     if amqp_url:
@@ -65,6 +69,16 @@ def make_app():
     return tornado.web.Application([
         (r"/websocket", RpcWebsocket,
          {'origins': ["localhost:8080", "spddo-chat.herokuapp.com"]}),
+
+        (r"/upload", S3PutHandler, {
+            's3_config': AWSConfig('AKIAJ3LFZNJ7PVKED43A',
+                                   os.getenv('s3_config')),
+            'bucket': 'blueshed-blogs',
+            'service': Service('put_s3', put_s3.main),
+            'cors_origins': ["http://localhost:8080",
+                             "http://petermac.local:8080",
+                             "https://spddo-chat.herokuapp.com"]}),
+
         (r"/api.html", ApiPageHandler),
         (r"/api(.*)", RpcHandler),
         (r"/logout", LogoutHandler),

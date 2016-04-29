@@ -21,10 +21,12 @@ def init_mc():
 @no_pool
 def cache_set(key: str, value: str=""):
     global mc
+    assert isinstance(key, str), "key is not a string: %r" % key
     mc.set(key, value)
 
 
 @no_pool
 def cache_get(key: str) -> str:
     global mc
+    assert isinstance(key, str), "key is not a string: %r" % key
     return mc.get(key)

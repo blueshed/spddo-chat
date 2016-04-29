@@ -1,5 +1,14 @@
 from urllib.parse import urlparse
 from tornado.web import HTTPError
+from functools import wraps
+
+
+def cors(f):
+    @wraps(f)
+    def wrapped(self, *args, **kwargs):
+        self.write_cors_headers()
+        return f(self, *args, **kwargs)
+    return wrapped
 
 
 class CorsMixin(object):
@@ -35,7 +44,7 @@ class CorsMixin(object):
                 origin = "{}:{}".format(origin, o.port)
             return origin
 
-    def set_default_headers(self):
+    def write_cors_headers(self):
         if self.request_origin in self.origin_whitelist:
             self.set_header("Access-Control-Allow-Origin", self.request_origin)
             self.set_header('Access-Control-Allow-Credentials', 'true')
