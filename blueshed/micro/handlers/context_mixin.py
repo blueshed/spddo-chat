@@ -81,9 +81,9 @@ class ContextMixin(UserMixin):
                                                     self.micro_context):
             context, result = result
             LOGGER.info("got context")
-            if hasattr(self, "_cookies_"):
-                self._cookies_.update(context.cookies)
-                # TODO: remove None value keys (cookies)
+        if hasattr(self, "_cookies_"):
+            self._cookies_.update(context.cookies)
+            # TODO: remove None value keys (cookies)
         self.flush_context(context)
         self.write_result(context, result)
 

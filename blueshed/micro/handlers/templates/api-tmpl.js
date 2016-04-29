@@ -1,12 +1,4 @@
 {% autoescape None %}{% whitespace all %}
-function uid() {
-    function _p8(s) {
-        var p = (Math.random().toString(16)+"000000000").substr(2,8);
-        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
-    }
-    return _p8() + _p8(true);
-}
-
 var docCookies = {
   getItem: function (sKey,escape) {
     if (!sKey) { return null; }
@@ -54,27 +46,34 @@ var docCookies = {
   }
 };
 
-var last_id = 0;
-var promises = {};
-
 function Control(){
-	this.client_id = uid();
-	this.user = {%raw json_encode(current_user) %};
-    this.pending_requests = [];
+	this._last_id = 0;
+	this._promises = {};
+	this._client_id = this._uid();
+	this._user = {%raw json_encode(current_user) %};
+    this._pending_requests = [];
     this._send_timeout = null;
+    this._broadcast = null;
+    this._close = null;
 }
     
 Control.prototype.init = function(broadcast_callback, close_callback){
+	this._broadcast = broadcast_callback;
+	this._close = close_callback;
+	return this._connect();
+};
+
+Control.prototype._connect = function(){
 	return new Promise(function(resolve,reject){
 		var ws = null;
 		try{
-			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this.client_id);
+			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this._client_id);
 		}
 		catch(err){
 			reject(err);
 		}
 		ws.onopen = function(){
-			this.connection = ws;
+			this._connection = ws;
 			this._flush_pending();
 			resolve('open');
 		}.bind(this);
@@ -86,51 +85,59 @@ Control.prototype.init = function(broadcast_callback, close_callback){
 	            docCookies.setItem(message.cookie_name, 
 	            		message.cookie, expires.toGMTString(),'/',document.domain,null,false);
 			}
-			if(promises[message.id]){
+			if(this._promises[message.id]){
 				if(message.error){
-					promises[message.id].reject(message);
+					this._promises[message.id].reject(message);
 				} else {
-					promises[message.id].resolve(message.result);
+					this._promises[message.id].resolve(message.result);
 				}
-				delete promises[message.id];
-			} else if(message.signal, broadcast_callback){
-				broadcast_callback(message.signal, message.message);
+				delete this._promises[message.id];
+			} else if(message.signal, this._broadcast){
+				this._broadcast(message.signal, message.message);
 			} else {
 				console.log(message);
 			}
 		}.bind(this);
 		ws.onclose = function(){
-			this.connection = null;
+			this._connection = null;
 			setTimeout(function(){
-				if(close_callback){
-					close_callback("closed");
+				if(this._close){
+					this._close("closed");
 				} else {
 					location.reload(true);
 				}
-			},200);
+			}.bind(this), 200);
 		}.bind(this);
 		ws.onerror = function(err){
-			if(!this.connection){
+			if(!this._connection){
 				reject(err.code || 'unknown error');
 			}
 		}.bind(this);
 	}.bind(this));
 };
 
+Control.prototype._uid = function(){
+    function _p8(s) {
+        var p = (Math.random().toString(16)+"000000000").substr(2,8);
+        return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
+    }
+    return _p8() + _p8(true);
+};
+
 Control.prototype._flush_pending = function(){
     this._send_timeout = null;
-    this.connection.send(JSON.stringify({requests: this.pending_requests}));
-	this.pending_requests.length=0;
-}
+    this._connection.send(JSON.stringify({requests: this._pending_requests}));
+	this._pending_requests.length=0;
+};
 
 Control.prototype._send = function(action, args) {
-	var id = this.client_id + ":"+ ++last_id;
+	var id = this._client_id + ":"+ ++this._last_id;
 	return new Promise(function(resolve,reject){
-		this.pending_requests.push([id,action,args]);
-        if (!this._send_timeout && this.connection) {
+		this._pending_requests.push([id,action,args]);
+        if (!this._send_timeout && this._connection) {
             this._send_timeout = setTimeout(this._flush_pending.bind(this), 0);
         }
-		promises[id] = { reject: reject, resolve: resolve };
+		this._promises[id] = { reject: reject, resolve: resolve };
 	}.bind(this));
 };
 	
