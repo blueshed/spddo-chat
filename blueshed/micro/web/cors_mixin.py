@@ -4,6 +4,12 @@ from functools import wraps
 
 
 def cors(f):
+    '''
+        Wraps GET, POST, PUT, DELETE etc. to allow cross domain requests
+        @cors
+        def get(self):
+            ...
+    '''
     @wraps(f)
     def wrapped(self, *args, **kwargs):
         self.write_cors_headers()
