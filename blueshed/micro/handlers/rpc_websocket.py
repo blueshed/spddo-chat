@@ -58,7 +58,7 @@ class RpcWebsocket(ContextMixin,
         data = json_decode(message)
         for id_, action, kwargs in data.get("requests"):
             context = self.micro_context(
-                self._client_id, id_, action, self._cookies_)
+                self._client_id, id_, action, self._cookies_, self)
             try:
                 LOGGER.info(
                     "%s %s %s %r", id(self),

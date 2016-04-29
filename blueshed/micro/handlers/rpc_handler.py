@@ -80,7 +80,8 @@ class RpcHandler(ContextMixin, web.RequestHandler):
         service = self.get_service(path)
         service.parse_http_kwargs(kwargs)
         context = self.settings['micro_context'](
-            -1, -1, service.name, {"current_user": self.current_user})
+            -1, -1, service.name, {"current_user": self.current_user},
+            self)
         try:
             logging.info("%s(%r)", service.name, kwargs)
             result = service.perform(context, **kwargs)

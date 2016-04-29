@@ -46,7 +46,7 @@ class ContextMixin(UserMixin):
             else:
                 for client in self.context_clients:
                     client.write_message(data)
-        context.flushed()
+        context.flushed(self)
 
     def update_result_data(self, context, data):
         LOGGER.debug("current_user %s == %s",

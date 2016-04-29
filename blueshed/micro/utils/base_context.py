@@ -5,7 +5,7 @@ class BaseContext:
         by annotating the argument with :micro-context
     '''
 
-    def __init__(self, client_id, action_id, action, cookies=None):
+    def __init__(self, client_id, action_id, action, cookies=None, request=None):
         self.client_id = client_id
         self.action_id = action_id
         self.action = action
@@ -21,7 +21,7 @@ class BaseContext:
     def get_cookie(self, key, default=None):
         return self.cookies.get(key, default)
 
-    def flushed(self):
+    def flushed(self, request=None):
         ''' called when broadcast queue is flushed '''
         pass
 
