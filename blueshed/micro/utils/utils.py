@@ -14,6 +14,11 @@ def url_to_cors(url):
     return "{}://{}".format(o.scheme, o.netloc)
 
 
+def url_to_ws_origins(url):
+    o = urlparse(url)
+    return o.netloc
+
+
 def parse_date(value):
     """
         Returns a Python datetime.datetime object,

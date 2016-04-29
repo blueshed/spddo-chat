@@ -5,12 +5,13 @@ from tornado.web import asynchronous
 import tornado.concurrent
 from blueshed.micro.utils.json_utils import dumps
 from blueshed.micro.web.context_mixin import ContextMixin
+from blueshed.micro.web.cors_mixin import CorsMixin, cors
 import functools
 import logging
 
 acceptable_form_mime_types = [
-     "application/x-www-form-urlencoded; charset=UTF-8",
-     "application/x-www-form-urlencoded"
+    "application/x-www-form-urlencoded; charset=UTF-8",
+    "application/x-www-form-urlencoded"
 ]
 
 acceptable_json_mime_types = [
@@ -19,7 +20,7 @@ acceptable_json_mime_types = [
 ]
 
 
-class RpcHandler(ContextMixin, web.RequestHandler):
+class RpcHandler(ContextMixin, CorsMixin, web.RequestHandler):
     '''
         Calls services in application.settings['services']
 
@@ -38,8 +39,11 @@ class RpcHandler(ContextMixin, web.RequestHandler):
             result is always json
     '''
 
-    def initialize(self, html_template=None, js_template=None):
+    def initialize(self, html_template=None, js_template=None, cors_origins=None):
         web.RequestHandler.initialize(self)
+        self.set_cors_methods("OPTIONS,GET,POST")
+        if cors_origins:
+            self.set_cors_whitelist(cors_origins)
         self._html_template = html_template
         self._js_template = js_template
 
@@ -49,6 +53,10 @@ class RpcHandler(ContextMixin, web.RequestHandler):
             return resource_filename('blueshed.micro.web', "templates")
         return web.RequestHandler.get_template_path(self)
 
+    def options(self, *args, **kwargs):
+        self.cors_options()
+
+    @cors
     def get(self, path=None):
         services = self.get_service(path)
         if services is None:
@@ -68,6 +76,7 @@ class RpcHandler(ContextMixin, web.RequestHandler):
         self.write(dumps(services, indent=4))
 
     @asynchronous
+    @cors
     def post(self, path):
         if self.request.headers['content-type'] in acceptable_json_mime_types:
             kwargs = json_decode(self.request.body)

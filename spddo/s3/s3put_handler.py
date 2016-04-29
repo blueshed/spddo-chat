@@ -7,15 +7,22 @@ import tornado.concurrent
 from blueshed.micro.web.context_mixin import ContextMixin
 from blueshed.micro.web.cors_mixin import CorsMixin, cors
 import functools
+from blueshed.micro.utils.utils import gen_token
 
 
 class S3PutHandler(ContextMixin, CorsMixin, RequestHandler):
 
-    def initialize(self, s3_config, bucket, service, cors_origins=None):
+    def initialize(self,
+                   s3_config,
+                   bucket,
+                   service,
+                   cors_origins=None,
+                   gen_file_names=True):
         RequestHandler.initialize(self)
         self.s3_config = s3_config
         self.bucket = bucket
         self.service = service
+        self.gen_file_names = gen_file_names
         self.set_cors_methods('GET,POST,OPTIONS')
         self.set_cors_whitelist(cors_origins)
 
@@ -37,14 +44,10 @@ class S3PutHandler(ContextMixin, CorsMixin, RequestHandler):
             prefix = self.get_argument("prefix", None)
             logging.info("prefix adjusted to %r", prefix)
 
-        def done(future):
-            try:
-                _, result = future.result()
-                result["tid"] = os.getpid()
-                self.write_result_finish(result)
-            except Exception as ex:
-                self.write_result_finish({"error": str(ex)})
-
+        if self.gen_file_names is True:
+            token = gen_token(16)
+            prefix = token if not prefix else "{}/{}".format(prefix,
+                                                             token)
         context = self.micro_context(
             self.current_user, -1, 'put_s3', {},
             self)

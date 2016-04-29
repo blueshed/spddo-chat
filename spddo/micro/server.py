@@ -13,6 +13,7 @@ from blueshed.micro.orm import db_connection
 from blueshed.micro.utils import executor
 from blueshed.micro.utils.service import Service
 from blueshed.micro.orm.orm_utils import heroku_db_url, create_all, Base
+from blueshed.micro.utils.utils import url_to_ws_origins
 from blueshed.micro.web.logout_handler import LogoutHandler
 from blueshed.micro.web.rpc_websocket import RpcWebsocket
 from blueshed.micro.web.rpc_handler import RpcHandler
@@ -38,6 +39,14 @@ define("proc_pool_size", 0, int,
 
 
 def make_app():
+    cors_urls = os.getenv("CORS_URLS",
+                          ",".join([
+                              "http://localhost:8080",
+                              "http://petermac.local:8080",
+                              "https://spddo-chat.herokuapp.com"
+                              ])).split(",")
+    cors_origins = [url_to_ws_origins(u) for u in cors_urls]
+
     db_url = heroku_db_url(os.getenv("CLEARDB_DATABASE_URL",
                                      options.db_url))
     db_connection.db_init(db_url)
@@ -45,12 +54,12 @@ def make_app():
         create_all(Base, db_connection._engine_)
 
     pool_size = int(os.getenv("POOL_SIZE", options.proc_pool_size))
-#     if pool_size:
-#         micro_pool = ProcessPoolExecutor(pool_size)
-#         executor.pool_init(micro_pool)
-#         logging.info("process pool {}".format(pool_size))
-#         if options.debug:
-#             tornado.autoreload.add_reload_hook(micro_pool.shutdown)
+    if pool_size:
+        micro_pool = ProcessPoolExecutor(pool_size)
+        executor.pool_init(micro_pool)
+        logging.info("process pool {}".format(pool_size))
+        if options.debug:
+            tornado.autoreload.add_reload_hook(micro_pool.shutdown)
 
     amqp_url = os.getenv("CLOUDAMQP_URL", '')
     if amqp_url:
@@ -68,19 +77,17 @@ def make_app():
 
     return tornado.web.Application([
         (r"/websocket", RpcWebsocket,
-         {'origins': ["localhost:8080", "spddo-chat.herokuapp.com"]}),
+         {'origins': cors_origins}),
 
-        (r"/upload", S3PutHandler, {
+        (r"/upload(.*)", S3PutHandler, {
             's3_config': AWSConfig('AKIAJ3LFZNJ7PVKED43A',
                                    os.getenv('s3_config')),
             'bucket': 'blueshed-blogs',
             'service': Service('put_s3', put_s3.main),
-            'cors_origins': ["http://localhost:8080",
-                             "http://petermac.local:8080",
-                             "https://spddo-chat.herokuapp.com"]}),
+            'cors_origins': cors_urls}),
 
         (r"/api.html", ApiPageHandler),
-        (r"/api(.*)", RpcHandler),
+        (r"/api(.*)", RpcHandler, {'cors_origins': cors_urls}),
         (r"/logout", LogoutHandler),
         (r"/", IndexHandler),
     ],
