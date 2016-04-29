@@ -129,8 +129,11 @@ class ContextMixin(UserMixin):
             'message': message,
         })
 
+        # if writing to websocket must use write_message else write
         if hasattr(self, "write_message"):
             self.write_message(err)
         else:
+            # set response code and set headers
+            self.set_status(code, message)
             self.set_header('content-type', 'application/json; charset=UTF-8')
             self.write(err)
