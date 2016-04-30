@@ -4,6 +4,7 @@ import io
 from spddo.micro.func import model
 from blueshed.micro.utils.utils import gen_token
 from blueshed.micro.utils.bucket import AWSConfig, Bucket
+from blueshed.micro.orm.orm_utils import serialize
 
 TYPE_MAP = {
     ".jpg": ("JPEG", 'image/jpeg'),
@@ -29,7 +30,20 @@ def _make_one(bucket, data, size, fType, fMime, prefix, fActual, fExt):
     return bucket.gen_abs_url(key)
 
 
-def save_image(context: 'micro-context', file: 'file') -> dict:
+def image_list(context: 'micro-context', term: str='',
+               offset: int=0, limit: int=10) -> list:
+    with context.session as session:
+        term = "{}%".format(term)
+        images = session.query(model.Image).\
+            filter(model.Image.name.like(term)).\
+            order_by(model.Image.name).\
+            offset(offset).\
+            limit(limit)
+
+        return [serialize(image) for image in images]
+
+
+def image_upload(context: 'micro-context', file: 'file') -> dict:
     s3path = gen_token(16)
     files = context.files
     aws_config = AWSConfig('AKIAJ3LFZNJ7PVKED43A',
