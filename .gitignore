@@ -8,5 +8,6 @@
 .env
 
 venv
-.cache/v/cache/lastfailed
 .settings
+/.cache/
+*.DS_Store

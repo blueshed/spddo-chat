@@ -1,0 +1,6 @@
+/.env
+/tests
+/docs
+/setup.py
+/README.md
+/topology.png
