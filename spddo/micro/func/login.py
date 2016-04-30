@@ -12,7 +12,7 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
         if person is None:
             raise HTTPError(
                 401,
-                "<strong>Failed</strong> Email or password incorrect!")
+                reason="<strong>Failed</strong> Email or password incorrect!")
         user = {
             "id": person.id,
             "email": person.email

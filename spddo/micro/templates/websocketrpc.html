@@ -44,7 +44,7 @@
 					<div v-if="error_{{ service.name }}" class="panel-body">
 						<div class="alert alert-danger alert-dismissible" role="alert">
 				  			<button type="button" class="close" @click.prevent="error_{{ service.name }}=null" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<strong>oops!</strong> {%raw '{{ error_' + service.name + ' }}' %}
+							<strong>oops!</strong> {%raw '{{{ error_' + service.name + ' }}}' %}
 						</div>
 					</div>
 					<div v-if="result_{{ service.name }}!==null" class="panel-footer" v-cloak>
