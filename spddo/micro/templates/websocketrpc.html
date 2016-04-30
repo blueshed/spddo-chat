@@ -69,8 +69,7 @@
 						{%raw '{{result_' + service.name + '}}' %}
 					</div>
 				</div>
-			</div>
-			{% end %}
+			</div>{% if service.name=="chat" %}
 			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -93,7 +92,8 @@
 						</tbody>
 					</table>
 				</div>
-			</div>
+			</div>{% end %}
+			{% end %}
 			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-if="error">
 				<div class="alert alert-danger alert-dismissible" role="alert">
 		  			<button type="button" class="close" @click.prevent="error=null" aria-label="Close">
