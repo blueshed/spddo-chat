@@ -1,5 +1,4 @@
 from sqlalchemy.sql.sqltypes import Text
-from sqlalchemy.types import LargeBinary
 from sqlalchemy.types import TypeDecorator
 from blueshed.micro.utils.json_utils import dumps, loads
 
@@ -25,15 +24,3 @@ class JSONEncodedDict(TypeDecorator):
         if value is not None:
             value = loads(value)
         return value
-
-
-class MySQLMediumJSONEncodedDict(JSONEncodedDict):
-    """Represents an immutable structure as a json-encoded string.
-
-    Usage::
-
-        MySQLMediumJSONEncodedDict()
-
-    """
-
-    impl = LargeBinary

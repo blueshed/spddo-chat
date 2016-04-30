@@ -1,3 +1,4 @@
+from blueshed.micro.utils.json_utils import dumps
 
 class BaseContext:
     '''
@@ -12,8 +13,8 @@ class BaseContext:
         self.cookies = cookies if cookies else {}
         self.broadcasts = []
 
-    def broadcast(self, signal, message):
-        self.broadcasts.append((signal, message))
+    def broadcast(self, signal, message, accl=None):
+        self.broadcasts.append((signal, message, accl))
 
     def set_cookie(self, key, value=None):
         self.cookies[key] = value
@@ -21,7 +22,20 @@ class BaseContext:
     def get_cookie(self, key, default=None):
         return self.cookies.get(key, default)
 
-    def flushed(self, request=None):
+    def flush(self, handler, queue, clients):
+        ''' after a success broadcast anything in the context '''
+        for signal, message, _ in self.broadcasts:
+            data = dumps({
+                "signal": signal,
+                "message": message
+            })
+            if queue:
+                queue.post(data)
+            else:
+                for client in clients:
+                    client.write_message(data)
+
+    def flushed(self, handler=None):
         ''' called when broadcast queue is flushed '''
         pass
 

@@ -51,12 +51,12 @@ class CorsMixin(object):
             return origin
 
     def write_cors_headers(self):
-        if self.request_origin in self.origin_whitelist:
+        if self.origin_whitelist and self.request_origin in self.origin_whitelist:
             self.set_header("Access-Control-Allow-Origin", self.request_origin)
             self.set_header('Access-Control-Allow-Credentials', 'true')
 
     def cors_options(self, *arg, **kwargs):
-        if self.request_origin in self.origin_whitelist:
+        if self.origin_whitelist and self.request_origin in self.origin_whitelist:
             self.set_header("Access-Control-Allow-Origin", self.request_origin)
             self.set_header('Access-Control-Allow-Credentials', 'true')
             self.set_header('Access-Control-Allow-Methods', self._cors_methods_)

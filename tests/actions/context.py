@@ -1,7 +1,6 @@
 from blueshed.micro.orm import db_connection
 from blueshed.micro.utils.base_context import BaseContext
 from tests.actions import model
-import datetime
 
 
 class Context(BaseContext):
@@ -11,15 +10,14 @@ class Context(BaseContext):
     def session(self):
         return db_connection.session()
 
-    def flushed(self, request=None):
+    def flushed(self, handler=None):
         if self.broadcasts:
             with self.session as session:
-                now = datetime.datetime.now()
-                user = self.cookies.get('current_user')
+                user = handler.current_user
                 user_id = user.get("id") if user else None
-                for signal, message in self.broadcasts:
+                for signal, message, accl in self.broadcasts:
                     session.add(model.Log(signal=signal,
                                           message=message,
-                                          created_by=user_id,
-                                          created=now))
+                                          accl=accl,
+                                          created_by=user_id))
                 session.commit()

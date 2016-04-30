@@ -35,17 +35,8 @@ class ContextMixin(UserMixin):
 
     def flush_context(self, context):
         ''' after a success broadcast anything in the context '''
-        queue = self.application.settings.get("broadcast_queue")
-        for signal, message in context.broadcasts:
-            data = dumps({
-                "signal": signal,
-                "message": message
-            })
-            if queue:
-                queue.post(data)
-            else:
-                for client in self.context_clients:
-                    client.write_message(data)
+        queue = self.settings.get("broadcast_queue")
+        context.flush(self, queue, self.context_clients)
         context.flushed(self)
 
     def update_result_data(self, context, data):

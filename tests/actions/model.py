@@ -1,7 +1,8 @@
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, String
+from sqlalchemy.sql.sqltypes import Integer, String, DateTime
 from blueshed.micro.orm.orm_utils import Base
 from blueshed.micro.orm.json_encoded_dict import JSONEncodedDict
+import datetime
 
 
 class User(Base):
@@ -22,5 +23,6 @@ class Log(Base):
     id = Column(Integer, primary_key=True)
     signal = Column(String(255))
     message = Column(JSONEncodedDict())
-    created = Column(String(255))
+    accl = Column(JSONEncodedDict())
+    created = Column(DateTime, default=datetime.datetime.now)
     created_by = Column(Integer)
