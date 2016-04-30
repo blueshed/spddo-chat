@@ -16,9 +16,6 @@ from blueshed.micro.web.rpc_handler import RpcHandler
 
 from spddo.mongo import control
 from spddo.mongo.control.context import Context
-from spddo.s3.bucket import AWSConfig
-from spddo.s3.s3put_handler import S3PutHandler
-from spddo.s3 import put_s3
 
 define("debug", False, bool, help="run in debug mode")
 

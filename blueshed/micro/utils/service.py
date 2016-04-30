@@ -94,9 +94,16 @@ class Service(object):
             else:
                 values[k] = None
 
+    @property
+    def has_files(self):
+        for param in self.desc.parameters.values():
+            if param.annotation == 'file':
+                return True
+
     def to_json(self):
         return {
             "name": self.name,
             "params": [str(p) for p in self.desc.parameters.values()],
-            "docs": self.docs
+            "docs": self.docs,
+            "has_files": self.has_files
         }

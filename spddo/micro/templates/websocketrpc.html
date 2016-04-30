@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
 {% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.css" />
 <style type="text/css">
 .container{
 	margin-top: 1em;
 }
 .status{
 	margin-bottom: 0.5em;
+	text-align: right;
+}
+.badge.open{
+	color: white;
+	background: green;
+}
+.badge.closed{
+	color: white;
+	background: red;
 }
 [v-cloak]{
 	display: none;
@@ -16,8 +26,9 @@
 {% block body %}
 	<div class="container" v-cloak>
 		<div class="status">
-		  	<span class="badge pull-right">{{!status}}</span>
-		  	<div class="clearfix"></div>
+		  	<span class="badge" :class="status" >{{!status}}</span>
+		  	<span class="badge green" v-if="user">{{!user.email}}</span>
+		  	<a v-if="user" href="/logout" class="btn btn-xs btn-default">Logout</a>
 	  	</div>
 		<div class="row">
 			{% for service in services %}
@@ -30,15 +41,22 @@
 				    	{% if service.docs %}<div class="text-muted"><small>{{ service.docs }}</small></div>{% end %}
 				    </div>
 					<div class="panel-body">
-						<form @submit.prevent="do_{{ service.name }}">
+						<form {%if service.has_files %}method="POST" enctype="multipart/form-data" class="dropzone" action="/api/{{service.name}}.html"{% else %}@submit.prevent="do_{{ service.name }}"{% end %}>
 							{% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
 							<div class="form-group">
+								{% if param.annotation == 'file' %}
+								<div class="fallback">
+									<input class="form-control" type="file" v-model="{{ service.name }}_{{ param.name }}" 
+										placeholder="{{ param.annotation }}" />
+								</div>
+								{% else %}
 								<label>{{ param.name.split(":")[0] }}</label>
 								<input class="form-control" type="text" v-model="{{ service.name }}_{{ param.name }}" 
 									placeholder="{{ param.annotation }}" {%if param.annotation == int %}number{% end %}/>
+								{% end %}
 							</div>
 							{% end %}{% end %}
-							<button type="submit" class="btn btn-primary">{{ service.label }}</button>
+							{%if not service.has_files %}<button type="submit" class="btn btn-primary">{{ service.label }}{% end %}
 						</form>
 					</div>
 					<div v-if="error_{{ service.name }}" class="panel-body">
@@ -88,6 +106,7 @@
 {% end %}
 
 {% block scripts %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/min/dropzone.min.js"></script>
 <script type="text/javascript" src="/api.js"></script>
 <script type="text/javascript">{% autoescape None %}{% whitespace all %}
 
@@ -110,15 +129,16 @@ var appl = window.appl = new Vue({
 		last_id: 0,
 		error: null,
 		status: null,
-		say: null,
 		chat: [],
 		chat_time: null,
-		client_id: null
+		client_id: null,
+		user: null
 	},
 	created(){
+		this.user = this.control._user;
 		this.control.init(function(signal, message){
-			this.$dispatch(signal, message);
-			this.$broadcast(signal, message);
+				this.$dispatch(signal, message);
+				this.$broadcast(signal, message);
 			}.bind(this)).
 		then(function(status){
 			this.status = status;
@@ -156,6 +176,9 @@ var appl = window.appl = new Vue({
 			}
 			this.chat.splice(0,0,value);
 			return true;
+		},
+		'micro-cookie-set': function(value){
+			this.user = value;
 		}
 	}
 });

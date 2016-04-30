@@ -78,9 +78,13 @@ class RpcHandler(ContextMixin, CorsMixin, web.RequestHandler):
     @asynchronous
     @cors
     def post(self, path):
-        if self.request.headers['content-type'] in acceptable_json_mime_types:
+        content_type = self.request.headers['content-type']
+        if content_type in acceptable_json_mime_types:
             kwargs = json_decode(self.request.body)
-        elif self.request.headers['content-type'] in acceptable_form_mime_types:
+        elif content_type in acceptable_form_mime_types:
+            kwargs = dict([(k, self.get_argument(k))
+                           for k in self.request.body_arguments.keys()])
+        elif content_type and content_type.startswith("multipart/form-data"):
             kwargs = dict([(k, self.get_argument(k))
                            for k in self.request.body_arguments.keys()])
         else:

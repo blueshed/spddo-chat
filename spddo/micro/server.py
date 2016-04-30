@@ -24,9 +24,8 @@ from spddo.micro.api_page_handler import ApiPageHandler
 from spddo.micro.index_handler import IndexHandler
 import spddo.micro.func
 
-from spddo.s3.s3put_handler import S3PutHandler
-from spddo.s3.bucket import AWSConfig
-from spddo.s3 import put_s3
+from sqlalchemy.exc import IntegrityError
+from spddo.micro.func import model
 
 define('debug', False, bool, help='run in debug mode')
 define("db_url",
@@ -52,6 +51,13 @@ def make_app():
     db_connection.db_init(db_url)
     if options.debug:
         create_all(Base, db_connection._engine_)
+        with db_connection.session() as session:
+            try:
+                session.add(model.Person(email="admin",
+                                         password="admin"))
+                session.commit()
+            except IntegrityError:
+                pass
 
     pool_size = int(os.getenv("POOL_SIZE", options.proc_pool_size))
     if pool_size:
@@ -76,19 +82,10 @@ def make_app():
     template_path = resource_filename('spddo.micro', "templates")
 
     return tornado.web.Application([
-        (r"/websocket", RpcWebsocket,
-         {'origins': cors_origins}),
-
-        (r"/upload(.*)", S3PutHandler, {
-            's3_config': AWSConfig('AKIAJ3LFZNJ7PVKED43A',
-                                   os.getenv('s3_config')),
-            'bucket': 'blueshed-blogs',
-            'service': Service('put_s3', put_s3.main),
-            'cors_origins': cors_urls}),
-
-        (r"/api.html", ApiPageHandler),
+        (r"/websocket", RpcWebsocket, {'origins': cors_origins}),
         (r"/api(.*)", RpcHandler, {'cors_origins': cors_urls}),
         (r"/logout", LogoutHandler),
+        (r"/api.html", ApiPageHandler),
         (r"/", IndexHandler),
     ],
         services=Service.describe(spddo.micro.func),

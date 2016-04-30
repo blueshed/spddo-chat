@@ -6,5 +6,5 @@ from sqlalchemy.schema import Column
 class Person(Base):
 
     id = Column(Integer, primary_key=True)
-    email = Column(String(80))
+    email = Column(String(80), unique=True)
     password = Column(String(80))

@@ -84,6 +84,9 @@ Control.prototype._connect = function(){
 	            expires.setMonth(expires.getMonth() + 1);
 	            docCookies.setItem(message.cookie_name, 
 	            		message.cookie, expires.toGMTString(),'/',document.domain,null,false);
+	            if(this._broadcast){
+	            	this._broadcast('micro-cookie-set', message.result);
+	            }
 			}
 			if(this._promises[message.id]){
 				if(message.error){
