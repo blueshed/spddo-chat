@@ -1,7 +1,7 @@
 from pkg_resources import resource_filename  # @UnresolvedImport
 from tornado import web
 from tornado.escape import json_decode
-from tornado.web import asynchronous
+from tornado.web import asynchronous, RequestHandler
 import tornado.concurrent
 from blueshed.micro.utils.json_utils import dumps
 from blueshed.micro.web.context_mixin import ContextMixin
@@ -20,7 +20,7 @@ acceptable_json_mime_types = [
 ]
 
 
-class RpcHandler(ContextMixin, CorsMixin, web.RequestHandler):
+class RpcHandler(ContextMixin, CorsMixin, RequestHandler):
     '''
         Calls services in application.settings['services']
 
@@ -40,7 +40,7 @@ class RpcHandler(ContextMixin, CorsMixin, web.RequestHandler):
     '''
 
     def initialize(self, html_template=None, js_template=None, cors_origins=None):
-        web.RequestHandler.initialize(self)
+        RequestHandler.initialize(self)
         self.set_cors_methods("OPTIONS,GET,POST")
         if cors_origins:
             self.set_cors_whitelist(cors_origins)
@@ -51,7 +51,12 @@ class RpcHandler(ContextMixin, CorsMixin, web.RequestHandler):
         ''' overrides the template path to use this module '''
         if self._html_template is None and self._js_template is None:
             return resource_filename('blueshed.micro.web', "templates")
-        return web.RequestHandler.get_template_path(self)
+        return RequestHandler.get_template_path(self)
+
+    def write_error(self, *args, **kwargs):
+        ''' Must override base write error to stop uncaught HTTP errors from clearing CORS headers '''
+        self.write_cors_headers()
+        RequestHandler.write_error(self, *args, **kwargs)
 
     def options(self, *args, **kwargs):
         self.cors_options()

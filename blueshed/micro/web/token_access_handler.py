@@ -24,6 +24,11 @@ class TokenAccessHandler(UserMixin, CorsMixin, RequestHandler):
         self.set_cors_methods('GET,OPTIONS')
         self.set_cors_whitelist([url_to_cors(auth_url)])
 
+    def write_error(self, *args, **kwargs):
+        ''' Must override base write error to stop uncaught HTTP errors from clearing CORS headers '''
+        self.write_cors_headers()
+        RequestHandler.write_error(self, *args, **kwargs)
+
     def options(self):
         self.cors_options()
 
