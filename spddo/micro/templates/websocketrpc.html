@@ -20,6 +20,15 @@
 [v-cloak]{
 	display: none;
 }
+.col-container{
+	column-count: 4;
+	column-gap: 1em;
+	column-span: 1;
+}
+.pane {
+  display: inline-block;
+  width: 100%;
+}
 </style>
 {% end %}
 
@@ -30,9 +39,14 @@
 		  	<span class="badge green" v-if="user">{{!user.email}}</span>
 		  	<a v-if="user" href="/logout" class="btn btn-xs btn-default">Logout</a>
 	  	</div>
-		<div class="row">
+		<div v-if="error" class="alert alert-danger alert-dismissible" role="alert">
+  			<button type="button" class="close" @click.prevent="error=null" aria-label="Close">
+  				<span aria-hidden="true">&times;</span></button>
+			<strong>bother!</strong> {{!{ error }}}
+		</div>
+		<div class="col-container">
 			{% for service in services %}
-			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+			<div class="pane">
 				<div class="panel" :class="{
 					'panel-default':!busy_{{ service.name }},
 					'panel-warning':busy_{{ service.name }} }">
@@ -58,23 +72,7 @@
 							{% end %}{% end %}
 							{%if not service.has_files %}<button type="submit" class="btn btn-primary">{{ service.label }}{% end %}
 						</form>
-					</div>
-					<div v-if="error_{{ service.name }}" class="panel-body">
-						<div class="alert alert-danger alert-dismissible" role="alert">
-				  			<button type="button" class="close" @click.prevent="error_{{ service.name }}=null" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<strong>oops!</strong> {%raw '{{{ error_' + service.name + ' }}}' %}
-						</div>
-					</div>
-					<div v-if="result_{{ service.name }}!==null" class="panel-footer" v-cloak>
-						{%raw '{{result_' + service.name + '}}' %}
-					</div>
-				</div>
-			</div>{% if service.name=="chat" %}
-			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-				    	<h3 class="panel-title">transcript: <small>{{!client_id}}</small></h3>
-					</div>
+					</div>{% if service.name=="chat" %}
 					<table class="table table-bordered table-condensed">
 						<tbody>
 							<tr v-for="item in chat" :class="{
@@ -90,17 +88,19 @@
 								</td>
 							</tr>
 						</tbody>
-					</table>
-				</div>
-			</div>{% end %}
-			{% end %}
-			<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-if="error">
-				<div class="alert alert-danger alert-dismissible" role="alert">
-		  			<button type="button" class="close" @click.prevent="error=null" aria-label="Close">
-		  				<span aria-hidden="true">&times;</span></button>
-					<strong>bother!</strong> {{!{ error }}}
+					</table>{% end %}
+					<div v-if="error_{{ service.name }}" class="panel-body">
+						<div class="alert alert-danger alert-dismissible" role="alert">
+				  			<button type="button" class="close" @click.prevent="error_{{ service.name }}=null" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<strong>oops!</strong> {%raw '{{{ error_' + service.name + ' }}}' %}
+						</div>
+					</div>
+					<div v-if="result_{{ service.name }}!==null" class="panel-footer" v-cloak>
+						{%raw '{{result_' + service.name + '}}' %}
+					</div>
 				</div>
 			</div>
+			{% end %}
 		</div>
     </div> <!-- /container -->
 {% end %}

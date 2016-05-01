@@ -27,7 +27,7 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
 
 
 def forgotten_password(context: 'micro-context', email: str) -> dict:
-    ''' returns a user object on success '''
+    ''' emails your password to you '''
     with context.session as session:
         person = session.query(model.Person).filter_by(email=email).first()
         if person is None:
@@ -35,7 +35,7 @@ def forgotten_password(context: 'micro-context', email: str) -> dict:
                 400,
                 reason="<strong>Failed</strong> Email not registered!")
 
-        template_path = resource_filename('spddo.micro', "templates")
+        template_path = resource_filename('spddo.micro', "templates/email")
         html, body = generate_templates.generate(template_path,
                                                  "forgotten.html",
                                                  "forgotten.txt",
@@ -48,7 +48,7 @@ def forgotten_password(context: 'micro-context', email: str) -> dict:
 
 
 def register(context: 'micro-context', email: str, password: str) -> dict:
-    ''' returns a user object on success '''
+    ''' register your email and password to be able to login '''
     with context.session as session:
         try:
             person = model.Person(email=email, password=password)
@@ -59,7 +59,7 @@ def register(context: 'micro-context', email: str, password: str) -> dict:
                 400,
                 reason="<strong>Failed</strong> Email already registered!")
 
-        template_path = resource_filename('spddo.micro', "templates")
+        template_path = resource_filename('spddo.micro', "templates/email")
         html, body = generate_templates.generate(template_path,
                                                  "registered.html",
                                                  "registered.txt",

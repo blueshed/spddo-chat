@@ -32,6 +32,7 @@ def _make_one(bucket, data, size, fType, fMime, prefix, fActual, fExt):
 
 def image_list(context: 'micro-context', term: str='',
                offset: int=0, limit: int=10) -> list:
+    ''' retrieves a list of images filtered by term on name '''
     with context.session as session:
         term = "{}%".format(term)
         images = session.query(model.Image).\
@@ -44,6 +45,7 @@ def image_list(context: 'micro-context', term: str='',
 
 
 def image_upload(context: 'micro-context', file: 'file') -> dict:
+    ''' uploads and image to s3 and stores its details '''
     s3path = gen_token(16)
     files = context.files
     aws_config = AWSConfig('AKIAJ3LFZNJ7PVKED43A',

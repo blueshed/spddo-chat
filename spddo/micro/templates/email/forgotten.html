@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block panel %}
+<div class="panel-heading">
+	<h3 class="panel-title">
+		Hi {{ email }} from spddo-chat
+	</h3>
+</div>
+<div class="panel-body">
+	<p>
+		Your password is: {{ password }}
+	</p>
+</div>
+<div class="panel-footer" style="text-align:center;">
+	<a class="btn btn-success" href="https://spddo-chat.herokuapp.com">Login</a>
+</div>
+{% end %}
