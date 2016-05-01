@@ -21,9 +21,24 @@
 	display: none;
 }
 .col-container{
-	column-count: 4;
+	column-count: 1;
 	column-gap: 1em;
 	column-span: 1;
+}
+@media (min-width : 768px) {
+	.col-container{
+		column-count: 2;
+	}
+}
+@media (min-width : 992px) {
+	.col-container{
+		column-count: 4;
+	}
+}
+@media (min-width : 1200px) {
+	.col-container{
+		column-count: 4;
+	}
 }
 .pane {
   display: inline-block;
