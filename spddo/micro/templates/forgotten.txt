@@ -1,0 +1,5 @@
+{% autoescape None %}{% whitespace all %}Hi {{ email }},
+
+Your password is: {{ password }}
+
+https://spddo-chat.herokuapp.com

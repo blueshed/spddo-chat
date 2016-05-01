@@ -53,11 +53,11 @@ def make_app():
         create_all(Base, db_connection._engine_)
         with db_connection.session() as session:
             try:
-                session.add(model.Person(email="admin",
+                session.add(model.Person(email="pete@spddo.co.uk",
                                          password="admin"))
                 session.commit()
             except IntegrityError:
-                pass
+                session.rollback()
 
     pool_size = int(os.getenv("POOL_SIZE", options.proc_pool_size))
     if pool_size:

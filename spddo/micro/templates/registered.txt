@@ -1,0 +1,6 @@
+{% autoescape None %}{% whitespace all %}Welcome to spddo-chat
+
+Your username is : {{ email }}
+and password is: {{ password }}
+
+https://spddo-chat.herokuapp.com
