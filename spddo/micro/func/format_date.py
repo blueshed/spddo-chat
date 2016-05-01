@@ -1,4 +1,4 @@
-from blueshed.micro.utils.utils import parse_date
+from blueshed.micro.utils.date_utils import parse_date
 
 
 def format_date(date: str, date_format: str='%b, %d %Y'):
