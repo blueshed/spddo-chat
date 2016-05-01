@@ -48,11 +48,14 @@
 			{% for service in services %}
 			<div class="pane">
 				<div class="panel" :class="{
-					'panel-default':!busy_{{ service.name }},
+					'panel-default':!busy_{{ service.name }} && active_pane!='{{ service.name }}',
+					'panel-primary':!busy_{{ service.name }} && active_pane=='{{ service.name }}',
 					'panel-warning':busy_{{ service.name }} }">
 					<div class="panel-heading">
-				    	<h3 class="panel-title">{{ service.label }}</h3>
-				    	{% if service.docs %}<div class="text-muted"><small>{{ service.docs }}</small></div>{% end %}
+				    	<h3 class="panel-title">
+				    	{{ service.label }}
+				    	{% if service.docs %}<br/><small>{{ service.docs }}</small>{% end %}
+				    	</h3>
 				    </div>
 					<div class="panel-body">
 						<form {%if service.has_files %}method="POST" enctype="multipart/form-data" class="dropzone" action="/api/{{service.name}}.html"{% else %}@submit.prevent="do_{{ service.name }}"{% end %}>
@@ -66,11 +69,14 @@
 								{% else %}
 								<label>{{ param.name.split(":")[0] }}</label>
 								<input class="form-control" type="text" v-model="{{ service.name }}_{{ param.name }}" 
+								 	@focus="active_pane='{{ service.name }}'"
 									placeholder="{{ param.annotation }}" {%if param.annotation == int %}number{% end %}/>
 								{% end %}
 							</div>
 							{% end %}{% end %}
-							{%if not service.has_files %}<button type="submit" class="btn btn-primary">{{ service.label }}{% end %}
+							{%if not service.has_files %}<button type="submit" class="btn" 
+								:class="{ 'btn-primary':active_pane=='{{ service.name }}',
+										  'btn-default':active_pane!='{{ service.name }}' }">{{ service.label }}{% end %}
 						</form>
 					</div>{% if service.name=="chat" %}
 					<table class="table table-bordered table-condensed">
@@ -126,7 +132,7 @@ var appl = window.appl = new Vue({
 		error_{{ service.name }}: null,{% for param in service.desc.parameters.values() %}{%if param.name[0] != '_' and param.name != 'context' %}
 		{{ service.name }}_{{ param.name }}: {%raw 'null' if param.default == param.empty else json_encode(param.default) %},{% end %}{% end %}
 		{% end %}
-		last_id: 0,
+		active_pane: null,
 		error: null,
 		status: null,
 		chat: [],
