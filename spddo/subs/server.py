@@ -18,6 +18,7 @@ from blueshed.micro.web.rpc_websocket import RpcWebsocket
 from spddo.subs import actions
 from spddo.subs.actions.context import Context
 from spddo.subs.model import Base
+from blueshed.micro.utils.utils import url_to_ws_origins
 
 define('debug', False, bool, help='run in debug mode')
 define("db_url", default='mysql://root:root@localhost:8889/subs',
@@ -27,6 +28,12 @@ define("db_pool_recycle", 60, int,
 
 
 def make_app():
+    http_origins = os.getenv("CORS_URLS",
+                             ",".join([
+                                 "http://localhost:8080",
+                             ])).split(",")
+    ws_origins = [url_to_ws_origins(u) for u in http_origins]
+
     db_url = orm_utils.heroku_db_url(
         os.getenv('CLEARDB_DATABASE_URL', options.db_url))
 
@@ -41,11 +48,9 @@ def make_app():
 
     handlers = [
         (r'/websocket', RpcWebsocket, {
-            'origins': ['localhost:8080',
-                        'petermac.local:8080',
-                        'spddo-chat.herokuapp.com']
-        }),
-        (r'/rpc(.*)', RpcHandler),
+            'ws_origins': ws_origins,
+            'ws_url': 'ws://localhost:8080/websocket'}),
+        (r'/rpc(.*)', RpcHandler, {'http_origins': http_origins}),
         (r'/logout', LogoutHandler),
         (r'/(.*)', tornado.web.StaticFileHandler, {
             'path': site_path,

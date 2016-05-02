@@ -7,6 +7,7 @@ from tornado.options import parse_command_line, define, options
 import tornado.ioloop
 import tornado.web
 from blueshed.micro.orm.mongo_connection import db_init
+from blueshed.micro.utils.utils import url_to_ws_origins
 from blueshed.micro.utils.service import Service
 from blueshed.micro.queue.pika_topic import PikaTopic
 from blueshed.micro.web.logout_handler import LogoutHandler
@@ -21,6 +22,14 @@ define("debug", False, bool, help="run in debug mode")
 
 
 def make_app():
+    http_origins = os.getenv("CORS_URLS",
+                             ",".join([
+                                      "http://localhost:8080",
+                                      "http://petermac.local:8080",
+                                      "https://spddo-chat.herokuapp.com"
+                                      ])).split(",")
+    ws_origins = [url_to_ws_origins(u) for u in http_origins]
+
     db_url = os.getenv(
         "MONGODB_URI", 'mongodb://localhost:27017/zamazz_database')
 
@@ -44,11 +53,11 @@ def make_app():
 
     handlers = [
         (r"/websocket", RpcWebsocket, {
-            'origins': ["localhost:8080",
-                        "petermac.local:8080",
-                        "spddo-chat.herokuapp.com"]
+            'ws_origins': ws_origins
         }),
-        (r"/api(.*)", RpcHandler),
+        (r"/api(.*)", RpcHandler, {
+            'http_origins': http_origins,
+            'ws_url': os.getenv('ws_url', 'ws://localhost:8080/websocket')}),
         (r"/token_access", TokenAccessHandler, {
             'auth_url': 'http://localhost:8081/api/validate_token.js',
             'service_token': '12345'
@@ -66,7 +75,6 @@ def make_app():
         broadcast_queue=queue,
         cookie_name='spddo-mongo',
         cookie_secret='-it-was-a-dark-and-mongo-night-',
-        ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         login_url='/api/login',
         micro_context=Context,
         allow_exception_messages=options.debug,

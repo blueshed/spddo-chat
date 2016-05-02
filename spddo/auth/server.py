@@ -16,6 +16,7 @@ from spddo.auth import actions
 from spddo.auth.actions.context import Context
 from spddo.auth.login_handler import LoginHandler
 from spddo.auth.model import Base
+from blueshed.micro.utils.utils import url_to_ws_origins
 
 define('debug', False, bool, help='run in debug mode')
 define("db_url", default='mysql://root:root@localhost:8889/auth',
@@ -25,6 +26,12 @@ define("db_pool_recycle", 60, int,
 
 
 def make_app():
+    http_origins = os.getenv("CORS_URLS",
+                             ",".join([
+                                      "http://localhost:8081",
+                                      ])).split(",")
+    ws_origins = [url_to_ws_origins(u) for u in http_origins]
+
     db_url = orm_utils.heroku_db_url(
         os.getenv('CLEARDB_DATABASE_URL',
                   options.db_url))
@@ -34,11 +41,9 @@ def make_app():
         orm_utils.create_all(Base, engine)
 
     handlers = [
-        (r'/websocket', RpcWebsocket, {
-            'origins': ['localhost:8081',
-                        'petermac.local:8081']
-        }),
-        (r'/api(.*)', RpcHandler),
+        (r'/websocket', RpcWebsocket, {'ws_origins': ws_origins}),
+        (r'/api(.*)', RpcHandler, {'http_origins': http_origins,
+                                   'ws_url': 'ws://localhost:8081/websocket' }),
         (r'/logout', LogoutHandler),
         (r'/(.*)', LoginHandler)
     ]
@@ -50,7 +55,6 @@ def make_app():
         template_path=resource_filename('spddo.auth', 'templates'),
         cookie_name='spddo-auth',
         cookie_secret='-it-was-a-dark-and-auth-night-',
-        ws_url=os.getenv('ws_url', 'ws://localhost:8081/websocket'),
         login_url='/api/login',
         micro_context=Context,
         allow_exception_messages=options.debug,
