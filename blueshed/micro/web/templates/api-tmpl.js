@@ -56,7 +56,7 @@ function Control(){
     this._broadcast = null;
     this._close = null;
 }
-    
+
 Control.prototype.init = function(broadcast_callback, close_callback){
 	this._broadcast = broadcast_callback;
 	this._close = close_callback;
@@ -67,7 +67,7 @@ Control.prototype._connect = function(){
 	return new Promise(function(resolve,reject){
 		var ws = null;
 		try{
-			ws = new WebSocket('{{ handler.application.settings['ws_url'] }}' + "?client_id="+this._client_id);
+			ws = new WebSocket('{{ ws_url }}' + "?client_id="+this._client_id);
 		}
 		catch(err){
 			reject(err);
@@ -82,7 +82,7 @@ Control.prototype._connect = function(){
 			if(message.cookie){
 	            var expires = new Date();
 	            expires.setMonth(expires.getMonth() + 1);
-	            docCookies.setItem(message.cookie_name, 
+	            docCookies.setItem(message.cookie_name,
 	            		message.cookie, expires.toGMTString(),'/',document.domain,null,false);
 	            if(this._broadcast){
 	            	this._broadcast('micro-cookie-set', message.result);
@@ -143,14 +143,14 @@ Control.prototype._send = function(action, args) {
 		this._promises[id] = { reject: reject, resolve: resolve };
 	}.bind(this));
 };
-	
+
 {% for service in services %}
-{% if service.docs %}/** 
+{% if service.docs %}/**
 	{{ service.docs }}
 **/{% end %}
 Control.prototype.{{ service.name }} = function({{ ", ".join([p.name for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}){
-	return this._send("{{ service.name }}", { 
-		{{ ",\n\t\t".join(["{0!r}: {0} {1}".format(p.name,'|| ' + json_encode(p.default) if p.default is not p.empty else '') for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }} 
+	return this._send("{{ service.name }}", {
+		{{ ",\n\t\t".join(["{0!r}: {0} {1}".format(p.name,'|| ' + json_encode(p.default) if p.default is not p.empty else '') for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}
 	});
 };
 {% end %}

@@ -30,10 +30,10 @@ class RpcWebsocket(ContextMixin,
         for client in cls.context_clients:
             client.write_message(message)
 
-    def initialize(self, origins=None):
+    def initialize(self, ws_origins=None):
         ''' use the origins to specify cors connections '''
         super().initialize()
-        self._origins_ = origins
+        self._origins_ = ws_origins
         self._cookies_ = {}
 
     def check_origin(self, origin):

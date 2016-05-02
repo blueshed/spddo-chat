@@ -38,13 +38,13 @@ define("proc_pool_size", 0, int,
 
 
 def make_app():
-    cors_urls = os.getenv("CORS_URLS",
-                          ",".join([
-                              "http://localhost:8080",
-                              "http://petermac.local:8080",
-                              "https://spddo-chat.herokuapp.com"
-                              ])).split(",")
-    cors_origins = [url_to_ws_origins(u) for u in cors_urls]
+    http_origins = os.getenv("CORS_URLS",
+                             ",".join([
+                                      "http://localhost:8080",
+                                      "http://petermac.local:8080",
+                                      "https://spddo-chat.herokuapp.com"
+                                      ])).split(",")
+    ws_origins = [url_to_ws_origins(u) for u in http_origins]
 
     db_url = heroku_db_url(os.getenv("CLEARDB_DATABASE_URL",
                                      options.db_url))
@@ -82,8 +82,9 @@ def make_app():
     template_path = resource_filename('spddo.micro', "templates")
 
     return tornado.web.Application([
-        (r"/websocket", RpcWebsocket, {'origins': cors_origins}),
-        (r"/api(.*)", RpcHandler, {'cors_origins': cors_urls}),
+        (r"/api(.*)", RpcHandler, {'http_origins': http_origins,
+                                   'ws_url': os.getenv('ws_url', 'ws://localhost:8080/websocket')}),
+        (r"/websocket", RpcWebsocket, {'ws_origins': ws_origins}),
         (r"/logout", LogoutHandler),
         (r"/api.html", ApiPageHandler),
         (r"/", IndexHandler),
@@ -93,7 +94,6 @@ def make_app():
         micro_context=Context,
         cookie_name='micro-session',
         cookie_secret='-it-was-a-dark-and-spddo-chat-night-',
-        ws_url=os.getenv('ws_url', 'ws://localhost:8080/websocket'),
         template_path=template_path,
         allow_exception_messages=options.debug,
         gzip=True,
