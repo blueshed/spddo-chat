@@ -3,7 +3,7 @@ from blueshed.micro.orm.orm_utils import serialize
 from blueshed.micro.utils.utils import gen_token
 
 
-def save_service(context: 'micro-context',
+def save_service(context: 'micro_context',
                  service_id: int,
                  name: str,
                  cookie_url: str,

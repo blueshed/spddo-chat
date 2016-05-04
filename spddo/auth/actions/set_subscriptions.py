@@ -1,7 +1,7 @@
 from spddo.auth import model
 
 
-def set_subscriptions(context: 'micro-context',
+def set_subscriptions(context: 'micro_context',
                       user_id: int,
                       service_ids: list):
     '''

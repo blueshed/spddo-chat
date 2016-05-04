@@ -3,7 +3,7 @@ from tornado.httpclient import AsyncHTTPClient
 
 
 @gen.coroutine
-def fetch(context: 'micro-context',
+def fetch(context: 'micro_context',
           url: str="http://www.blueshed.co.uk") -> str:
     ''' proxies to your url '''
     result = yield AsyncHTTPClient().fetch(url)

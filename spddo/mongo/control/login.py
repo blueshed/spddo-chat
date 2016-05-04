@@ -3,7 +3,7 @@ from tornado.web import HTTPError
 
 
 @gen.coroutine
-def login(context: 'micro-context', email: str, password: str) -> dict:
+def login(context: 'micro_context', email: str, password: str) -> dict:
     ''' returns a user object on success '''
     db = context.motor
     document = yield db.users_collection.find_one({'email': email})

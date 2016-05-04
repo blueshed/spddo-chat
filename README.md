@@ -33,7 +33,7 @@ references:
 * [pika](http://pika.readthedocs.org/)
 * [pytest-tornado](https://pypi.python.org/pypi/pytest-tornado)
 * [innodb memcache](https://dev.mysql.com/doc/refman/5.6/en/innodb-memcached-setup.html)
-	
+
 Below are some sample projects that explore these ideas. They also include 
 a NoSQL example.
 

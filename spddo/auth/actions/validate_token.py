@@ -42,7 +42,7 @@ def gen_access_token(service_id, user_id):
     return token
 
 
-def validate_token(context: 'micro-context',
+def validate_token(context: 'micro_context',
                    token: str, service_token: str) -> dict:
     ''' returns a user dict if token is valid '''
     with context.session as session:

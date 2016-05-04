@@ -32,7 +32,10 @@ class BucketException(Exception):
 
 
 class Bucket(object):
-
+    '''
+        Useful wrapper to boto bucket
+    '''
+    
     def __init__(self, s3, name, bucket):
         self.s3 = s3
         self.name = name
@@ -102,4 +105,7 @@ class Bucket(object):
         return "http:{}".format(self.get_abs_url(keyname))
 
     def gen_abs_url(self, keyname):
+        '''
+            return a url without protocol to the resource
+        '''
         return "//{}.{}/{}".format(self.name, self._bucket.connection.host, keyname)

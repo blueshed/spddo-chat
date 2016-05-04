@@ -28,7 +28,7 @@ def register_pool(name, pool):
 
 def has_micro_context(f):
     for k, v in inspect.signature(f).parameters.items():
-        if v.annotation == 'micro-context':
+        if v.annotation == 'micro_context':
             return k
 
 

@@ -5,7 +5,7 @@ from spddo.subs.actions.active_subscriptions import active_subscriptions_for
 from spddo.subs.actions.active_subscriptions import sub_to_json
 
 
-def filter_users(context: 'micro-context', term='', offset=0, limit=10,
+def filter_users(context: 'micro_context', term='', offset=0, limit=10,
                  id=None):
     with context.session as session:
         if id is not None:

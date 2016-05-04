@@ -3,7 +3,7 @@ from blueshed.micro.utils.json_utils import dumps
 class BaseContext:
     '''
         Stateful context that can be passed as an argument to function
-        by annotating the argument with :micro-context
+        by annotating the argument with :micro_context
     '''
 
     def __init__(self, client_id, action_id, action, cookies=None, handler=None):

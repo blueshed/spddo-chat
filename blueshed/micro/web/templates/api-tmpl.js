@@ -145,7 +145,7 @@ Control.prototype._send = function(action, args) {
 };
 
 {% for service in services %}
-{% if service.docs %}/**
+{% if service.docs and handler.settings.get('debug') is True %}/**
 	{{ service.docs }}
 **/{% end %}
 Control.prototype.{{ service.name }} = function({{ ", ".join([p.name for p in service.desc.parameters.values() if p.name[0] != '_' and p.name != 'context']) }}){

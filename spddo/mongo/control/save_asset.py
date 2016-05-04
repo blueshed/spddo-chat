@@ -2,7 +2,7 @@ from tornado import gen
 
 
 @gen.coroutine
-def save_asset(context: 'micro-context', asset: dict) -> dict:
+def save_asset(context: 'micro_context', asset: dict) -> dict:
     context.authenticated()
     db = context.motor
     assert asset.get("name")

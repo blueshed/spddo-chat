@@ -2,7 +2,7 @@ from tornado import gen
 
 
 @gen.coroutine
-def allocations(context: 'micro-context',
+def allocations(context: 'micro_context',
                 from_date: int, to_date: int) -> list:
     db = context.motor
     cursor = db.allocation_collection.find(

@@ -16,6 +16,11 @@ _pool_recycle_ = 60
 
 
 def overlaps(cls, from_date, to_date):
+    '''
+        Will check if from_date to_date range overlaps
+        cls.from_date cls.to_date range
+        returns a sqlqlchemy clause
+    '''
     #     return cls.from_date.between(from_date,to_date) |\
     #            cls.to_date.between(from_date,to_date) |\
     #            ((cls.from_date <= from_date) &\
@@ -29,6 +34,11 @@ def overlaps(cls, from_date, to_date):
 
 
 def valid_on(cls, on_date=None):
+    '''
+        Will check if on_date is within
+        cls.from_date cls.to_date range
+        returns a sqlqlchemy clause
+    '''
     if on_date is None:
         on_date = datetime.datetime.now()
     return and_(cls.valid_from <= on_date,
@@ -37,12 +47,18 @@ def valid_on(cls, on_date=None):
 
 
 def connect(db_url, echo=False, pool_recycle=None):
+    '''
+        Utility function returns a engine, Session tuple
+    '''
     engine = make_engine(db_url, echo, pool_recycle)
     Session = make_session(engine)
     return engine, Session
 
 
 def make_engine(db_url, echo=False, pool_recycle=None, **kwargs):
+    '''
+        wrapper for create engine with useful defaults
+    '''
     params = dict(echo=echo)
     if 'mysql' in db_url:
         params['encoding'] = 'utf-8'
@@ -56,6 +72,9 @@ def make_engine(db_url, echo=False, pool_recycle=None, **kwargs):
 
 
 def make_session(engine):
+    '''
+        wrapper from sessionmaker with useful defaults
+    '''
     Session = sessionmaker(bind=engine,
                            extension=_SESSION_EXTENSIONS_,
                            **_SESSION_KWARGS_)
@@ -64,11 +83,16 @@ def make_session(engine):
 
 
 def create_all(Base, engine):
+    '''
+        fewer dots
+    '''
     Base.metadata.create_all(engine)
 
 
 def drop_all(session):
-
+    '''
+        drops current schema
+    '''
     inspector = reflection.Inspector.from_engine(session.bind)
 
     # gather all data first before dropping anything.
@@ -118,6 +142,10 @@ def deserialize(o, values):
 
 
 def heroku_db_url(db_url):
+    '''
+        turns a mysql:// url into a pymsql url
+        dropping the reconnect parameter
+    '''
     if db_url.startswith("mysql://"):
         db_url = "mysql+pymysql://" + db_url[len("mysql://"):]
         if db_url.endswith("?reconnect=true"):

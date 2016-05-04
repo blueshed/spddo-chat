@@ -5,6 +5,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 class PikaTopic(PikaTool):
+    '''
+        A simple broadcast and subscribe message pattern
+        in AMQP using a fanout exchange type
+    '''
 
     def __init__(self, amqp_url, broadcast_func, exchange, routing_key=''):
         PikaTool.__init__(self, amqp_url)
@@ -18,10 +22,17 @@ class PikaTopic(PikaTool):
         self._channel.queue_declare(self.on_queue_declareok, exclusive=True)
 
     def on_queue_declareok(self, method_frame):
+        '''
+            QUEUE get set to method_frame.method.queue
+            our own personal queue
+        '''
         self.QUEUE = method_frame.method.queue
         PikaTool.on_queue_declareok(self, method_frame)
 
     def on_message(self, unused_channel, basic_deliver, properties, body):
+        '''
+            handle message from topic
+        '''
         logging.info('Received message # %s from %s: %s',
                      basic_deliver.delivery_tag, properties.app_id, body)
         if self._broadcast_func:
@@ -29,6 +40,9 @@ class PikaTopic(PikaTool):
         self.acknowledge_message(basic_deliver.delivery_tag)
 
     def post(self, msg):
+        '''
+            Submit message to topic
+        '''
         if self._channel:
             self._channel.basic_publish(self.EXCHANGE,
                                         routing_key=self.ROUTING_KEY,

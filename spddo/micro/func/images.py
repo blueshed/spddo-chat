@@ -30,7 +30,7 @@ def _make_one(bucket, data, size, fType, fMime, prefix, fActual, fExt):
     return bucket.gen_abs_url(key)
 
 
-def image_list(context: 'micro-context', term: str='',
+def image_list(context: 'micro_context', term: str='',
                offset: int=0, limit: int=10) -> list:
     ''' retrieves a list of images filtered by term on name '''
     with context.session as session:
@@ -44,7 +44,7 @@ def image_list(context: 'micro-context', term: str='',
         return [serialize(image) for image in images]
 
 
-def image_upload(context: 'micro-context', file: 'file') -> dict:
+def image_upload(context: 'micro_context', file: 'file') -> dict:
     ''' uploads and image to s3 and stores its details '''
     s3path = gen_token(16)
     files = context.files

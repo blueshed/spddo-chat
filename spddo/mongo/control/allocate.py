@@ -3,7 +3,7 @@ import logging
 
 
 @gen.coroutine
-def allocate(context: 'micro-context', allocation: dict) -> dict:
+def allocate(context: 'micro_context', allocation: dict) -> dict:
     context.authenticated()
     db = context.motor
     result = yield db.allocation_collection.update({"id": allocation["id"]},

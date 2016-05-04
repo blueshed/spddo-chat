@@ -2,7 +2,7 @@ from spddo.subs import model
 from blueshed.micro.orm.orm_utils import serialize
 
 
-def save_group(context: 'micro-context',
+def save_group(context: 'micro_context',
                name: str,
                id: int=None):
     with context.session as session:

@@ -3,7 +3,7 @@ from sqlalchemy.orm import subqueryload
 from spddo.subs.actions.subscribe import sub_to_json
 
 
-def unpaid_subscriptions(context: 'micro-context',
+def unpaid_subscriptions(context: 'micro_context',
                          user_id: int=None,
                          group_id: int=None):
     with context.session as session:

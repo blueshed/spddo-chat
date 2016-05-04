@@ -1,7 +1,7 @@
 from tests.actions import model
 
 
-def login(context: 'micro-context', email: str, password: str) -> dict:
+def login(context: 'micro_context', email: str, password: str) -> dict:
     ''' returns a user object on success '''
     with context.session as session:
         person = session.query(model.User).\

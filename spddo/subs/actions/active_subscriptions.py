@@ -28,7 +28,7 @@ def active_subscriptions_for(session, user_id=None, group_id=None,
     return result
 
 
-def active_subscriptions(context: 'micro-context',
+def active_subscriptions(context: 'micro_context',
                          user_id: int=None,
                          group_id: int=None,
                          on_date: str=None):

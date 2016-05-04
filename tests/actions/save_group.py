@@ -2,7 +2,7 @@ from blueshed.micro.orm.orm_utils import serialize
 from tests.actions import model
 
 
-def save_group(context: 'micro-context',
+def save_group(context: 'micro_context',
                name: str,
                id: int=None):
     '''

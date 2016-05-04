@@ -7,6 +7,9 @@ import datetime
 
 
 class VersionMixin(object):
+    '''
+        Mixin to provide version checking on updates
+    '''
 
     version_id = Column(Integer, nullable=False)
     last_updated = Column(DateTime,

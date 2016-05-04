@@ -2,7 +2,7 @@ from blueshed.micro.orm.orm_utils import serialize
 from tests.actions import model
 
 
-def filter_groups(context: 'micro-context', term='',
+def filter_groups(context: 'micro_context', term='',
                   offset=0, limit=10, id=None):
     '''
         returns a list of groups filtered by

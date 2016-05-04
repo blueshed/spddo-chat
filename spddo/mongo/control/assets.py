@@ -2,7 +2,7 @@ from tornado import gen
 
 
 @gen.coroutine
-def assets(context: 'micro-context') -> list:
+def assets(context: 'micro_context') -> list:
     db = context.motor
     cursor = db.asset_collection.find()
     result = []

@@ -13,7 +13,7 @@ def sub_to_json(sub):
             gen_access_token(sub.service.id, sub.user_id)))
 
 
-def login(context: 'micro-context', email: str, password: str) -> dict:
+def login(context: 'micro_context', email: str, password: str) -> dict:
     ''' returns a list of services to ask for cookies '''
     logging.info("login: %s", email)
     with context.session as session:

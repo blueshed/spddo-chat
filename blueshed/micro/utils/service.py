@@ -33,7 +33,7 @@ class Service(object):
         self.f = f
         self.has_context = None
         for k, v in self.desc.parameters.items():
-            if v.annotation == 'micro-context':
+            if v.annotation == 'micro_context':
                 self.has_context = k
                 break
 

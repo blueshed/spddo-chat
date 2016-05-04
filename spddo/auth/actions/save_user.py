@@ -2,7 +2,7 @@ from spddo.auth import model
 from blueshed.micro.orm.orm_utils import serialize
 
 
-def save_user(context: 'micro-context',
+def save_user(context: 'micro_context',
               user_id: int,
               name: str=None,
               email: str=None,

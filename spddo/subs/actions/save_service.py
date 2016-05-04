@@ -2,7 +2,7 @@ from spddo.subs import model
 from blueshed.micro.orm.orm_utils import serialize
 
 
-def save_service(context: 'micro-context',
+def save_service(context: 'micro_context',
                  name: str,
                  description: str,
                  cost: float,

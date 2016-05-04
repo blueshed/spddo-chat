@@ -1,6 +1,6 @@
 
 
-def chat(context: 'micro-context', message: str):
+def chat(context: 'micro_context', message: str):
     ''' will broadcast message to all clients '''
 
     context.broadcast("said", {

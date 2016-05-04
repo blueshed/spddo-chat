@@ -3,7 +3,7 @@ import logging
 
 
 @gen.coroutine
-def unallocate(context: 'micro-context', allocation_id: str) -> list:
+def unallocate(context: 'micro_context', allocation_id: str) -> list:
     context.authenticated()
     db = context.motor
     result = yield db.allocation_collection.remove({'id': allocation_id})

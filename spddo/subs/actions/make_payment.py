@@ -5,7 +5,7 @@ from spddo.subs.model import Payment
 import datetime
 
 
-def make_payment(context: 'micro-context',
+def make_payment(context: 'micro_context',
                  user_id: int=None,
                  group_id: int=None):
     if group_id is not None and user_id is not None:

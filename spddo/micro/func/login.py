@@ -7,7 +7,7 @@ import logging
 from sqlalchemy.exc import IntegrityError
 
 
-def login(context: 'micro-context', email: str, password: str) -> dict:
+def login(context: 'micro_context', email: str, password: str) -> dict:
     ''' returns a user object on success '''
     with context.session as session:
         person = session.query(model.Person).\
@@ -26,7 +26,7 @@ def login(context: 'micro-context', email: str, password: str) -> dict:
         return user
 
 
-def forgotten_password(context: 'micro-context', email: str) -> dict:
+def forgotten_password(context: 'micro_context', email: str) -> dict:
     ''' emails your password to you '''
     with context.session as session:
         person = session.query(model.Person).filter_by(email=email).first()
@@ -47,7 +47,7 @@ def forgotten_password(context: 'micro-context', email: str) -> dict:
         return "email sent."
 
 
-def register(context: 'micro-context', email: str, password: str) -> dict:
+def register(context: 'micro_context', email: str, password: str) -> dict:
     ''' register your email and password to be able to login '''
     with context.session as session:
         try:

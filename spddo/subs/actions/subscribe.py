@@ -10,7 +10,7 @@ def sub_to_json(o):
     return result
 
 
-def subscribe(context: 'micro-context',
+def subscribe(context: 'micro_context',
               user_id: int,
               group_id: int,
               service_id: int):
