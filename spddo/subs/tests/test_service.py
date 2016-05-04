@@ -18,6 +18,7 @@ def test_create_service(context):
 def test_update_service(context):
     service = save_service(
         context, "service 1a", "a testing service!", 11.5, 364, id=1)
+    print(service)
     assert service['id'] is 1
     assert service['cost'] == 11.5
     assert service['duration'] == 364

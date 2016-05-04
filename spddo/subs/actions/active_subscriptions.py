@@ -1,6 +1,6 @@
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy.orm import subqueryload
-from blueshed.micro.utils.utils import parse_date
+from blueshed.micro.utils.date_utils import parse_date
 from spddo.subs.actions.subscribe import sub_to_json
 from spddo.subs import model
 import datetime

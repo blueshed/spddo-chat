@@ -17,8 +17,10 @@ def save_service(context: 'micro_context',
             service.description = description
             service.cost = cost
             service.duration = duration
-            service.token_url = token_url
-            service.cors = cors
+            if token_url:
+                service.token_url = token_url
+            if cors:
+                service.cors = cors
             signal = "service-changed"
         else:
             service = model.Service(name=name,
