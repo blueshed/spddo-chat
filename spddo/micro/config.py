@@ -37,7 +37,7 @@ define("CORS_URLS",
        help="access from where")
 
 define("WS_URL",
-       default="ws://localhost:8080/websocket",
+       default="",
        help="restict connection from single source")
 
 define("LOG_FORMAT",
