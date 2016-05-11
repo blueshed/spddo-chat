@@ -1,16 +1,13 @@
 from pkg_resources import resource_filename  # @UnresolvedImport
 
-from tornado.options import parse_command_line, define, options
-import tornado.autoreload
+from sqlalchemy.exc import IntegrityError
+from tornado.options import options
 import tornado.ioloop
 import tornado.web
 import logging
-import dotenv
-import os
 
-from concurrent.futures.process import ProcessPoolExecutor
 from blueshed.micro.orm import db_connection
-from blueshed.micro.utils import executor
+from blueshed.micro.utils.executor import pool_init_processes
 from blueshed.micro.utils.service import Service
 from blueshed.micro.orm.orm_utils import heroku_db_url, create_all, Base
 from blueshed.micro.utils.utils import url_to_ws_origins
@@ -19,37 +16,41 @@ from blueshed.micro.web.rpc_websocket import RpcWebsocket
 from blueshed.micro.web.rpc_handler import RpcHandler
 from blueshed.micro.queue.pika_topic import PikaTopic
 
+
 from spddo.micro.func.context import Context
 from spddo.micro.api_page_handler import ApiPageHandler
 from spddo.micro.index_handler import IndexHandler
-import spddo.micro.func
-
-from sqlalchemy.exc import IntegrityError
 from spddo.micro.func import model
-
-define('debug', False, bool, help='run in debug mode')
-define("db_url",
-       default='mysql://root:root@localhost:8889/test',
-       help="database url")
-define("db_pool_recycle", 60, int,
-       help="how many seconds to recycle db connection")
-define("proc_pool_size", 0, int,
-       help="how processes in the pool")
+from spddo.micro import config
+import spddo.micro.func
 
 
 def make_app():
-    http_origins = os.getenv("CORS_URLS",
-                             ",".join([
-                                      "http://localhost:8080",
-                                      "http://petermac.local:8080",
-                                      "https://spddo-chat.herokuapp.com"
-                                      ])).split(",")
+    http_origins = options.CORS_URLS
     ws_origins = [url_to_ws_origins(u) for u in http_origins]
+    handlers = [
+        (r"/api(.*)", RpcHandler, {'http_origins': http_origins,
+                                   'ws_url': options.WS_URL}),
+        (r"/websocket", RpcWebsocket, {'ws_origins': ws_origins}),
+        (r"/logout", LogoutHandler),
+        (r"/api.html", ApiPageHandler),
+        (r"/", IndexHandler),
+    ]
 
-    db_url = heroku_db_url(os.getenv("CLEARDB_DATABASE_URL",
-                                     options.db_url))
+    settings = {
+        'services': Service.describe(spddo.micro.func),
+        'micro_context': Context,
+        'cookie_name': 'micro-session',
+        'cookie_secret': '-it-was-a-dark-and-spddo-chat-night-',
+        'template_path': resource_filename('spddo.micro', "templates"),
+        'allow_exception_messages': options.DEBUG,
+        'gzip': True,
+        'debug': options.DEBUG
+    }
+
+    db_url = heroku_db_url(options.CLEARDB_DATABASE_URL)
     db_connection.db_init(db_url)
-    if options.debug:
+    if options.DEBUG:
         create_all(Base, db_connection._engine_)
         with db_connection.session() as session:
             try:
@@ -59,61 +60,34 @@ def make_app():
             except IntegrityError:
                 session.rollback()
 
-    pool_size = int(os.getenv("POOL_SIZE", options.proc_pool_size))
-    if pool_size:
-        micro_pool = ProcessPoolExecutor(pool_size)
-        executor.pool_init(micro_pool)
-        logging.info("process pool {}".format(pool_size))
-        if options.debug:
-            tornado.autoreload.add_reload_hook(micro_pool.shutdown)
+    if options.PROC_POOL_SIZE:
+        pool_init_processes(options.PROC_POOL_SIZE,
+                            options.DEBUG)
 
-    amqp_url = os.getenv("CLOUDAMQP_URL", '')
-    if amqp_url:
-        queue = PikaTopic(amqp_url,
+    if options.CLOUDAMQP_URL:
+        queue = PikaTopic(options.CLOUDAMQP_URL,
                           RpcWebsocket.async_broadcast,
                           'micro-chat')
         queue.connect()
-        logging.info("broadcast_queue {}".format(amqp_url))
-    else:
-        queue = None
+        settings["broadcast_queue"] = queue
+        logging.info("broadcast_queue %s", options.CLOUDAMQP_URL)
 
     spddo.micro.func.cache.init_mc()
 
-    template_path = resource_filename('spddo.micro', "templates")
-
-    return tornado.web.Application([
-        (r"/api(.*)", RpcHandler, {'http_origins': http_origins,
-                                   'ws_url': os.getenv('ws_url', 'ws://localhost:8080/websocket')}),
-        (r"/websocket", RpcWebsocket, {'ws_origins': ws_origins}),
-        (r"/logout", LogoutHandler),
-        (r"/api.html", ApiPageHandler),
-        (r"/", IndexHandler),
-    ],
-        services=Service.describe(spddo.micro.func),
-        broadcast_queue=queue,
-        micro_context=Context,
-        cookie_name='micro-session',
-        cookie_secret='-it-was-a-dark-and-spddo-chat-night-',
-        template_path=template_path,
-        allow_exception_messages=options.debug,
-        gzip=True,
-        debug=options.debug)
+    return tornado.web.Application(handlers, **settings)
 
 
 def main():
+    config.load_config(".env")
     logging.basicConfig(level=logging.INFO,
-                        format="[%(levelname)1.1s %(asctime)s %(process)d %(thread)x  %(module)s:%(lineno)d] %(message)s")
-    parse_command_line()
-    if os.path.isfile('.env'):
-        dotenv.load_dotenv('.env')
+                        format=options.LOG_FORMAT)
 
-    logging.getLogger("micro.utils.service").setLevel(logging.WARN)
-    logging.getLogger("micro.utils.pika_tool").setLevel(logging.WARN)
-    port = int(os.getenv("PORT", 8080))
+    logging.getLogger("blueshed.micro.utils.service").setLevel(logging.WARN)
+    logging.getLogger("blueshed.micro.utils.pika_tool").setLevel(logging.WARN)
     app = make_app()
-    app.listen(port)
-    logging.info("listening on port {}".format(port))
-    if options.debug:
+    app.listen(options.PORT)
+    logging.info("listening on port %s", options.PORT)
+    if options.DEBUG:
         logging.info('running in debug mode')
     tornado.ioloop.PeriodicCallback(
         RpcWebsocket.keep_alive, 30000).start()

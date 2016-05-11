@@ -1,5 +1,5 @@
 import tmpl from "./main.html!text"
-import './main.css!'
+import './main.less!'
 import Vue from 'vue'
 import MapPanel from 'components/map-panel/main'
 

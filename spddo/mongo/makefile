@@ -1,7 +1,7 @@
 build:
 	- rm -rf dist
 	mkdir dist
-	jspm bundle appl/main dist/appl.js
+	./node_modules/.bin/jspm bundle appl/main dist/appl.js
 	./node_modules/.bin/uglifyjs dist/appl.js -o dist/appl.min.js
 	./node_modules/.bin/html-dist --config html-dist.config.js --input index.html
 	mkdir -p dist/jspm_packages/github/twbs/"bootstrap@3.3.6"/fonts
@@ -12,4 +12,4 @@ build:
 	cp favicon.ico dist/
 	cp config.js dist/
 	cat dist/config.js dist/appl.min.js > dist/core.min.js
-	jspm unbundle
+	./node_modules/.bin/jspm unbundle
