@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ToDo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="site.css">
+  </head>
+  <body>
+  	<div class="main" v-cloak>
+  		<template id="todo-list">  		
+	  		<div>
+		  		<form @submit.prevent="save_todo" class="add-todo" v-if="todo_id">
+		  			<label>to do:</label><input type="text" v-model="todo_description" /><br/>
+		  			<small class="muted">{{ todo_created | moment }} - {{ todo_done | moment }}</small>
+		  			<p>
+			  			<button type="submit" :disabled="!todo_description">
+	  						<i class="fa fa-eraser"></i>
+			  				cancel
+			  			</button>
+			  			<button type="submit" :disabled="!todo_description">
+	  						<i class="fa fa-save"></i>
+			  				save
+			  			</button>
+			  			<button type="button" v-show="!todo_done" @click.prevent="done_todo" :disabled="!todo_description">
+	  						<i class="fa fa-check"></i>
+			  				done
+			  			</button>
+			  			<button type="button" v-show="todo_done" @click.prevent="not_done_todo" :disabled="!todo_description">
+	  						<i class="fa fa-close"></i>
+			  				not done
+			  			</button>
+		  			</p>
+		  		</form>
+		  		<form @submit.prevent="add_todo" class="add-todo" v-else>
+		  			<label>to do:</label><input type="text" v-model="todo_description" />
+		  			<button type="submit" :disabled="!todo_description">
+		  				<i class="fa fa-plus"></i>
+		  				add
+		  			</button>
+		  		</form>
+		  		<ul class="list-todo">
+		  			<li v-for="item in todos">
+		  				<a href="#" @click.prevent="edit_todo(item)">
+		  					{{ item.description }}</a>
+		  				<br/>
+		  				<small class="muted">{{ item.created | moment }} - {{ item.done | moment }}</small>
+		  			</li>
+		  		</ul>
+	  		</div>
+  		</template>					  			  
+  		<div v-if="user" class="logged-in pull-right">
+  			logged in as: <strong>{{ user.email }}</strong><br/>
+  			<a href="/logout">
+  				<i class="fa fa-sign-out"></i>
+  				logout
+  			</a>
+  		</div>
+  		<i class="clearfix pull-right status-icon fa" 
+  		 	:class="{'fa-battery-full':status == 'open',
+					 'fa-battery-empty':status != 'open'}"></i>
+  		<h1><i class="fa fa-archive"></i> {{ title }}</h1>
+  		<div class="error clearfix" v-if="error">
+  			<button class="pull-right" href="#" @click.prevent="error=null">clear</button>
+  			error: {{{ error }}}
+  		</div>
+  		<form @submit.prevent="login" v-if="!user" class="log-in">
+  			<label>email</label><input type="text" v-model="email" placeholder="email" />
+  			<label>password</label><input type="password" v-model="password" placeholder="password" />
+  			<button type="submit">
+  				<i class="fa fa-sign-in"></i>
+  				login
+  			</button>
+  		</form>
+  		<todo-list v-if="user"></todo-list>
+  	</div>
+    <script src="bower_components/moment/moment.js" type="text/javascript"></script>
+    <script src="bower_components/vue/dist/vue.js" type="text/javascript"></script>
+    <script src="bower_components/vuex/dist/vuex.js" type="text/javascript"></script>
+	<script src="/api.js" type="text/javascript"></script>
+	<script src="store.js" type="text/javascript"></script>
+	<script src="site.js" type="text/javascript"></script>
+  </body>
+</html>

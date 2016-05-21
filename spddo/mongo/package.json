@@ -9,7 +9,8 @@
       "less.js": "github:distros/less@^2.4.0",
       "moment": "npm:moment@^2.13.0",
       "text": "github:systemjs/plugin-text@^0.0.7",
-      "vue": "npm:vue@^1.0.21"
+      "vue": "npm:vue@^1.0.24",
+      "vuex": "npm:vuex@^0.6.3"
     },
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",

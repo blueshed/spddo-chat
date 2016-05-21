@@ -1,0 +1,47 @@
+.main{
+	margin: 2em 4em;
+}
+
+.pull-right{
+	float: right;
+}
+
+.clearfix {
+  clear: both;
+}
+
+.error{
+	background: red;
+	color: white;
+	border-radius: 6px;
+	padding: 6px;
+	margin: 6px;
+}
+
+.log-in, .logged-in, .add-todo{
+	margin-bottom: 10px;
+}
+
+.logged-in{
+	text-align: right;
+}
+
+[v-cloak]{
+	display: none;
+}
+
+label{
+	margin-right: 6px;
+}
+
+.muted{
+	color: #999;
+}
+
+.status-icon.fa-battery-full{
+	color: green;
+}
+
+.status-icon.fa-battery-empty{
+	color: red;
+}

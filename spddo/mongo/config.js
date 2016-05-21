@@ -26,7 +26,8 @@ System.config({
     "less.js": "github:distros/less@2.4.0",
     "moment": "npm:moment@2.13.0",
     "text": "github:systemjs/plugin-text@0.0.7",
-    "vue": "npm:vue@1.0.21",
+    "vue": "npm:vue@1.0.24",
+    "vuex": "npm:vuex@0.6.3",
     "github:aaike/jspm-less-plugin@0.0.5": {
       "less.js": "github:distros/less@2.4.0"
     },
@@ -57,7 +58,7 @@ System.config({
       "path-browserify": "npm:path-browserify@0.0.0"
     },
     "github:jspm/nodelibs-process@0.1.2": {
-      "process": "npm:process@0.11.2"
+      "process": "npm:process@0.11.3"
     },
     "github:jspm/nodelibs-stream@0.1.0": {
       "stream-browserify": "npm:stream-browserify@1.0.0"
@@ -156,13 +157,13 @@ System.config({
     "npm:path-browserify@0.0.0": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:process@0.11.2": {
+    "npm:process@0.11.3": {
       "assert": "github:jspm/nodelibs-assert@0.1.0"
     },
     "npm:punycode@1.3.2": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:readable-stream@1.0.34": {
+    "npm:readable-stream@1.1.14": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
       "core-util-is": "npm:core-util-is@1.0.2",
       "events": "github:jspm/nodelibs-events@0.1.1",
@@ -185,7 +186,7 @@ System.config({
     "npm:stream-browserify@1.0.0": {
       "events": "github:jspm/nodelibs-events@0.1.1",
       "inherits": "npm:inherits@2.0.1",
-      "readable-stream": "npm:readable-stream@1.0.34"
+      "readable-stream": "npm:readable-stream@1.1.14"
     },
     "npm:string_decoder@0.10.31": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0"
@@ -204,7 +205,7 @@ System.config({
       "inherits": "npm:inherits@2.0.1",
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:vue@1.0.21": {
+    "npm:vue@1.0.24": {
       "envify": "npm:envify@3.4.0",
       "process": "github:jspm/nodelibs-process@0.1.2"
     }

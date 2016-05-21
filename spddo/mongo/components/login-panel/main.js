@@ -15,7 +15,9 @@ export default Vue.extend({
 		login: function(){
 			this.control.login(this.email, this.password).
 				then(function(user){
-					this.user = user;
+					this.email = null;
+					this.password = null;
+					this.error = null;
 				}.bind(this)).
 				catch(function(err){
 					this.error = err.message;

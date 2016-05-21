@@ -1,4 +1,5 @@
 from tornado import gen
+from spddo.mongo.control.signals import ASSET_CHANGED, ASSET_ADDED
 
 
 @gen.coroutine
@@ -14,8 +15,8 @@ def save_asset(context: 'micro_context', asset: dict) -> dict:
         raise Exception(result)
 
     if result.get('updatedExisting') is True:
-        context.broadcast("asset-changed", asset)
+        context.broadcast(ASSET_CHANGED, asset)
     else:
         asset["_id"] = result.get('upserted')
-        context.broadcast("asset-added", asset)
+        context.broadcast(ASSET_ADDED, asset)
     return str(result)

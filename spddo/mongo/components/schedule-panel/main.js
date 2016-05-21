@@ -15,8 +15,6 @@ export default Vue.extend({
 	data(){
 		return {
 			title: '-',
-			assets: null,
-			allocations: null,
 			view: 'timelineDay'
 		}
 	},
@@ -45,28 +43,10 @@ export default Vue.extend({
 				this.selected_event = values;
 			});
         },
-		load_assets(){
-			return this.control.assets().
-				then((result)=>{
-					this.assets = result.map((item)=>{
-						return {
-							_id: item._id,
-							id: item.id,
-							title: item.name,
-							location: item.location,
-							type: item.type,
-							gorup_id: item.group_id
-						};
-					});
-				}).
-				catch((err)=>{
-					this.$root.error = err.message;
-				});
-		},
 		load_allocations(start, end, timezone, callback){
 			this.control.allocations(start.unix(), end.unix()).
 				then((result)=>{
-					this.allocations = result.map((item)=>{
+					this.$store.dispatch("SET_ALLOCATIONS", result.map((item)=>{
 						return {
 							_id: item._id,
 							id: item.id,
@@ -75,8 +55,28 @@ export default Vue.extend({
 							end: moment.unix(item.to_date),
 							resourceId: item.asset_id
 						}
-					});
+					}));
 					callback(this.allocations);
+				}).
+				catch((err)=>{
+					this.$root.error = err.message;
+				});
+		},
+		load_assets(){
+			return this.control.assets().
+				then((result)=>{
+					this.$store.dispatch(
+							"SET_ASSETS",
+							result.map((item)=>{
+						return {
+							_id: item._id,
+							id: item.id,
+							title: item.name,
+							location: item.location,
+							type: item.type,
+							gorup_id: item.group_id
+						};
+					}));
 				}).
 				catch((err)=>{
 					this.$root.error = err.message;
@@ -215,40 +215,23 @@ export default Vue.extend({
         }
 	},
 	events:{
-		"asset-added": function(asset){
-			var item = {
-				_id: asset._id,
-				id: asset.id,
-				title: asset.name,
-				location: asset.location,
-				type: asset.type,
-				group_id: asset.group_id
-			};
-			this.assets.push(item);
+		ASSET_ADDED(asset){
+			var item = this.assets.find(item=>item.id==asset.id);
 			this._cal.fullCalendar("addResource", item);
 		},
-		"asset-changed": function(asset){
-			var resource = this.assets.find((item)=>{
-				return item.id == asset.id;
-			});
-			if(resource){
-				resource._id = asset._id;
-				resource.title = asset.name;
-				resource.location = asset.location;
-				resource.type = asset.type;
-				resource.group_id = asset.group_id;
-				this._cal.fullCalendar("refetchResources");
-			}
+		ASSET_CHANGED(asset){
+			this._cal.fullCalendar("refetchResources");
 		},
-		"allocation-added": function(allocation){
+		ALLOCATION_ADDED(allocation){
 			this._cal.fullCalendar("refetchEvents");
 		},
-		"allocation-removed": function(allocation_id){
+		ALLOCATION_REMOVED(allocation_id){
 			this._cal.fullCalendar( 'removeEvents', (item)=>{
 				return item.id == allocation_id;
 			});
 		},
-		"allocation-changed": function(allocation){
+		ALLOCATION_CHANGED(alloc){
+			var allocation = this.allocations.find(item=>item.id==alloc.id)
 			var events = this._cal.fullCalendar( 'clientEvents', (item)=>{
 				return item.id == allocation.id;
 			});
@@ -269,6 +252,16 @@ export default Vue.extend({
 					})
 				}
 			}			
+		}
+	},
+	vuex: {
+		getters: {
+		    allocations(state) {
+		    	return state.allocations
+		    },
+		    assets(state){
+		    	return state.assets
+		    }
 		}
 	},
 	watch:{

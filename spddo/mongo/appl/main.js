@@ -7,6 +7,7 @@ import tmpl from "./main.html!text"
 import Vue from 'vue'
 import $ from 'jquery'
 import bootstrap from 'bootstrap'
+import store from "./store"
 
 import LoginPanel from "components/login-panel/main"
 import ErrorPanel from "components/error-panel/main"
@@ -27,11 +28,11 @@ System.import('/api.js').then(({Control})=>{
 
 	new Vue({
 		el: ".main",
+		store: store,
 		template: tmpl,
 		data:{
 			status: null,
 			error: null,
-			user: null,
 			selected_event: null,
 			selected_asset: null
 		},
@@ -43,8 +44,10 @@ System.import('/api.js').then(({Control})=>{
 			'asset-editor': AssetEditor
 		},
 		created(){
-			this.user = this.control.user;
+			this.$store.dispatch("MICRO_COOKIE_SET", 
+					this.control._user);
 			this.control.init((signal, message)=>{
+					this.$store.dispatch(signal, message);
 					this.$dispatch(signal, message);
 					this.$broadcast(signal, message);
 				}).
@@ -64,6 +67,13 @@ System.import('/api.js').then(({Control})=>{
 						type: 'area'
 					}
 				});
+			}
+		},
+		vuex: {
+			getters: {
+			    user(state) {
+			    	return state.user
+			    }
 			}
 		}
 	});
